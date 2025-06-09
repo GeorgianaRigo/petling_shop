@@ -8,10 +8,10 @@ wp-content/cache/
 wp-content/upgrade/
 
 # Αγνόησε όλα τα plugins
-#wp-content/plugins/*
+wp-content/plugins/*
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
-!wp-content/plugins/elementor/
+!wp-content/plugins/elementor-pro/
 !wp-content/plugins/elementor-pro/**
 
 
