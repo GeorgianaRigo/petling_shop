@@ -1,0 +1,205 @@
+// Rules that apply to every admin page.
+
+body {
+	// Class for when the theme has not been verified.
+	&.vamtam-not-verified {
+		// Hide tgmpa notices.
+		#setting-error-tgmpa {
+			display: none;
+		}
+
+		// Hide some VamTam submenu items.
+		#adminmenu {
+			#toplevel_page_vamtam_theme_setup {
+				ul {
+					li:nth-child(3),
+					li:nth-child(4) {
+						display: none;
+					}
+				}
+			}
+		}
+	}
+
+	// woo smart wishlist - hide unsupported parts
+	a.nav-tab[href*="wpclever-kit"],
+	.wpclever-notice.notice {
+		display: none;
+	}
+
+	.wpclever_settings_page_nav {
+		a[href*="tab=premium"] {
+			display: none;
+		}
+	}
+	#adminmenu {
+
+		a[href="admin.php?page=vamtam_theme_services"] {
+			display: flex;
+			align-items: center;
+			flex-wrap: nowrap;
+
+			#vamtam-premium-services {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-wrap: nowrap;
+				color: white;
+				fill: white;
+				background-color: #6a51f2;
+				font-size: 12px;
+				font-weight: 600;
+				padding: 4px 10px;
+				margin-left: 5px;
+				border-radius: 5px;
+				svg {
+					width: 1em;
+					height: 1em;
+					margin-right: 5px;
+				}
+			}
+		}
+	}
+
+	.notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) {
+		display: flex;
+		position: relative;
+		padding: 0;
+		box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+		border: 1px solid #ccd0d4;
+		margin-left: 4px !important;
+
+		&::before {
+			display: block;
+			content: "";
+			position: absolute;
+			inset-inline-start: -4px;
+			inset-block-start: -1px;
+			inset-block-end: -1px;
+			width: 4px;
+			background-color: #dba617;
+		}
+
+		&.warning {
+			&::before {
+				background-color: #d63638;
+			}
+
+			.vamtam-notice-aside {
+				background-color: #FFEAEB;
+			}
+		}
+
+		&.cta {
+			&::before {
+				background-color: #6a51f2;
+			}
+			.btn-cta {
+				color: white;
+				background-color: #6a51f2;
+				padding: 8px 20px;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 18px;
+
+				+ a {
+					margin-left: 10px;
+				}
+			}
+		}
+
+		#vamtam-logo {
+			width: 1em;
+			height: 1em;
+			font-size: 25px;
+		}
+
+		.vamtam-notice-aside {
+			overflow: hidden;
+			background-color: rgba(82,76,255,0.04);
+			width: 50px;
+			text-align: center;
+			-webkit-padding-before: 15px;
+			padding-block-start: 15px;
+			flex-grow: 0;
+			flex-shrink: 0;
+		}
+
+		.vamtam-notice-content {
+			color: #3C434E;
+			padding: 20px;
+			h2, h3 {
+				margin: 0;
+			}
+			:last-child {
+				margin-bottom: 0;
+			}
+			h2 {
+				font-size: 1.45em;
+			}
+		}
+
+		.notice-dismiss::before {
+			content: "\f335";
+			font-size: 24px;
+		}
+
+	}
+	#vamtam-check-license-result .vamtam-notice-content {
+		flex: 1;
+	}
+
+	// Plugin update warning styles
+	.update-message {
+		.vamtam-update-warning__separator {
+			border: 1px solid #ffb900;
+			margin: 15px -12px;
+		}
+		.vamtam-update-warning {
+			margin-block-end: 5px;
+			max-width: 1000px;
+			display: flex;
+		}
+		.vamtam-update-warning__icon {
+			font-size: 17px;
+			margin-inline-end: 9px;
+			margin-inline-start: 2px;
+			color: #f56e28;
+		}
+		.vamtam-update-warning__title p,
+		.vamtam-update-warning__message p,
+		.vamtam-update-warning ~ p {
+			&::before {
+				display: none;
+			}
+		}
+		.vamtam-update-warning__message > div {
+			margin: .5em 0;
+		}
+		> p:not(:first-of-type) {
+			&::before {
+				display: none;
+			}
+		}
+		.vamtam-update-warning__title {
+			font-weight: 600;
+			margin-block-end: 10px;
+		}
+		a.button-primary {
+			text-decoration: none;
+		}
+		a.vamtam-update-btn {
+			margin: 0 0 10px 26px;
+		}
+	}
+
+	.vamtam-diagnostics-notice {
+		table {
+			margin-top: 20px;
+
+			td {
+				padding-right: 20px;
+			}
+		}
+	}
+}

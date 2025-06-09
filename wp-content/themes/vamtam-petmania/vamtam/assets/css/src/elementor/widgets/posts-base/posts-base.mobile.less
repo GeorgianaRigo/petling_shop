@@ -1,0 +1,12 @@
+// Posts / Archive Posts - Mobile.
+
+// Theme-dependant.
+.posts-base-mobile() {
+
+	&[data-widget_type="posts.vamtam_classic"],
+	&[data-widget_type="archive-posts.vamtam_classic"] {
+		[data-elementor-device-mode="mobile"] &:not(.elementor-element-edit-mode).elementor-hidden-mobile {
+			display: none;
+		}
+	}
+}

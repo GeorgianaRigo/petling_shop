@@ -1,0 +1,12 @@
+// Posts / Archive Posts - Tablet.
+
+// Theme-dependant.
+.posts-base-tablet() {
+
+	&[data-widget_type="posts.vamtam_classic"],
+	&[data-widget_type="archive-posts.vamtam_classic"] {
+		[data-elementor-device-mode="tablet"] &:not(.elementor-element-edit-mode).elementor-hidden-tablet {
+			display: none;
+		}
+	}
+}

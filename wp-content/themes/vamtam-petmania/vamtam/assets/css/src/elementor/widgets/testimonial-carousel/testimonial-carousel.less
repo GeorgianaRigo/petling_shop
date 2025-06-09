@@ -1,0 +1,164 @@
+// Testimonial-Carousel.
+.elementor-widget-testimonial-carousel {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		// Make duplicates of slides that were hidden (inner anims, etc) visible.
+		.swiper-slide-duplicate {
+			.elementor-invisible {
+				visibility: visible;
+			}
+		}
+
+		&.vamtam-testimonial-carousel {
+			.swiper-pagination {
+				&.swiper-pagination-bullets {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+
+					height: 100%;
+					width: auto;
+					right: 22px;
+					left: auto;
+					top: 0;
+					bottom: 0;
+
+					.swiper-pagination-bullet {
+						position: relative;
+						margin: 12px 0;
+						background-clip: content-box;
+						box-sizing: content-box;
+						padding: 11px;
+						margin: 0;
+
+						&.swiper-pagination-bullet-active {
+							border: 1px solid var(--vamtam-accent-color-1);
+						}
+
+						&::after {
+							content: "";
+							position: absolute;
+							left: 0;
+							top: 0;
+							width: 30px;
+							height: 30px;
+							background: transparent;
+							z-index: -1;
+							border-radius: 50%;
+						}
+					}
+				}
+			}
+		}
+
+		:is(.swiper-container, .swiper) {
+			transition: opacity .5s ease;
+
+			// Safari-only fix.
+			body.e--ua-safari & {
+				-webkit-backface-visibility: hidden;
+			}
+
+			&:not(.vamtam-imgs-loaded) {
+				opacity: 0;
+			}
+
+			.animated-fast,
+			.animated-slow {
+				opacity: 1;
+				transition: opacity .5s ease;
+			}
+
+			.vamtam-invisible {
+				opacity: 0;
+			}
+		}
+
+		&.vamtam-swiper {
+			.elementor-swiper-button-next {
+				.eicon-chevron-right {
+					&:before {
+						position: absolute;
+						top: 25%;
+						left: 25%;
+						content: '\e901';
+						font-family: 'theme-icons' !important;
+					}
+				}
+			}
+
+			.elementor-swiper-button-prev {
+				.eicon-chevron-left {
+					&:before {
+						position: absolute;
+						top: 25%;
+						left: 25%;
+						content: '\e900';
+						font-family: 'theme-icons' !important;
+					}
+				}
+			}
+
+			.elementor-swiper-button {
+				border: 1px solid var(--vamtam-accent-color-1);
+				border-radius: 100%;
+				transition: all .3s;
+
+				&:hover {
+					border-color: var(--vamtam-accent-color-6);
+					color: var(--vamtam-accent-color-6);
+				}
+			}
+		}
+
+		&.vamtam-slider-pagination {
+			:is(.swiper-container-horizontal, .swiper-horizontal) {
+				>.swiper-pagination-bullets {
+					bottom: 55px;
+				}
+			}
+			.swiper-pagination-bullet {
+				&:not(.swiper-pagination-bullet-active) {
+					border: 1px solid var( --vamtam-accent-color-3);
+				}
+			}
+		}
+
+		&.vamtam-testimonials-slider {
+			.elementor-swiper-button {
+				border: 1px solid var(--vamtam-accent-color-7);
+				border-radius: 18px;
+				padding: 15px;
+				background-color: var(--vamtam-accent-color-5);
+
+				&.elementor-swiper-button-prev .eicon-chevron-left,
+				&.elementor-swiper-button-next .eicon-chevron-right {
+					font-family: 'theme-icons' !important;
+				}
+
+				&.elementor-swiper-button-prev {
+					left: -25px;
+
+					.eicon-chevron-left::before {
+						content: "\e910";
+					}
+				}
+				&.elementor-swiper-button-next {
+					right: -25px;
+
+					.eicon-chevron-right::before {
+						content: "\e90f";
+					}
+				}
+			}
+			.elementor-swiper {
+				.elementor-main-swiper {
+					width: 100%;
+    				border-radius: 18px;
+				}
+			}
+		}
+	}
+}
+

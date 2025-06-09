@@ -1,0 +1,232 @@
+// Advanced AJAX Product Filters for WooCommerce by BeRocket.
+.elementor-widget-wp-widget-berocket_aapf_group {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		&.vamtam-products-filter {
+			.bapf_button.bapf_reset {
+				&:extend(.vamtam-font-primary-font);
+				padding: 0;
+				border: none;
+				background: transparent;
+				text-decoration: underline;
+				color: var(--vamtam-accent-color-3);
+			}
+			.bapf_sfilter {
+				padding-bottom: 15px;
+				border-bottom: 1px solid var(--vamtam-accent-color-7);
+				.bapf_body {
+					.bapf_slidr_all {
+						direction: ltr;
+					}
+
+					ul {
+						li {
+							vertical-align: middle;
+							ul {
+								margin: 10px 0px 20px 6px;
+							}
+							&:last-of-type {
+								ul {
+									margin-bottom: 0;
+								}
+							}
+						}
+					}
+				}
+				ul {
+					li {
+						margin-bottom: 10px !important;
+						&:last-of-type {
+							margin-bottom: 0 !important;
+						}
+					}
+				}
+				.bapf_colaps_smb {
+					font-size: 12px;
+				}
+				.bapf_desci {
+					font-size: 12px;
+				}
+			}
+			.berocket_single_filter_widget {
+				&:last-child {
+					.bapf_sfilter {
+						padding-bottom: 0;
+						border-bottom: none;
+					}
+				}
+				.bapf_sfilter {
+					.bapf_body {
+						ul {
+							padding-inline-start: 0;
+						}
+					}
+				}
+			}
+			h3 {
+				font-family: var(--e-global-typography-vamtam_h5-font-family), Sans-serif;
+				font-size: var( --e-global-typography-8069482-font-size);
+				font-weight: var( --e-global-typography-8069482-font-weight);
+				line-height: var( --e-global-typography-8069482-line-height);
+				letter-spacing: var( --e-global-typography-8069482-letter-spacing);
+				text-transform: var(--e-global-typography-vamtam_h5-text-transform);
+				word-spacing: var( --e-global-typography-8069482-word-spacing);
+				margin-bottom: 0;
+			}
+			.bapf_body {
+				label {
+					font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+					line-height: 1.3em;
+					letter-spacing: var( --e-global-typography-vamtam_primary_font-letter-spacing);
+					word-spacing: var( --e-global-typography-vamtam_primary_font-word-spacing);
+					text-transform: var( --e-global-typography-vamtam_primary_font-text-transform);
+					font-weight: var( --e-global-typography-vamtam_primary_font-font-weight);
+					margin-bottom: -4px;
+				}
+				padding-top: 10px;
+			}
+			.bapf_slidr_main.ui-widget-content {
+				background: var(--vamtam-accent-color-7);
+				margin-left: 8px;
+
+				.ui-slider-range {
+					background-color: var(--vamtam-accent-color-1);
+				}
+
+				.ui-slider-handle {
+					top: -4px;
+					border-radius: 50%;
+					background: var(--vamtam-accent-color-2);
+					width: 12px;
+					height: 12px;
+					border: 1px solid white !important;
+				}
+			}
+			.berocket_filter_price_slider.ui-widget-content {
+				.ui-slider-range {
+					background-color: var( --vamtam-accent-color-1);
+				}
+				background: var(--vamtam-accent-color-7);
+				margin-left: 8px;
+			}
+			.bapf_slidr_all {
+				.bapf_from {
+					text-align: end;
+					font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+					font-size: var( --e-global-typography-75063c5-font-size);
+					line-height: var( --e-global-typography-75063c5-line-height);
+					letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+					word-spacing: var( --e-global-typography-75063c5-word-spacing);
+					text-transform: var( --e-global-typography-75063c5-text-transform);
+					font-weight: var( --e-global-typography-75063c5-font-weight);
+					color: var(--vamtam-accent-color-3) !important;
+					margin-bottom: 0;
+				}
+				.bapf_to {
+					&::before {
+						content: "-";
+					}
+				}
+			}
+			.bapf_slidr_jqrui {
+				.bapf_to {
+					text-align: start;
+					font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+					font-size: var( --e-global-typography-75063c5-font-size);
+					line-height: var( --e-global-typography-75063c5-line-height);
+					letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+					word-spacing: var( --e-global-typography-75063c5-word-spacing);
+					text-transform: var( --e-global-typography-75063c5-text-transform);
+					font-weight: var( --e-global-typography-75063c5-font-weight);
+					color: var(--vamtam-accent-color-3) !important;
+					margin-bottom: 0;
+				}
+			}
+
+			[type="checkbox"] {
+				&:not(:checked)+label {
+					padding-left: 1.8em;
+				}
+				&:checked+label {
+					padding-left: 1.8em;
+				}
+			}
+		}
+
+		&.vamtam-input-fields {
+			[type="checkbox"] {
+				&:not(:checked) {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+					&:focus+label {
+						&:before {
+							box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
+						}
+					}
+				}
+				&:checked {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+					&:focus+label {
+						&:before {
+							box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
+						}
+					}
+				}
+				&:not(:checked)+label,
+				&:checked+label {
+					position: relative;
+					padding-inline-start: 1.8em;
+					cursor: pointer;
+				}
+			}
+			input[type="checkbox"] {
+				&+label {
+					&:before {
+						content: '';
+						position: absolute;
+						inset-inline-start: 0;
+						top: 0;
+						width: 1.3em;
+						height: 1.3em;
+						border-radius: 4px;
+						border: solid 2px var(--vamtam-accent-color-6);
+						background-color: var(--vamtam-accent-color-5);
+						-webkit-transition: all .275s;
+						transition: all .275s;
+					}
+
+					&:after {
+						content: '✔︎';
+						position: absolute;
+						top: .68em;
+						left: .32em;
+						font-size: 0.9em;
+						color: var(--vamtam-accent-color-6);
+						line-height: 0;
+						-webkit-transition: all .2s;
+						transition: all .2s;
+						opacity: 0;
+						-webkit-transform: scale(0);
+						transform: scale(0);
+					}
+				}
+
+				&:checked+label {
+					&:before {
+						background: var(--vamtam-accent-color-6);
+					}
+					&:after {
+						opacity: 1;
+						transform: scale(1);
+						color: var(--vamtam-accent-color-1);
+					}
+				}
+			}
+		}
+	}
+}
+

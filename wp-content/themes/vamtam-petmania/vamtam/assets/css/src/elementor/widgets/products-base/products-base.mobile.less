@@ -1,0 +1,39 @@
+// Products / Archive Products / Product Related / Upsells - Mobile.
+
+// Theme-dependant.
+.products-base-mobile() {
+	// WC Products
+    ul.products li.product:not(.product-category) {
+        &:hover {
+            > a img,
+            .vamtam-product-content,
+            .vamtam-product-content > * {
+                transform: translateY(0);
+            }
+        }
+	}
+
+	.woocommerce-result-count {
+		width: 100%;
+	}
+
+	.woocommerce-ordering {
+		float: left;
+		margin-left: 0;
+	}
+
+	&.elementor-product-loop-item-mobile--align- {
+		&left ul.products li.product .star-rating {
+			margin-right: auto;
+			margin-left: 0;
+		}
+	  	&right ul.products li.product .star-rating {
+			margin-left: auto;
+			margin-right: 0;
+		}
+	  	&center ul.products li.product .star-rating {
+			margin-right: auto;
+			margin-left: auto;
+		}
+	}
+}

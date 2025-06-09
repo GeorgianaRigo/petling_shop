@@ -1,0 +1,421 @@
+// Fibosearch Bar.
+.elementor-widget-wp-widget-dgwt_wcas_ajax_search {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		.dgwt-wcas-sf-wrapp {
+			input[type="search"].dgwt-wcas-search-input {
+				&::placeholder {
+					opacity: .7;
+					font-style: normal;
+				}
+			}
+			input[type=search].dgwt-wcas-search-input {
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+
+		.dgwt-wcas-no-submit {
+			.dgwt-wcas-ico-magnifier {
+				opacity: .7;
+			}
+			.dgwt-wcas-sf-wrapp {
+				input[type="search"].dgwt-wcas-search-input {
+					font-size: var( --e-global-typography-75063c5-font-size);
+				}
+			}
+		}
+
+		.dgwt-wcas-search-wrapp {
+			max-width: 100%;
+
+			.dgwt-wcas-sf-wrapp {
+				input[type=search].dgwt-wcas-search-input {
+					background-color: transparent;
+					border: none;
+					border: 1px solid var( --vamtam-accent-color-7 );
+
+					&:hover {
+						background-color: transparent;
+						border: none;
+						border: 1px solid var( --vamtam-accent-color-7 );
+					}
+					&:focus {
+						background-color: transparent;
+						border: none;
+						border: 1px solid var( --vamtam-accent-color-7 );
+					}
+				}
+			}
+		}
+
+		@media(min-width: 768px) {
+			.dgwt-wcas-no-submit {
+				.dgwt-wcas-ico-magnifier {
+					left: 12px;
+				}
+				.dgwt-wcas-sf-wrapp {
+					input[type=search].dgwt-wcas-search-input {
+						padding-left: 46px;
+						padding-right: 5px;
+						border-radius: 14px;
+					}
+				}
+			}
+
+			.dgwt-wcas-search-wrapp {
+				.dgwt-wcas-sf-wrapp {
+					&::before {
+						position: absolute;
+						top: 2px;
+						left: 2px;
+						font-family: 'theme-icons' !important;
+						line-height: 1;
+						font-size: 36px;
+						color: var(--vamtam-accent-color-2);
+						content: "\e90b";
+					}
+					svg {
+						display: none;
+					}
+				}
+			}
+		}
+	}
+}
+// Suggestions - Rendered as a child of body.
+.dgwt-wcas-suggestions-wrapp {
+	// Base Theme Widget Styles. (Added from JS - VamtamWidgetsHandler.FiboSearchBarWidget)
+	&.vamtam-has-theme-widget-styles {
+		padding: 0 15px;
+		background-color: var(--vamtam-accent-color-5);
+		border: 1px solid var( --vamtam-default-line-color ) !important;
+		border-radius: 0;
+		z-index: 9999999!important;
+
+		.dgwt-wcas-open.dgwt-wcas-nores.dgwt-wcas-details-outside & {
+			border: 1px solid var( --vamtam-default-line-color);
+			border-radius: 0;
+		}
+
+		.dgwt-wcas-st {
+			transition: all .15s ease;
+			font-size: var( --e-global-typography-75063c5-font-size);
+		}
+		a:hover .dgwt-wcas-st {
+			color: inherit;
+		}
+
+		.dgwt-wcas-suggestion {
+			border-color: var(--vamtam-accent-color-7) !important;
+			background-color: var(--vamtam-accent-color-5);
+			padding: 0 0 12px 0;
+			margin: 0 0 12px 0;
+
+			strong {
+				font-weight: var( --e-global-typography-75063c5-font-weight);
+			}
+
+			&:first-of-type {
+				padding-top: 15px !important;
+			}
+
+			&:last-of-type {
+				border-bottom: none;
+			}
+
+			&.dgwt-wcas-suggestion-nores {
+				border-bottom: none;
+				margin: 0;
+				padding-bottom: 15px;
+			}
+
+			&.js-dgwt-wcas-suggestion-more {
+				font-family: var( --e-global-typography-vamtam_h6-font-family), Sans-serif;
+				font-size: var( --e-global-typography-vamtam_h6-font-size);
+				font-weight: var( --e-global-typography-vamtam_h6-font-weight);
+				text-transform: var( --e-global-typography-vamtam_h6-text-transform);
+				line-height: var( --e-global-typography-vamtam_h6-line-height);
+				letter-spacing: var( --e-global-typography-vamtam_h6-letter-spacing);
+				border-bottom: none !important;
+			}
+
+			&.dgwt-wcas-suggestion-more {
+				.dgwt-wcas-st-more {
+					padding: 0;
+				}
+			}
+		}
+
+		.dgwt-wcas-si {
+			img {
+				border: none;
+			}
+		}
+
+		:is(
+			.dgwt-wcas-details-wrapp,
+			.dgwt-wcas-datails-title,
+			.dgwt-wcas-details-more-products
+		) {
+			border-color: var(--vamtam-accent-color-7) !important;
+			background-color: var(--vamtam-accent-color-5);
+		}
+
+		&.dgwt-wcas-has-img {
+			.dgwt-wcas-suggestion.dgwt-wcas-suggestion-product {
+				border-bottom: 1px solid;
+				padding: 10px 0;
+			}
+		}
+
+		.dgwt-wcas-is-details & {
+			&.dgwt-wcas-has-headings {
+				.dgwt-wcas-suggestion.dgwt-wcas-suggestion-tax {
+					border-bottom: 1px solid var( --e-global-color-vamtam_accent_7);
+				}
+			}
+		}
+
+		&.dgwt-wcas-has-headings {
+			.dgwt-wcas-suggestion {
+				border-bottom: 1px solid var( --e-global-color-vamtam_accent_7);
+
+				&:last-of-type {
+					border-bottom: none;
+				}
+			}
+
+			.dgwt-wcas-suggestion-headline {
+				.dgwt-wcas-st {
+					padding-bottom: 12px;
+					border-bottom: none;
+					font-family: var( --e-global-typography-vamtam_h6-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_h6-font-size);
+					font-weight: var( --e-global-typography-vamtam_h6-font-weight);
+					text-transform: var( --e-global-typography-vamtam_h6-text-transform);
+					line-height: var( --e-global-typography-vamtam_h6-line-height);
+					letter-spacing: var( --e-global-typography-vamtam_h6-letter-spacing);
+					margin-bottom: -12px;
+					margin-top: 15px;
+
+					&:first-of-type {
+						margin-top: 0;
+					}
+				}
+			}
+		}
+
+		.dgwt-wcas-sp {
+			font-size: var(--e-global-typography-75063c5-font-size);
+			display: flex;
+			top: 0;
+			flex-direction: column;
+			height: 100%;
+			justify-content: center;
+			resize: vertical;
+		}
+
+		.dgwt-wcas-details-product-sku {
+			margin-bottom: 5px;
+		}
+
+		.dgwt-wcas-suggestion-nores {
+			pointer-events: none;
+			opacity: .6;
+		}
+	}
+}
+// Details - Rendered as a child of body.
+.dgwt-wcas-details-wrapp {
+	// Base Theme Widget Styles. (Added from JS - VamtamWidgetsHandler.FiboSearchBarWidget)
+	&.vamtam-has-theme-widget-styles {
+		border-color: var(--vamtam-accent-color-7) !important;
+		background-color: var( --e-global-color-vamtam_accent_5);
+		border: 1px solid var( --e-global-color-vamtam_accent_7);
+		border-left: none;
+		border-radius: 0;
+		padding: 15px;
+
+		.dgwt-wcas-pd-rating {
+			margin-bottom: 5px;
+		}
+
+		.star-rating {
+			color: var(--vamtam-accent-color-3);
+		}
+
+		.dgwt-wcas-details-right & {
+			&.dgwt-wcas-details-wrapp {
+				border-radius: 0;
+				.dgwt-wcas-details-product-sku {
+					margin-bottom: 5px;
+				}
+			}
+			.dgwt-wcas-details-main-image {
+				img {
+					border-radius: 0;
+					width: 100%;
+				}
+			}
+		}
+
+		.dgwt-wcas-details-outside & {
+			border-right: 1px solid var( --e-global-color-vamtam_accent_7);
+			margin-top: -1px;
+			border-top: 1px solid var( --e-global-color-vamtam_accent_7);
+		}
+
+		.dgwt-wcas-details-inner-taxonomy {
+			margin-top: 0;
+			.dgwt-wcas-datails-title {
+				margin-top: 0;
+				border-bottom: 1px solid;
+				padding-bottom: 10px;
+			}
+		}
+
+		.dgwt-wcas-datails-title {
+			border-color: var(--vamtam-accent-color-7) !important;
+		}
+
+		.dgwt-wcas-details-more-products {
+			border-color: var(--vamtam-accent-color-7) !important;
+		}
+
+		a.dgwt-wcas-details-post-title {
+			font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+			font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+			font-weight: var( --e-global-typography-vamtam_primary_font-font-weight);
+			line-height: var( --e-global-typography-vamtam_primary_font-line-height);
+			margin-top: 10px;
+		}
+
+		a.dgwt-wcas-details-product-title {
+			font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+			font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+			font-weight: var( --e-global-typography-vamtam_primary_font-font-weight);
+			line-height: var( --e-global-typography-vamtam_primary_font-line-height);
+			margin-top: 10px;
+		}
+
+		.dgwt-wcas-pd-price {
+			font-family: var( --e-global-typography-6d96c5f-font-family), Sans-serif;;
+			font-size: var( --e-global-typography-6d96c5f-font-size);
+			font-weight: var( --e-global-typography-6d96c5f-font-weight);
+			line-height: var( --e-global-typography-6d96c5f-line-height);
+			letter-spacing: var( --e-global-typography-6d96c5f-letter-spacing);
+			word-spacing: var( --e-global-typography-6d96c5f-word-spacing);
+			margin-top: 5px;
+		}
+
+		.dgwt-wcas-tpd-price {
+			font-family: var( --e-global-typography-6d96c5f-font-family), Sans-serif;;
+			font-size: var( --e-global-typography-6d96c5f-font-size);
+			font-weight: var( --e-global-typography-6d96c5f-font-weight);
+			line-height: var( --e-global-typography-6d96c5f-line-height);
+			letter-spacing: var( --e-global-typography-6d96c5f-letter-spacing);
+			word-spacing: var( --e-global-typography-6d96c5f-word-spacing);
+			margin-top: 5px;
+		}
+
+		.dgwt-wcas-products-in-cat {
+			.dgwt-wcas-datails-title {
+				.dgwt-wcas-details-title-tax {
+					font-family: var( --e-global-typography-vamtam_h6-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_h6-font-size);
+					font-weight: var( --e-global-typography-vamtam_h6-font-weight);
+					text-transform: var( --e-global-typography-vamtam_h6-text-transform);
+					line-height: var( --e-global-typography-vamtam_h6-line-height);
+					letter-spacing: var( --e-global-typography-vamtam_h6-letter-spacing);
+				}
+				font-size: var( --e-global-typography-vamtam_h6-font-size);
+				font-weight: 600;
+			}
+		}
+
+		.dgwt-wcas-tpd-image {
+			padding: 0;
+			border-radius: 0;
+			border: 1px solid var( --e-global-color-vamtam_accent_7);
+		}
+
+		.dgwt-wcas-tax-product-details {
+			border-bottom: 1px solid var( --e-global-color-vamtam_accent_7);
+			margin: 0;
+			padding: 0 0 12px 0;
+			margin-bottom: 12px;
+			&:last-of-type {
+				border-bottom: none;
+				margin-bottom: 0;
+			}
+			&:hover {
+				box-shadow: none;
+			}
+			.dgwt-wcas-tpd-rest-title {
+				font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+				font-size: var( --e-global-typography-75063c5-font-size);
+				line-height: var( --e-global-typography-75063c5-line-height);
+				letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+				word-spacing: var( --e-global-typography-75063c5-word-spacing);
+				font-weight: var( --e-global-typography-75063c5-font-weight);
+				margin: 0 0 1px 0;
+			}
+			.dgwt-wcas-tpd-price {
+				font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+				font-size: var( --e-global-typography-75063c5-font-size);
+				line-height: var( --e-global-typography-75063c5-line-height);
+				letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+				word-spacing: var( --e-global-typography-75063c5-word-spacing);
+				font-weight: 600;
+				margin-top: 0;
+			}
+			.dgwt-wcas-tpd-rest-title {
+				color: inherit;
+			}
+		}
+
+		.dgwt-wcas-details-space {
+			.dgwt-wcas-details-hr {
+				display: none;
+			}
+			.dgwt-wcas-details-desc {
+				display: none;
+			}
+			.dgwt-wcas-pd-addtc.js-dgwt-wcas-pd-addtc {
+				display: none;
+			}
+			padding: 0;
+		}
+
+		a.dgwt-wcas-details-more-products {
+			font-family: var( --e-global-typography-vamtam_h6-font-family), Sans-serif;
+			font-size: var( --e-global-typography-vamtam_h6-font-size);
+			font-weight: var( --e-global-typography-vamtam_h6-font-weight);
+			text-transform: var( --e-global-typography-vamtam_h6-text-transform);
+			line-height: var( --e-global-typography-vamtam_h6-line-height);
+			letter-spacing: var( --e-global-typography-vamtam_h6-letter-spacing);
+		}
+
+		.dgwt-wcas-details-inner {
+			.dgwt-wcas-products-in-cat {
+				a.dgwt-wcas-details-more-products {
+					font-family: var( --e-global-typography-vamtam_h6-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_h6-font-size);
+					font-weight: var( --e-global-typography-vamtam_h6-font-weight);
+					text-transform: var( --e-global-typography-vamtam_h6-text-transform);
+					line-height: var( --e-global-typography-vamtam_h6-line-height);
+					letter-spacing: var( --e-global-typography-vamtam_h6-letter-spacing);
+				}
+			}
+		}
+	}
+}
+
+.vamtam-fibo-search.dialog-type-lightbox {
+	.dialog-message {
+		min-height: 40px;
+	}
+}
+

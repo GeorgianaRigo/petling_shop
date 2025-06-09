@@ -1,0 +1,125 @@
+.elementor-widget.vamtam-has-theme-widget-styles {
+	&.vamtam-has-hr-layout {
+		:is( ul.products, .elementor-posts-container ) {
+			--scroller-padding: 20px;
+			--col-size: calc((100% / var(--vamtam-cols)) - var(--vamtam-col-gap, var(--grid-column-gap)) - calc(var(--vamtam-col-hint) / var(--vamtam-cols)));
+			grid-auto-flow: column;
+			grid-template-columns: var(--col-size);
+			grid-auto-columns: var(--col-size);
+			overflow-x: auto;
+			overflow-y: hidden;
+			padding-bottom: var(--scroller-padding);
+			scroll-behavior: smooth;
+
+			// Chrome\Edge fix
+			:is(.e--ua-chrome, .e--ua-edge) & {
+				width: calc(100% + 2px); // Issue: https://github.com/veniko/petopia/issues/15#issuecomment-1239360647
+			}
+		}
+
+		&.vamtam-has-nav {
+			user-select: none;
+
+			.vamtam-nav {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				pointer-events: none;
+				opacity: 0;
+				transition: opacity .7s ease;
+			}
+
+			.vamtam-nav-btn {
+				cursor: pointer;
+				pointer-events: all;
+				position: absolute;
+				display: inline-block;
+				height: 60px;
+				width: 60px;
+				top: 50%;
+				transform: translateY(-50%);
+				background-color: var(--vamtam-accent-color-5);
+				border: 1px solid var(--vamtam-accent-color-7);
+				border-radius: 18px;
+				opacity: 1;
+				transition: opacity .15s ease;
+
+				display: flex;
+				flex-flow: column nowrap;
+				align-content: center;
+				justify-content: center;
+
+				&.vamtam-nav-btn-prev {
+					left: -30px;
+
+					.vamtam-theme-arrow-left {
+						&::before {
+							content: "\e901";
+						}
+					}
+				}
+
+				&.vamtam-nav-btn-next {
+					right: -30px;
+
+					.vamtam-theme-arrow-right {
+						&::before {
+							content: "\e902";
+						}
+					}
+				}
+
+				i {
+					pointer-events: none;
+					text-align: center;
+					font-size: 18px;
+					font-weight: normal;
+				}
+			}
+
+			&:hover {
+				.vamtam-nav {
+					opacity: 1;
+				}
+
+				.vamtam-nav-btn {
+					opacity: 1;
+
+					&.disabled {
+						opacity: 1;
+					}
+				}
+			}
+		}
+
+		// Touch devices (and others with reduced pointer accuracy).
+		@media (pointer:coarse) {
+
+			// No navigation on touch devices. They can scroll by touch & drag.
+			&.vamtam-has-nav {
+				.vamtam-nav {
+					display: none;
+				}
+			}
+		}
+	}
+}
+
+.elementor-widget.vamtam-has-theme-widget-styles.vamtam-has-hr-layout.vamtam-has-nav {
+	.vamtam-nav-btn.vamtam-nav-btn-prev {
+		.vamtam-theme-arrow-left {
+			&::before {
+				content: "\e910";
+			}
+		}
+	}
+	.vamtam-nav-btn.vamtam-nav-btn-next {
+		.vamtam-theme-arrow-right {
+			&::before {
+				content: "\e90f";
+			}
+		}
+	}
+}

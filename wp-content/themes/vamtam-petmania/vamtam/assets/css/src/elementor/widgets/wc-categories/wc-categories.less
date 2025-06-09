@@ -1,0 +1,54 @@
+// Product Categories.
+.elementor-widget-wc-categories {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+
+		ul li.product {
+			.vamtam-product-cat-thumb-wrap {
+				// overflow: hidden;
+				margin-bottom: var(--vamtam-img-spacing, 20px);
+				border-radius: var(--vamtam-img-border-radius);
+			}
+
+			.woocommerce-loop-category__title {
+				.count {
+					display: none;
+				}
+
+				text-decoration: underline solid transparent;
+				text-underline-offset: 2px;
+				text-decoration-thickness: 1px;
+				  transition: text-decoration-color 1s ease;
+
+				&:hover {
+					text-decoration-color: currentColor;
+				}
+			}
+
+			img {
+				transition: transform .3s ease;
+			}
+		}
+
+		.product-category {
+			.woocommerce-loop-category__title {
+				mark {
+					display: none;
+				}
+			}
+		}
+
+		.woocommerce {
+			.products {
+				.product-category.product {
+					img {
+						margin: 0;
+					}
+					.woocommerce-loop-category__title {
+						padding-top: 0px;
+					}
+				}
+			}
+		}
+	}
+}

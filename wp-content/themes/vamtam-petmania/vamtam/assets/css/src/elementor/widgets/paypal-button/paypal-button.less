@@ -1,0 +1,40 @@
+@import '../woosw/woosw.less';
+
+// Paypal Button.
+.elementor-widget-paypal-button {
+	&.vamtam-has-theme-widget-styles {
+
+		.woocommerce div.product.elementor & {
+			.elementor-widget-container {
+				display: flex;
+
+				.elementor-button-wrapper {
+					width: calc(100% - 70px);
+					margin-right: 20px;
+					flex-grow: 1;
+				}
+			}
+		}
+
+		.cart {
+			button {
+				&.woosw-added {
+					background-color: transparent;
+					color: var(--vamtam-accent-color-2);
+				}
+
+				&.woosw-btn {
+					background-color: transparent;
+					color: var(--vamtam-accent-color-1);
+
+					&:hover {
+						background-color: transparent;
+						color: var(--vamtam-accent-color-2);
+					}
+				}
+			}
+		}
+
+		.woosw-btn();
+	}
+}

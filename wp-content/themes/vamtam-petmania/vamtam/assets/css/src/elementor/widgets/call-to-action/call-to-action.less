@@ -1,0 +1,66 @@
+// Call To Action.
+.elementor-widget-call-to-action {
+	&.vamtam-has-theme-widget-styles {
+		&.elementor-bg-transform  {
+			body.e--ua-safari & {
+				.elementor-widget-container{
+					-webkit-mask-image: -webkit-radial-gradient(white, black);
+				}
+			}
+		}
+
+		&.vamtam-cta-btn {
+			.elementor-cta__button {
+				padding: 10px 30px;
+			}
+		}
+
+		&.vamtam-cta-button-border {
+			.elementor-cta__button {
+				border-style: dashed;
+			}
+		}
+
+		&.vamtam-cta-icon {
+			.elementor-cta__button {
+				display: inline-flex;
+				&::after {
+					content: "\e902";
+					font-family: 'theme-icons';
+					margin-left: 15px;
+					font-weight: normal;
+				}
+			}
+		}
+
+		&.vamtam-call-to-action {
+			overflow: hidden;
+			transform: translate3d(0, 0, 0);
+
+			.elementor-icon-wrapper {
+				position: absolute;
+				text-align: end;
+				bottom: 20px;
+
+				.elementor-icon {
+					i {
+						&:before {
+							left: initial;
+							right: 100%;
+						}
+					}
+				}
+			}
+		}
+
+		&.vamtam-cta-radius {
+			.elementor-widget-container {
+				mask-image: none !important;
+			}
+
+			.elementor-cta__bg-wrapper {
+				border-radius: 10px;
+			}
+		}
+	}
+}

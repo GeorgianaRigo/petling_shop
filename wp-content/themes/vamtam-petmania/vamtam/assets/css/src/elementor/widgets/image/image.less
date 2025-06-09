@@ -1,0 +1,38 @@
+// Image.
+.elementor-widget-image {
+	// Base Theme Widget Styles.
+    &.vamtam-has-theme-widget-styles {
+		&.vamtam-has-fg-layer {
+			.elementor-image {
+				img {
+					opacity: 0;
+					visibility: hidden;
+				}
+
+				&::after {
+					z-index: 1;
+					content: "";
+					display: block;
+					position: absolute;
+					top: 0;
+					left: 0;
+					bottom: 0;
+					right: 0;
+					background-color: var(--vamtam-fg-layer-bg-color);
+				}
+			}
+
+			// Foreground Layer Mask.
+			&.vamtam-has-fg-layer-mask {
+				.elementor-image {
+					&::after {
+						mask-image: var(--vamtam-fg-layer-mask-image);
+						mask-repeat: var(--vamtam-fg-layer-mask-repeat, no-repeat);
+						mask-size: var(--vamtam-fg-layer-mask-scale, var(--vamtam-fg-layer-mask-size, contain));
+						mask-position: var(--vamtam-fg-layer-mask-position, center);
+					}
+				}
+			}
+		}
+	}
+}

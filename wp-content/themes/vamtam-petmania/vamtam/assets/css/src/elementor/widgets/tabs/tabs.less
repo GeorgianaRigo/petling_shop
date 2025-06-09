@@ -1,0 +1,127 @@
+// Tabs.
+.elementor-widget-tabs {
+	// Base Theme Widget Styles.
+    &.vamtam-has-theme-widget-styles {
+        .elementor-tabs-wrapper {
+            padding: inherit;
+        }
+
+        .elementor-tab-desktop-title {
+            padding: 20px 25px;
+        }
+
+        .elementor-tab-title {
+            padding: 20px;
+            border-style: solid;
+            border-width: 2px !important;
+            border-color: var(--vamtam-tabs-border-color, --vamtam-accent-color-7); // --vamtam-tabs-border-color = Elementor options.
+            border-radius: 30px;
+            text-align: center;
+            margin: 15px 0px;
+
+            >a {
+                display: block;
+                &:hover {
+                    border-color: var(--vamtam-accent-color-1);
+                }
+            }
+        }
+
+        .elementor-tabs-wrapper {
+            .elementor-tab-title {
+                padding: 6px 15px;
+				margin: 0 5px;
+				border-width: 1px!important;
+            }
+        }
+
+        .elementor-tab-title.elementor-active {
+            background: var(--vamtam-accent-color-1);
+            border-color: var(--vamtam-accent-color-1);
+        }
+
+        .elementor-tab-content {
+            padding: 0;
+        }
+
+		&.vamtam-tabs {
+			.elementor-tab-title {
+				padding: 0;
+				margin: 0 25px;
+				border: none;
+			}
+			.elementor-tabs-wrapper {
+				.elementor-tab-title {
+					background: transparent;
+					transition: all .3s;
+					padding: 7px 20px;
+					margin: 0 5px;
+					border-width: 1px !important;
+					border-color: transparent;
+					border-radius: 6px;
+					border-style: dashed;
+				}
+			}
+			.elementor-tab-title.elementor-active {
+				border-style: dashed;
+				border-width: 1px !important;
+				border-color: var(--vamtam-accent-color-7);
+				background-color: var(--vamtam-accent-color-8);
+			}
+			.elementor-tab-content {
+				padding: 0;
+				padding-top: 15px;
+			}
+		}
+
+		&.vamtam-menu-tabs {
+			.elementor-tab-content {
+				padding: 0;
+			}
+			.elementor-tab-title {
+				border: none;
+				text-align: start;
+			}
+			.elementor-tabs-wrapper {
+				padding-top: 15px;
+				padding-bottom: 15px;
+
+				.elementor-tab-title {
+					padding: 12px 15px;
+				}
+			}
+		}
+
+		&.vamtam-tabs-borders {
+			.elementor-tabs-wrapper .elementor-tab-title {
+				border-width: 1px;
+			}
+		}
+
+		@media (min-width: 768px) {
+			&.vamtam-tabs {
+				.elementor-tabs-wrapper {
+					.elementor-tab-title {
+						border-width: 1px !important;
+						border-color: transparent;
+						padding: 7px 20px;
+						margin: 0 5px;
+						border-radius: 6px;
+						border-style: dashed;
+						border-width: 1px !important;
+					}
+				}
+				.elementor-tab-title.elementor-active {
+					border-style: dashed;
+					border-width: 1px !important;
+					border-color: var(--vamtam-accent-color-7);
+					background-color: var(--vamtam-accent-color-8);
+				}
+				.elementor-tab-content {
+					padding: 0;
+					padding-top: 15px;
+				}
+			}
+		}
+    }
+}

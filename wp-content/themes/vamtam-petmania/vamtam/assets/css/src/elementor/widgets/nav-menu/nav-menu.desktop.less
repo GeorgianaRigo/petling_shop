@@ -1,0 +1,58 @@
+// Nav menu - Desktop.
+.elementor-widget-nav-menu {
+	// Base theme widget styles.
+	&.vamtam-has-theme-widget-styles {
+
+		.e--pointer-theme {
+			a {
+				position: relative;
+				@keyframes vamtam-underline-move {
+					from {
+						mask-position: -8px center;
+					}
+					to {
+						mask-position: 500px center;
+					}
+				}
+
+				&.elementor-item::before {
+					content: "";
+					position: absolute;
+					display: inline;
+					bottom: -5px;
+					left: 0;
+					right: 0;
+					height: 6px;
+					mask-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg stroke='white' stroke-width='1px' enable-background='new 0 0 19.3 6' version='1.1' viewBox='0 0 19.3 6' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m-5.5 3.8c1.3 1 2.7 2.2 5.5 2.2s4.2-1.2 5.5-2.2c1.1-1 2.1-1.8 4.2-1.8s3 0.8 4.2 1.8c1.3 1 2.7 2.2 5.5 2.2s4.2-1.2 5.5-2.2l-1.4-0.9c-1.1 1-2.1 1.8-4.2 1.8s-3-0.8-4.2-1.8-2.7-2.2-5.4-2.2c-2.8 0-4.2 1.2-5.5 2.2-1.2 1-2.1 1.8-4.2 1.8s-3-0.8-4.2-1.8l-1.3 0.9z'/%3E%3C/svg%3E");
+					mask-repeat: repeat-x;
+					mask-size: 13px 6px;
+					mask-position: -8px center;
+					text-decoration: none;
+					text-decoration-skip: objects;
+
+					background-color: var(--vamtam-pointer-color-hover, currentColor) !important;
+					&.elementor-item-active {
+						background-color: var(--vamtam-pointer-color-active, currentColor) !important;
+					}
+
+					animation: vamtam-underline-move 40s linear infinite;
+					animation-play-state: paused;
+				}
+
+				&:hover {
+					&.elementor-item::before {
+						animation-play-state: running;
+					}
+				}
+
+				&.elementor-item::after {
+					display: none;
+				}
+			}
+		}
+
+		&.vamtam-menu-indicator .sub-arrow {
+			display: none;
+		}
+	}
+}

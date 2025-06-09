@@ -1,0 +1,1010 @@
+# Copyright (C) 2022 Pimwick, LLC
+# This file is distributed under the same license as the PW WooCommerce Gift Cards plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: PW WooCommerce Gift Cards 1.216\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/trunk\n"
+"POT-Creation-Date: 2022-08-17T17:13:10+00:00\n"
+"PO-Revision-Date: 2024-06-24 15:01-0400\n"
+"Last-Translator: \n"
+"Language-Team: Slovenčina\n"
+"Language: sk_SK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=( n == 1 ) ? 0 : ( n >= 2 && n <= 4 ) ? 1 : "
+"2;\n"
+"X-Generator: Poedit 3.2\n"
+"X-Domain: pw-woocommerce-gift-cards\n"
+"X-Loco-Version: 2.6.7; wp-6.3.3\n"
+
+#. Plugin Name of the plugin
+msgid "PW WooCommerce Gift Cards"
+msgstr "Darčekové poukážky PW WooCommerce"
+
+#. Plugin URI of the plugin
+msgid "https://www.pimwick.com/gift-cards/"
+msgstr "https://www.pimwick.com/gift-cards/"
+
+#. Description of the plugin
+msgid "Sell gift cards in your WooCommerce store."
+msgstr "Predávajte darčekové poukazy vo svojom obchode WooCommerce."
+
+#. Author of the plugin
+msgid "Pimwick, LLC"
+msgstr "Pimwick, LLC"
+
+#. Author URI of the plugin
+msgid "https://www.pimwick.com"
+msgstr "https://www.pimwick.com"
+
+#. translators: %s is PW Gift Cards.
+#: admin/pw-gift-cards-admin.php:34 admin/pw-gift-cards-admin.php:114
+#: admin/pw-gift-cards-admin.php:192 admin/pw-gift-cards-admin.php:203
+#: admin/pw-gift-cards-admin.php:215 admin/pw-gift-cards-admin.php:216
+#: admin/pw-gift-cards-admin.php:225 admin/pw-gift-cards-admin.php:226
+#: admin/pw-gift-cards-admin.php:376
+msgid "PW Gift Cards"
+msgstr "Darčekové poukážky PW"
+
+#: admin/pw-gift-cards-admin.php:40
+msgid "Auto Complete Orders"
+msgstr "Automatické dokončovanie objednávok"
+
+#: admin/pw-gift-cards-admin.php:41
+msgid ""
+"When an order only contains gift cards, automatically mark the order as "
+"Complete to send the gift cards immediately."
+msgstr ""
+"Ak objednávka obsahuje iba darčekové karty, automaticky ju označte ako "
+"dokončenú, aby sa darčekové karty odoslali okamžite."
+
+#: admin/pw-gift-cards-admin.php:47
+msgid "Send When Order Received"
+msgstr "Odoslať pri prijatí objednávky"
+
+#: admin/pw-gift-cards-admin.php:48
+msgid ""
+"By default we wait until the order status is Complete before generating and "
+"emailing the gift card. Check this box to send the gift card immediately "
+"when the order is received. Scheduled gift cards will still be sent on the "
+"scheduled date. Default: Unchecked"
+msgstr ""
+"Pred vygenerovaním a odoslaním darčekovej karty e-mailom štandardne počkáme, "
+"kým sa stav objednávky nedokončí. Začiarknutím tohto políčka odošlete "
+"darčekovú kartu ihneď po prijatí objednávky. Naplánované darčekové karty "
+"budú stále odoslané v plánovanom dátume. Predvolené: Nezačiarknuté"
+
+#: admin/pw-gift-cards-admin.php:54
+msgid "Buy Gift Cards with Gift Cards"
+msgstr "Nákup darčekových poukážok pomocou darčekových poukážok"
+
+#: admin/pw-gift-cards-admin.php:55
+msgid ""
+"Allow customers to purchase gift cards using another gift card. Default: "
+"Unchecked."
+msgstr ""
+"Umožniť zákazníkom nakupovať darčekové karty pomocou inej darčekovej karty. "
+"Predvolené: Nezačiarknuté."
+
+#: admin/pw-gift-cards-admin.php:61
+msgid "Use the WooCommerce Transactional Email System"
+msgstr "Použite transakčný e-mailový systém WooCommerce"
+
+#: admin/pw-gift-cards-admin.php:62
+msgid ""
+"Enabled by default. If you are not receiving your gift card emails, try "
+"disabling this setting."
+msgstr ""
+"Predvolene povolené. Ak nedostávate e-maily s darčekovými kartami, skúste "
+"toto nastavenie zakázať."
+
+#: admin/pw-gift-cards-admin.php:68
+msgid "Apply fix for missing fields"
+msgstr "Doplňte chýbajúce polia"
+
+#: admin/pw-gift-cards-admin.php:69
+msgid ""
+"If you do not see the To / From / Message fields on your gift card product "
+"page, try checking this box and reloading. Some themes have out of date "
+"WooCommerce template files and need to be patched to work with the Gift Card "
+"product."
+msgstr ""
+"Ak nevidíte polia Komu / Od / Správa na stránke produktu darčekovej karty, "
+"skúste začiarknuť toto políčko a znova načítať. Niektoré témy majú zastarané "
+"súbory šablón WooCommerce a je potrebné ich opraviť, aby fungovali s "
+"produktom darčekových kariet."
+
+#: admin/pw-gift-cards-admin.php:75
+msgid "Format Prices"
+msgstr "Formát cien"
+
+#: admin/pw-gift-cards-admin.php:76
+msgid ""
+"For fixed gift card amounts, format the price with the system currency "
+"symbol. This is enabled by default. If you are having trouble with currency "
+"switchers, disable this setting. Note: You must remove and re-add your fixed "
+"gift card amounts if you change this setting."
+msgstr ""
+"Pre pevné sumy darčekových kariet naformátujte cenu so symbolom systémovej "
+"meny. Toto je predvolene povolené. Ak máte problémy s prepínačmi mien, "
+"deaktivujte toto nastavenie. Poznámka: Ak toto nastavenie zmeníte, musíte "
+"odstrániť a znova pridať pevné sumy darčekových kariet."
+
+#: admin/pw-gift-cards-admin.php:82
+msgid "Redeem Location - Cart"
+msgstr "Miesto uplatnenia – košík"
+
+#: admin/pw-gift-cards-admin.php:83
+msgid "Specifies where the \"Apply Gift Card\" box appears on the Cart page."
+msgstr ""
+"Určuje, kde sa na stránke košíka zobrazí pole „Použiť darčekový poukaz“."
+
+#: admin/pw-gift-cards-admin.php:91
+msgid "Above the \"Proceed to Checkout\" button."
+msgstr "Nad tlačidlom „Pokračovať k pokladni“."
+
+#: admin/pw-gift-cards-admin.php:92 admin/pw-gift-cards-admin.php:107
+msgid "Below the \"Apply Coupon\" area."
+msgstr "Pod oblasťou „Použiť kupón“."
+
+#: admin/pw-gift-cards-admin.php:93 admin/pw-gift-cards-admin.php:108
+msgid "Do not display gift card field."
+msgstr "Nezobrazovať pole darčekovej karty."
+
+#: admin/pw-gift-cards-admin.php:97
+msgid "Redeem Location - Checkout"
+msgstr "Miesto uplatnenia – pokladňa"
+
+#: admin/pw-gift-cards-admin.php:98
+msgid ""
+"Specifies where the \"Apply Gift Card\" box appears on the Checkout page."
+msgstr ""
+"Určuje, kde sa na stránke pokladne zobrazí pole „Použiť darčekový poukaz“."
+
+#: admin/pw-gift-cards-admin.php:106
+msgid "Below the \"Payment Methods\" area."
+msgstr "Pod oblasťou „Spôsoby platby“."
+
+#: admin/pw-gift-cards-admin.php:112
+msgid "Hide Pimwick Plugins Menu"
+msgstr "Skryť ponuku doplnkov Pimwick"
+
+#. translators: %s is PW Gift Cards.
+#: admin/pw-gift-cards-admin.php:114
+msgid ""
+"Do not show the Pimwick Plugins menu on the left. You can still access the "
+"dashboard via WooCommerce > %s"
+msgstr ""
+"Nezobrazovať ponuku Pimwick Plugins na ľavej strane. Stále máte prístup k "
+"hlavnému panelu cez WooCommerce > %s"
+
+#: admin/pw-gift-cards-admin.php:163
+msgid "Configuration error detected by"
+msgstr "Chyba konfigurácie zistená"
+
+#: admin/pw-gift-cards-admin.php:164
+msgid ""
+"Your PayPal payment gateway is incorrectly configured. You should not have "
+"both IPN and PDT enabled. The \"IPN Email Notifications\" setting is enabled "
+"and there is also a \"PayPal Identity Token\" (PDT) value set. PayPal is "
+"reaching back to your site twice to confirm the payment. This causes things "
+"to happen twice including email notifications, stock reduction, and gift "
+"card generation. Go to WooCommerce -> Settings -> Payments -> PayPal and "
+"either clear the value from the \"PayPal Identity Token\" field or disable "
+"the \"IPN Email Notifications\" setting."
+msgstr ""
+"Vaša platobná brána PayPal je nesprávne nakonfigurovaná. Nemali by ste mať "
+"povolené IPN aj PDT. Nastavenie \"IPN Email Notifications\" je povolené a "
+"máte tu tiež nastavenú hodnotu \"PayPal Identity Token\" (PDT). PayPal sa na "
+"vašu stránku vracia dvakrát, aby potvrdil platbu. To spôsobí, že sa veci "
+"stanú dvakrát vrátane e-mailových upozornení, zníženia zásob a generovania "
+"darčekových kariet. Prejdite na WooCommerce -> Nastavenia -> Platby -> "
+"PayPal a buď vymažte hodnotu z poľa \"PayPal Identity Token\" alebo vypnite "
+"nastavenie \"IPN Email Notifications\"."
+
+#: admin/pw-gift-cards-admin.php:165
+msgid "Dismiss this notice"
+msgstr "Odmietnuť toto upozornenie"
+
+#: admin/pw-gift-cards-admin.php:193 admin/pw-gift-cards-admin.php:204
+msgid "Pimwick Plugins"
+msgstr "Pluginy Pimwick"
+
+#: admin/pw-gift-cards-admin.php:253
+msgid "Note: Be sure to save changes before sending a preview email."
+msgstr "Poznámka: Pred odoslaním ukážkového e-mailu nezabudnite uložiť zmeny."
+
+#: admin/pw-gift-cards-admin.php:254
+msgid "Recipient email address?"
+msgstr "E-mailová adresa príjemcu?"
+
+#: admin/pw-gift-cards-admin.php:255
+msgid "Reset to the default Email Design?"
+msgstr "Resetovať predvolený návrh e-mailu?"
+
+#: admin/pw-gift-cards-admin.php:283
+msgid "Wait"
+msgstr "Čakajte"
+
+#: admin/pw-gift-cards-admin.php:284
+msgid "Add"
+msgstr "Pridať"
+
+#: admin/pw-gift-cards-admin.php:285
+msgid "Remove"
+msgstr "Odstrániť"
+
+#: admin/pw-gift-cards-admin.php:286
+#: includes/class-wc-product-pw-gift-card.php:60
+msgid "Amount must be greater than zero."
+msgstr "Suma musí byť väčšia ako nula."
+
+#: admin/pw-gift-cards-admin.php:287
+msgid "Amount must be greater than minimum amount."
+msgstr "Suma musí byť väčšia ako minimálna suma."
+
+#: admin/pw-gift-cards-admin.php:288
+msgid "Amount must be less than maximum amount."
+msgstr "Suma musí byť nižšia ako maximálna suma."
+
+#: admin/pw-gift-cards-admin.php:289 includes/pw-gift-cards-redeeming.php:648
+msgid "Error"
+msgstr "Chyba"
+
+#: admin/pw-gift-cards-admin.php:308 admin/pw-gift-cards-admin.php:582
+#: pw-gift-cards.php:131
+msgid "Gift Card"
+msgstr "Darčeková karta"
+
+#. translators: %s is the product id.
+#: admin/pw-gift-cards-admin.php:422
+msgid "Could not locate product id %s"
+msgstr "Nepodarilo sa nájsť ID produktu %s"
+
+#: admin/pw-gift-cards-admin.php:446
+msgid "Could not locate product using product_id "
+msgstr "Nepodarilo sa nájsť produkt pomocou product_id "
+
+#: admin/pw-gift-cards-admin.php:562
+msgid "Settings saved."
+msgstr "Nastavenia boli uložené."
+
+#: admin/pw-gift-cards-admin.php:646 admin/pw-gift-cards-admin.php:660
+msgid "Gift card not found."
+msgstr "Darčeková karta sa nenašla."
+
+#: admin/pw-gift-cards-admin.php:681
+msgid "Design saved."
+msgstr "Návrh bol uložený."
+
+#: admin/pw-gift-cards-admin.php:699
+msgid "Preview email system"
+msgstr "Náhľad e-mailového systému"
+
+#: admin/pw-gift-cards-admin.php:700 admin/ui/sections/designer-panel.php:55
+msgid "Recipient Name"
+msgstr "Meno príjemcu"
+
+#: admin/pw-gift-cards-admin.php:701 admin/ui/sections/designer-panel.php:57
+msgid "Gift card message to the recipient from the sender."
+msgstr "Správa darčekovej karty príjemcovi od odosielateľa."
+
+#: admin/pw-gift-cards-admin.php:706
+msgid "Email sent."
+msgstr "Email odoslaný."
+
+#: admin/ui/footer.php:30
+msgid "If you need assistance please contact us."
+msgstr "Ak potrebujete pomoc, kontaktujte nás prosím."
+
+#. translators: %s is the PW Gift Card product type name.
+#: admin/ui/initial-setup.php:14
+msgid "Step 1: Create a \"%s\" product to start selling Gift Cards."
+msgstr ""
+"Krok 1: Ak chcete začať predávať darčekové poukážky, vytvorte si produkt "
+"„%s“."
+
+#: admin/ui/initial-setup.php:19
+msgid "Create the Gift Card product"
+msgstr "Vytvorte produkt Darčekový poukaz"
+
+#: admin/ui/initial-setup.php:27
+msgid "Success!"
+msgstr "Úspech!"
+
+#: admin/ui/initial-setup.php:28
+msgid ""
+"The Gift Card product has been created. Click on the Products menu in the "
+"left to edit it."
+msgstr ""
+"Produkt Darčekový poukaz bol vytvorený. Kliknite na ponuku Produkty vľavo a "
+"upravte ju."
+
+#: admin/ui/initial-setup.php:33
+msgid "Step 2: Let your customers check their gift card balances."
+msgstr ""
+"Krok 2: Nechajte svojich zákazníkov skontrolovať zostatky na darčekových "
+"poukážkach."
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/initial-setup.php:37
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to create a Check Balance page for your customers."
+msgstr ""
+"Inovujte na <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> a vytvorte pre svojich zákazníkov stránku Check Balance."
+
+#: admin/ui/order-gift-card-total.php:36
+msgid "PW Gift Card"
+msgstr "Darčeková poukážka PW"
+
+#: admin/ui/product-data-panel-cards.php:35
+msgid "Gift card amounts"
+msgstr "Sumy darčekových kariet"
+
+#: admin/ui/product-data-panel-cards.php:39
+msgid "The available fixed amounts that can be purchased."
+msgstr "Dostupné pevné sumy, ktoré je možné zakúpiť."
+
+#: admin/ui/product-data-panel-cards.php:60
+msgid "PW WooCommerce Gift Cards Pro"
+msgstr "Darčekové poukážky PW WooCommerce Pro"
+
+#: admin/ui/product-data-panel-cards.php:60
+msgid " includes these great additional features:"
+msgstr " obsahuje tieto skvelé doplnkové funkcie:"
+
+#: admin/ui/product-data-panel-cards.php:62
+msgid "Multiple Designs"
+msgstr "Viaceré návrhy"
+
+#: admin/ui/product-data-panel-cards.php:62
+msgid ""
+"Create as many custom email designs as you would like. Happy birthday, "
+"congratulations, happy holidays, and more!"
+msgstr ""
+"Vytvorte toľko vlastných návrhov e-mailov, koľko chcete. Všetko najlepšie k "
+"narodeninám, blahoželania, šťastné sviatky a ďalšie!"
+
+#: admin/ui/product-data-panel-cards.php:63
+msgid "Custom Amounts"
+msgstr "Vlastné sumy"
+
+#: admin/ui/product-data-panel-cards.php:63
+msgid ""
+"Allow customers to specify the amount. You can set a minimum and a maximum "
+"amount."
+msgstr ""
+"Umožnite zákazníkom určiť sumu. Môžete nastaviť minimálnu a maximálnu sumu."
+
+#: admin/ui/product-data-panel-cards.php:64
+msgid "Delivery Date"
+msgstr "Dátum doručenia"
+
+#: admin/ui/product-data-panel-cards.php:64
+msgid ""
+"Customers can choose when the gift card should be delivered to the recipient."
+msgstr ""
+"Zákazníci si môžu vybrať, kedy má byť darčeková karta doručená príjemcovi."
+
+#: admin/ui/product-data-panel-cards.php:65
+msgid "Physical Gift Cards"
+msgstr "Fyzické darčekové poukážky"
+
+#: admin/ui/product-data-panel-cards.php:65
+msgid ""
+"Sell physical gift cards to your customers without requiring a recipient "
+"email address."
+msgstr ""
+"Predávajte svojim zákazníkom fyzické darčekové karty bez potreby e-mailovej "
+"adresy príjemcu."
+
+#: admin/ui/product-data-panel-cards.php:66 admin/ui/section-buttons.php:19
+msgid "Create Gift Cards"
+msgstr "Vytvorte darčekové karty"
+
+#: admin/ui/product-data-panel-cards.php:66
+msgid ""
+"Enter the quantity, amount, and expiration date to easily generate gift "
+"cards."
+msgstr ""
+"Zadajte množstvo, sumu a dátum vypršania platnosti, aby ste mohli jednoducho "
+"vygenerovať darčekové karty."
+
+#: admin/ui/product-data-panel-cards.php:67 admin/ui/section-buttons.php:23
+msgid "Import Card Numbers"
+msgstr "Importovať čísla poukážok"
+
+#: admin/ui/product-data-panel-cards.php:67
+msgid ""
+"Have physical cards or numbers from another system? Import them in one click!"
+msgstr ""
+"Máte fyzické karty alebo čísla z iného systému? Importujte ich jedným "
+"kliknutím!"
+
+#: admin/ui/product-data-panel-cards.php:68
+msgid "Default Amount"
+msgstr "Predvolená suma"
+
+#: admin/ui/product-data-panel-cards.php:68
+msgid "choose an amount that will be pre-selected when purchasing a gift card."
+msgstr "vyberte sumu, ktorá bude predvolená pri kúpe darčekovej karty."
+
+#: admin/ui/product-data-panel-cards.php:69 admin/ui/section-buttons.php:11
+msgid "Balances"
+msgstr "Zostatky"
+
+#: admin/ui/product-data-panel-cards.php:69
+msgid "A shortcode to let customers check their gift card balances."
+msgstr ""
+"Skrátený kód, ktorý umožňuje zákazníkom skontrolovať zostatky na darčekových "
+"kartách."
+
+#: admin/ui/product-data-panel-cards.php:70
+msgid "Expiration Dates"
+msgstr "Dátumy expirácie"
+
+#: admin/ui/product-data-panel-cards.php:70
+msgid "Automatically set an expiration date based on the purchase date."
+msgstr ""
+"Automaticky nastavte dátum vypršania platnosti na základe dátumu nákupu."
+
+#: admin/ui/product-data-panel-cards.php:71
+msgid "Balance Adjustments"
+msgstr "Úpravy zostatku"
+
+#: admin/ui/product-data-panel-cards.php:71
+msgid "Perform balance adjustments in the admin area."
+msgstr "Vykonajte úpravy zostatku v oblasti správy."
+
+#: admin/ui/section-buttons.php:15
+msgid "Email Designer"
+msgstr "Návrhár e-mailov"
+
+#: admin/ui/section-buttons.php:27
+msgid "Settings"
+msgstr "Nastavenia"
+
+#: admin/ui/sections/activity-records.php:26
+msgid "Date"
+msgstr "Dátum"
+
+#: admin/ui/sections/activity-records.php:27
+msgid "Action"
+msgstr "Akcia"
+
+#: admin/ui/sections/activity-records.php:28
+msgid "User"
+msgstr "Používateľ"
+
+#: admin/ui/sections/activity-records.php:29
+msgid "Note"
+msgstr "Poznámka"
+
+#: admin/ui/sections/activity-records.php:30 pw-gift-cards.php:132
+#: templates/woocommerce/emails/customer-pw-gift-card.php:159
+msgid "Amount"
+msgstr "Suma"
+
+#: admin/ui/sections/activity-records.php:31
+#: admin/ui/sections/search-results.php:33
+msgid "Balance"
+msgstr "Zostatok"
+
+#: admin/ui/sections/activity-records.php:53
+msgid "Guest"
+msgstr "Hosť"
+
+#: admin/ui/sections/balance-summary.php:34
+msgid "Active gift cards"
+msgstr "Aktívne darčekové karty"
+
+#: admin/ui/sections/balance-summary.php:38
+msgid "Outstanding balances"
+msgstr "Neuhradené zostatky"
+
+#: admin/ui/sections/balances.php:32
+msgid "Gift card number or recipient email (leave blank for all)"
+msgstr ""
+"Číslo darčekovej karty alebo e-mail príjemcu (ponechajte prázdne pre "
+"všetkých)"
+
+#: admin/ui/sections/balances.php:33
+msgid "Search"
+msgstr "Vyhľadať"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/create.php:27
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to create gift cards from the admin area."
+msgstr ""
+"Inovujte na <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> a vytvorte darčekové karty v správcovskej oblasti."
+
+#: admin/ui/sections/designer-panel.php:12
+msgid "Gift card color"
+msgstr "Farba darčekovej karty"
+
+#: admin/ui/sections/designer-panel.php:13
+msgid "Redeem button color"
+msgstr "Farba tlačidla na uplatnenie"
+
+#: admin/ui/sections/designer-panel.php:14
+msgid "Redeem button text color"
+msgstr "Farba textu tlačidla na uplatnenie"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/designer-panel.php:19
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to change even more settings such image, gift card title, additional "
+"colors, and more!"
+msgstr ""
+"Inovujte na <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> a zmeňte ešte viac nastavení, ako je obrázok, názov darčekovej karty, "
+"ďalšie farby a ďalšie!"
+
+#: admin/ui/sections/designer-panel.php:26
+msgid "Save design"
+msgstr "Uložiť návrh"
+
+#: admin/ui/sections/designer-panel.php:27
+msgid "Reset design"
+msgstr "Resetovať  návrh"
+
+#: admin/ui/sections/designer-panel.php:38
+msgid "Custom template file detected!"
+msgstr "Bol zistený súbor vlastnej šablóny!"
+
+#: admin/ui/sections/designer-panel.php:41
+msgid ""
+"It appears as though you already have a custom email template file, your "
+"changes in the Designer may not appear when you actually send the email. "
+"Click the Send Preview Email button to confirm."
+msgstr ""
+"Zdá sa, že už máte vlastný súbor šablóny e-mailu, vaše zmeny v návrhárovi sa "
+"nemusia zobraziť, keď e-mail skutočne odošlete. Potvrďte kliknutím na "
+"tlačidlo Odoslať ukážkový e-mail."
+
+#: admin/ui/sections/designer-panel.php:46
+msgid "Preview"
+msgstr "Náhľad"
+
+#: admin/ui/sections/designer-panel.php:49
+msgid "Send a preview email"
+msgstr "Odoslať ukážkový e-mail"
+
+#: admin/ui/sections/designer-panel.php:56
+msgid "The Purchasing Customer"
+msgstr "Nakupujúci zákazník"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/import.php:27
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to import existing gift card numbers."
+msgstr ""
+"Ak chcete importovať existujúce čísla darčekových kariet, inovujte na <a "
+"href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</a>."
+
+#: admin/ui/sections/search-results.php:25
+msgid "No results"
+msgstr "Žiadne výsledky"
+
+#: admin/ui/sections/search-results.php:26
+msgid "There are no gift cards found matching your search terms."
+msgstr ""
+"Nenašli sa žiadne darčekové poukazy zodpovedajúce vašim hľadaným výrazom."
+
+#: admin/ui/sections/search-results.php:32
+msgid "Card Number"
+msgstr "Číslo karty"
+
+#: admin/ui/sections/search-results.php:34
+msgid "Expiration Date"
+msgstr "Dátum expirácie"
+
+#: admin/ui/sections/search-results.php:44
+msgid "Card has been deleted."
+msgstr "Poukážka bola odstránená."
+
+#: admin/ui/sections/search-results.php:56
+msgid "View activity"
+msgstr "Zobraziť aktivitu"
+
+#: admin/ui/sections/search-results.php:58
+msgid "Delete"
+msgstr "Odstrániť"
+
+#: admin/ui/sections/search-results.php:61
+msgid "Restore"
+msgstr "Obnoviť"
+
+#: admin/ui/sections/search-results.php:84
+msgid "Are you sure you want to delete this gift card?"
+msgstr "Naozaj chcete odstrániť túto darčekovú kartu?"
+
+#: admin/ui/sections/settings.php:35
+msgid "Save Settings"
+msgstr "Uložiť nastavenia"
+
+#: includes/class-pw-gift-card-activity.php:90
+msgid "Could not find activity record"
+msgstr "Nepodarilo sa nájsť záznam aktivity"
+
+#: includes/class-pw-gift-card-activity.php:102
+msgid "Invalid action value: "
+msgstr "Neplatná hodnota akcie: "
+
+#: includes/class-pw-gift-card.php:70
+msgid "Card number does not exist."
+msgstr "Číslo karty neexistuje."
+
+#: includes/class-pw-gift-card.php:73
+msgid "Enter a card number."
+msgstr "Zadajte číslo karty."
+
+#: includes/class-pw-gift-card.php:119
+#: templates/woocommerce/cart/cart-pw-gift-card.php:55
+#: templates/woocommerce/checkout/pw-gift-cards.php:54
+msgid "Expired"
+msgstr "Platnosť vypršala"
+
+#: includes/class-pw-gift-card.php:122
+msgid "None"
+msgstr "Žiadne"
+
+#: includes/class-pw-gift-card.php:212
+msgid "Amount added should be greater than zero."
+msgstr "Pridaná suma by mala byť väčšia ako nula."
+
+#: includes/class-pw-gift-card.php:225
+msgid "Amount deducted should be less than zero."
+msgstr "Odpočítaná suma by mala byť nižšia ako nula."
+
+#: includes/class-pw-gift-card.php:234
+msgid "Unable to adjust balance, card is not active."
+msgstr "Nie je možné upraviť zostatok, karta nie je aktívna."
+
+#: includes/class-pw-gift-card.php:298
+msgid "Card Number cannot be empty."
+msgstr "Číslo poukážky nemôže byť prázdne."
+
+#. translators: %1$s is the number, %2$s is the database table name, %3$s is the inserted gift card id, and %4$s is the database error message.
+#: includes/class-pw-gift-card.php:311
+msgid ""
+"Gift Card %1$s was inserted into table %2$s and received database id %3$s "
+"but it could not be retrieved. Last error: %4$s"
+msgstr ""
+"Darčekový poukaz %1$s bol vložený do tabuľky %2$s a bola prijatá s ID "
+"databázy %3$s, ale nepodarilo sa ju získať. Posledná chyba: %4$s"
+
+#. translators: %1$s is the number, %2$s is the database table name, %3$s is the database error message.
+#: includes/class-pw-gift-card.php:315
+msgid "Gift Card %1$s could not be inserted into table %2$s. Last error: %3$s"
+msgstr ""
+"Darčekový poukaz %1$s nebolo možné vložiť do tabuľky %2$s. Posledná chyba: "
+"%3$s"
+
+#: includes/class-pw-gift-card.php:321
+msgid "Unknown error in add_card method."
+msgstr "Neznáma chyba v metóde add_card."
+
+#. translators: %1$s is the property name, %2$s is the class name.
+#: includes/class-pw-gift-card.php:412
+msgid "Property %1$s does not exist on %2$s"
+msgstr "Vlastnosť %1$s na %2$s neexistuje"
+
+#: includes/class-wc-product-pw-gift-card.php:73
+msgid "Amount already exists: "
+msgstr "Suma už existuje: "
+
+#: includes/class-wc-product-pw-gift-card.php:86
+msgid "Could not create variation."
+msgstr "Nepodarilo sa vytvoriť variáciu."
+
+#: includes/class-wc-product-pw-gift-card.php:107
+msgid "Could not locate variation using variation_id "
+msgstr "Nepodarilo sa nájsť variáciu pomocou variation_id "
+
+#: includes/class-wc-product-pw-gift-card.php:285
+msgid "Select amount"
+msgstr "Vyberte sumu"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:31
+msgid "PW Gift Card Email"
+msgstr "E-mail darčekovej karty PW"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:32
+msgid "This email is sent to the recipients of a gift card."
+msgstr "Tento e-mail sa odošle príjemcom darčekovej poukážky."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:34
+msgid "You were given a gift card"
+msgstr "Dostali ste darčekovú kartu"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:35
+msgid "{sender} sent you a gift card"
+msgstr "{sender} vám poslal darčekovú kartu"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:313
+msgid "Subject"
+msgstr "Predmet"
+
+#. translators: %s is the default email subject line.
+#: includes/emails/class-wc-email-pw-gift-card.php:316
+msgid ""
+"This controls the email subject line. Leave blank to use the default "
+"subject: <code>%s</code>."
+msgstr ""
+"Toto ovláda riadok s predmetom e-mailu. Ak chcete použiť predvolený predmet: "
+"<code>%s</code>, nechajte pole prázdne."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:321
+msgid "Email Heading"
+msgstr "Nadpis e-mailu"
+
+#. translators: %s is the default heading string.
+#: includes/emails/class-wc-email-pw-gift-card.php:324
+msgid ""
+"This controls the main heading contained within the email notification. "
+"Leave blank to use the default heading: <code>%s</code>."
+msgstr ""
+"Toto ovláda hlavný nadpis v e-mailovom upozornení. Ak chcete použiť "
+"predvolený nadpis: <code>%s</code>, nechajte pole prázdne."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:329
+msgid "Email type"
+msgstr "Typ e-mailu"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:331
+msgid "Choose which format of email to send."
+msgstr "Vyberte formát e-mailu, ktorý sa má odoslať."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:335
+msgid "Plain text"
+msgstr "Obyčajný text"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:336
+msgid "HTML"
+msgstr "HTML"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:337
+msgid "Multipart"
+msgstr "Viacdielne"
+
+#: includes/pw-gift-cards-purchasing.php:88
+msgid "Choose an amount"
+msgstr "Vyberte sumu"
+
+#. translators: %1$s is the order id, %2$s is the billing first name, %3$s is the billing last name.
+#: includes/pw-gift-cards-purchasing.php:287
+msgid "Order %1$s purchased by %2$s %3$s"
+msgstr "Objednať %1$s zakúpené od %2$s %3$s"
+
+#: includes/pw-gift-cards-purchasing.php:310
+msgid "Unable to retrieve variation "
+msgstr "Nepodarilo sa načítať variáciu "
+
+#: includes/pw-gift-cards-purchasing.php:413
+msgid " (inactive)"
+msgstr " (neaktívne)"
+
+#: includes/pw-gift-cards-purchasing.php:438
+msgid "Generated and emailed after the order is marked Complete."
+msgstr ""
+"Vygenerované a odoslané e-mailom po označení objednávky ako dokončenej."
+
+#. translators: %s is the count of gift cards redeemed.
+#: includes/pw-gift-cards-redeeming.php:379
+msgid "Gift card %s:"
+msgid_plural "Gift cards %s:"
+msgstr[0] "Darčekové karty %s:"
+msgstr[1] "Darčekový poukaz %s:"
+msgstr[2] "Darčekový poukaz %s:"
+
+#. translators: %s is the shipping method.
+#: includes/pw-gift-cards-redeeming.php:452
+msgid "Shipping via %s"
+msgstr "Doprava cez %s"
+
+#: includes/pw-gift-cards-redeeming.php:517
+#: includes/pw-gift-cards-redeeming.php:570
+#: includes/pw-gift-cards-redeeming.php:643 pw-gift-cards.php:190
+msgid "This gift card has a zero balance."
+msgstr "Táto darčeková karta má nulový zostatok."
+
+#: includes/pw-gift-cards-redeeming.php:520
+#: includes/pw-gift-cards-redeeming.php:646 pw-gift-cards.php:194
+msgid "Gift card applied."
+msgstr "Darčeková karta bola uplatnená."
+
+#: includes/pw-gift-cards-redeeming.php:535
+msgid "Gift card removed."
+msgstr "Darčeková karta bola odstránená."
+
+#: includes/pw-gift-cards-redeeming.php:566
+msgid "Gift cards cannot be used to purchase other gift cards."
+msgstr ""
+"Darčekové poukážky nie je možné použiť na nákup iných darčekových poukazov."
+
+#: includes/pw-gift-cards-redeeming.php:573
+msgid "Card is inactive."
+msgstr "Karta je neaktívna."
+
+#: pw-gift-cards.php:130
+msgid "Gift Card Amount"
+msgstr "Suma darčekovej karty"
+
+#: pw-gift-cards.php:133
+msgid "To"
+msgstr "Komu"
+
+#: pw-gift-cards.php:134
+#: templates/woocommerce/emails/customer-pw-gift-card.php:129
+msgid "From"
+msgstr "Od"
+
+#: pw-gift-cards.php:135
+msgid "Message"
+msgstr "Správa"
+
+#: pw-gift-cards.php:212
+msgid "Required"
+msgstr "Požadované"
+
+#. translators: %s is the woocommerce currency symbol.
+#: pw-gift-cards.php:214
+msgid "Minimum amount is %s"
+msgstr "Minimálna suma je %s"
+
+#. translators: %s is the woocommerce currency symbol.
+#: pw-gift-cards.php:216
+msgid "Maximum amount is %s"
+msgstr "Maximálna suma je %s"
+
+#: pw-gift-cards.php:217
+msgid ""
+"The \"To\" field should only contain email addresses. The following "
+"recipients do not look like valid email addresses:"
+msgstr ""
+"Pole „Komu“ by malo obsahovať iba e-mailové adresy. Nasledujúci príjemcovia "
+"nevyzerajú ako platné e-mailové adresy:"
+
+#. translators: %s is the WooCommerce minimum version number.
+#: pw-gift-cards.php:345
+msgid "Requires WooCommerce version %s or later."
+msgstr "Vyžaduje WooCommerce verziu %s alebo vyššiu."
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:39
+msgid "Gift Card:"
+msgstr "Darčeková karta:"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:40
+#: templates/woocommerce/cart/apply-gift-card.php:52
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:39
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:34
+msgid "Gift card number"
+msgstr "Číslo darčekovej karty"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:41
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:43
+msgid "Apply gift card"
+msgstr "Použite darčekovú kartu"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:41
+#: templates/woocommerce/cart/apply-gift-card.php:53
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:43
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:35
+msgid "Please wait..."
+msgstr "Prosím čakajte..."
+
+#: templates/woocommerce/cart/apply-gift-card.php:50
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:31
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:32
+msgid "Have a gift card?"
+msgstr "Máte darčekovú kartu?"
+
+#: templates/woocommerce/cart/apply-gift-card.php:53
+msgid "Apply"
+msgstr "Použiť"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:43
+#: templates/woocommerce/checkout/pw-gift-cards.php:45
+msgid "Gift card"
+msgstr "Darčeková karta"
+
+#. translators: %s is the formatted balance.
+#: templates/woocommerce/cart/cart-pw-gift-card.php:48
+#: templates/woocommerce/checkout/pw-gift-cards.php:48
+msgid "Remaining balance is %s"
+msgstr "Zostávajúci zostatok je %s"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:62
+msgid "Gift Card Total"
+msgstr "Darčeková karta celkom"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:64
+#: templates/woocommerce/checkout/pw-gift-cards.php:63
+msgid "[Remove]"
+msgstr "[Odstrániť]"
+
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:31
+msgid "Click here to enter your gift card number"
+msgstr "Kliknite sem a zadajte číslo darčekovej karty"
+
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:36
+msgid "If you have a gift card number, please apply it below."
+msgstr "Ak máte číslo darčekovej karty, použite ho prosím nižšie."
+
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:35
+msgid "Apply Gift Card"
+msgstr "Použite darčekovú kartu"
+
+#. translators: %s is the store name (blog name)
+#: templates/woocommerce/emails/customer-pw-gift-card.php:148
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:26
+msgid "%s Gift Card"
+msgstr "%s darčeková karta"
+
+#: templates/woocommerce/emails/customer-pw-gift-card.php:167
+msgid "Gift Card Number"
+msgstr "Číslo darčekovej karty"
+
+#: templates/woocommerce/emails/customer-pw-gift-card.php:176
+msgid "Redeem"
+msgstr "Uplatniť"
+
+#. translators: %s is the gift card amount.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:29
+msgid "Amount: %s"
+msgstr "Suma: %s"
+
+#. translators: %s is the gift card number.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:32
+msgid "Gift card number: %s"
+msgstr "Číslo darčekovej karty: %s"
+
+#. translators: %s is the link to redeem the gift card.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:35
+msgid "Link: %s"
+msgstr "Odkaz: %s"
+
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:39
+msgid "Message:"
+msgstr "Správa:"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:113
+msgid "Enter an email address for each recipient"
+msgstr "Zadajte e-mailovú adresu pre každého príjemcu"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:114
+msgid "Separate multiple email addresses with a comma."
+msgstr "Viaceré e-mailové adresy oddeľte čiarkou."
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:119
+msgid "Your name"
+msgstr "Vaše meno"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:123
+msgid "(optional)"
+msgstr "(voliteľné)"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:124
+msgid "Add a message"
+msgstr "Pridať správu"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:125
+msgid "characters remaining"
+msgstr "zostávajúcich znakov"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:129
+msgid "Quantity"
+msgstr "Množstvo"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:130
+msgid "1 to each recipient"
+msgstr "1 každému príjemcovi"

@@ -1,0 +1,28 @@
+// Product Images - Tablet.
+.elementor-widget-woocommerce-product-images {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		// Disable Zoom.
+		img.zoomImg {
+			display: none !important;
+		}
+		// Disable Lightbox.
+		.woocommerce-product-gallery__image {
+			&, a, img {
+				pointer-events: none !important;
+			}
+
+			&.flex-active-slide .wpcpv-item {
+				pointer-events: auto;
+			}
+		}
+
+		div.images {
+			.flex-control-thumbs {
+				.woocommerce & {
+					overflow-y: auto;
+				}
+			}
+		}
+	}
+}

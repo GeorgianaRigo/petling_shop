@@ -1,0 +1,108 @@
+// Product Images.
+.elementor-widget-woocommerce-product-images.vamtam-has-theme-widget-styles {
+	.woocommerce-product-gallery {
+		flex-direction: column;
+	}
+
+	div.images {
+		height: auto !important;
+
+		.flex-control-thumbs {
+			flex-direction: row;
+			max-width: none;
+			min-height: 100px;
+
+			.woocommerce & {
+				overflow-x: auto;
+				overflow-y: hidden;
+				margin-top: 10px;
+				margin-right: 0;
+			}
+
+			li {
+				min-width: 100px;
+				width: 100px !important;
+			}
+		}
+
+		:is( .vamtam-product-gallery-thumbs-prev, .vamtam-product-gallery-thumbs-next ) {
+			display: none;
+		}
+	}
+
+	&.vamtam-has-dot-nav-on-mobile {
+		div.images ol.flex-control-thumbs {
+			min-height: auto;
+			justify-content: center;
+			align-items: center;
+			margin: 20px 0;
+
+			li {
+				opacity: 1;
+				width: auto !important;
+				min-width: auto;
+				min-height: auto;
+
+				.woocommerce & img {
+					padding: 7px;
+					opacity: 1;
+				}
+
+				&:not(.wpcpv-thumb-video) {
+					> img {
+						margin: 0;
+						border-radius: 50%;
+						width: 0;
+						height: 0;
+						border: 1px solid var(--vamtam-dot-nav-border-color, var(--vamtam-accent-color-3)) !important;
+						background-color: var(--vamtam-dot-nav-bg-color, transparent);
+
+						&.flex-active {
+							background-color: var(--vamtam-dot-nav-bg-color-active, var(--vamtam-dot-nav-bg-color, var(--vamtam-accent-color-1))) !important;
+							border-color: var(--vamtam-dot-nav-border-color-active, var(--vamtam-accent-color-3)) !important;
+						}
+					}
+				}
+
+				&.wpcpv-thumb-video {
+					> img {
+						padding: 0;
+						background: 0 0;
+						border-bottom: 0.5rem solid transparent !important;
+						border-left: 0.9rem solid var(--vamtam-dot-nav-bg-color, var(--vamtam-accent-color-3)) !important;
+						border-right: 0 !important;
+						border-top: 0.5rem solid transparent !important;
+						border-radius: 0;
+						height: 0;
+						width: 0;
+
+						+.wpcpv-item-video {
+							width: auto;
+							min-width: auto;
+							transform: none;
+							top: 0;
+							left: 0;
+							padding: 0;
+							background: 0 0;
+							border-bottom: 0.5rem solid transparent !important;
+							border-left: 0.9rem solid var(--vamtam-dot-nav-bg-color, var(--vamtam-accent-color-5)) !important;
+							border-right: 0 !important;
+							border-top: 0.5rem solid transparent !important;
+							border-radius: 0;
+							height: 0;
+							width: 0;
+							scale: .85;
+						}
+
+						&.flex-active {
+							border-left-color: var(--vamtam-dot-nav-border-color-active, var(--vamtam-accent-color-3)) !important;
+							+.wpcpv-item-video {
+								border-left-color: var(--vamtam-dot-nav-bg-color-active, var(--vamtam-dot-nav-bg-color, var(--vamtam-accent-color-1))) !important;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,215 @@
+// WOOSW.
+
+.woosw-btn() {
+	.woosw-btn {
+		width: 50px !important;
+		height: 50px;
+		border: none;
+		padding: 0;
+		background-color: transparent;
+		color: var(--vamtam-accent-color-1);
+		font-size: 19px;
+		flex-shrink: 1;
+		flex-basis: 50px !important;
+
+		&::before {
+			content: "\f004";
+			display: inline-block;
+			font-family: "Font Awesome 5 Free" !important;
+			font-weight: 400;
+			color: var(--vamtam-accent-color-2);
+			vertical-align: middle;
+			margin-right: 0;
+		}
+
+		&:hover {
+			background-color: transparent;
+			color: var(--vamtam-accent-color-1);
+		}
+
+		&.woosw-added {
+			&::before {
+				content: "\f004";
+				font-weight: 900;
+			}
+
+			background-color: transparent;
+			color: var(--vamtam-accent-color-1);
+		}
+
+		&.vamtam-loading {
+			opacity: 0.3;
+			pointer-events: none;
+			cursor: wait;
+		}
+	}
+}
+
+.woosw() {
+	.woosw-list {
+		table.woosw-items {
+			margin: 0 auto;
+			margin-bottom: 100px;
+
+			.woosw-item {
+				.woosw-item--remove {
+					span {
+						&::before {
+							content: var( --vamtam-icon-close);
+							font-size: 16px;
+							font-family: 'theme-icons' !important;
+							color: var(--vamtam-accent-color-6);
+						}
+
+						&:hover {
+							&::before {
+								color: var(--vamtam-accent-color-2);
+							}
+						}
+					}
+				}
+
+				.woosw-item--name {
+					margin-bottom: 5px;
+
+					a {
+						font-family: var(--e-global-typography-81ae07b-font-family), Sans-serif;
+						font-size: var(--e-global-typography-81ae07b-font-size);
+						font-weight: var(--e-global-typography-81ae07b-font-weight);
+						font-style: var(--e-global-typography-81ae07b-font-style);
+						line-height: var(--e-global-typography-81ae07b-line-height);
+						letter-spacing: var(--e-global-typography-81ae07b-letter-spacing);
+						word-spacing: var(--e-global-typography-81ae07b-word-spacing);
+					}
+				}
+			}
+
+			tr {
+				td {
+					border-bottom: 1px solid var(--vamtam-accent-color-7);
+				}
+
+				&:nth-child(2n) {
+					td {
+						background: transparent;
+					}
+				}
+
+				&:nth-child(1n) {
+					td {
+						background: transparent;
+
+						&:hover {
+							background: transparent;
+						}
+					}
+				}
+			}
+		}
+
+		.woosw-item--price {
+			margin-bottom: 5px;
+		}
+
+		:is(.woosw-item--price,
+			.woosw-item--time) {
+			font-family: var(--e-global-typography-4065f0e-font-family), Sans-serif;
+			font-size: var(--e-global-typography-4065f0e-font-size);
+			line-height: var(--e-global-typography-4065f0e-line-height);
+			letter-spacing: var(--e-global-typography-4065f0e-letter-spacing);
+			word-spacing: var(--e-global-typography-4065f0e-word-spacing);
+		}
+
+		.woosw-item--stock {
+			display: none;
+		}
+
+		.woosw-items {
+			.woosw-item {
+				:is(.woosw-item--add, .woosw-item--atc) {
+					:is(.add_to_cart_button, .added_to_cart, .button) {
+						display: block;
+						text-align: center;
+
+						&:focus {
+							outline: none !important;
+						}
+					}
+
+					.add_to_cart_button {
+						&:after {
+							display: inline-block;
+							height: auto;
+							line-height: 1em;
+							vertical-align: top;
+							margin-left: 10px;
+						}
+
+						&.added {
+							display: none;
+						}
+
+						&.loading:after {
+							top: unset;
+							right: unset;
+						}
+					}
+				}
+			}
+		}
+
+		.vamtam-empty-wishlist-notice {
+			display: none;
+		}
+
+		.woosw-popup-content-mid-message,
+		.woosw-content-mid-notice,
+		.vamtam-look-for-heart {
+			text-align: center;
+		}
+
+		// Override elementor styles for wishlist on my-account page
+		.woocommerce-account & {
+			.vamtam-look-for-heart {
+				margin: 0 0 1em 0 !important;
+			}
+
+			.woosw-item--info {
+				font-family: "Readex Pro", sans-serif;
+
+				:is(.woosw-item--price, .woosw-item--time) {
+					color: var(--vamtam-widget-text-lighter);
+				}
+			}
+
+			.woosw-item--name a:not(:hover) {
+				color: var(--vamtam-body-link-regular);
+			}
+
+			:is(.woosw-item--add, .woosw-item--atc) {
+				:is(.add_to_cart_button, .added_to_cart) {
+					color: var(--vamtam-accent-color-5);
+					background-color: var(--vamtam-accent-color-2);
+					&:hover {
+						color: var(--vamtam-accent-color-5);
+						background-color: var(--vamtam-accent-color-6);
+					}
+				}
+			}
+		}
+
+		.vamtam-start-shopping {
+			position: relative;
+			z-index: 1000;
+			margin: auto;
+			display: block;
+			border: none;
+			transition: all .3s;
+		}
+
+		.vamtam-empty-wishlist-icon {
+			margin: 35px auto;
+			display: block;
+		}
+	}
+}

@@ -1,0 +1,234 @@
+// Product Images.
+.elementor-widget-woocommerce-product-images {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		&.vamtam-has-full-sized-gallery:not(.vamtam-mobile-gallery) {
+			.woocommerce-product-gallery__wrapper,
+			.woocommerce-product-gallery--vamtam__wrapper {
+				display: grid;
+				grid-template-columns: 1fr;
+				justify-content: center;
+				align-items: center;
+
+				.woocommerce-product-gallery__image,
+				.woocommerce-product-gallery--vamtam__image {
+					width: 100% !important;
+				}
+			}
+		}
+
+		.woocommerce-product-gallery {
+			&.vamtam-hide {
+				opacity: 0 !important;
+			}
+
+			.woocommerce-product-gallery__image > a:not([href]) {
+				pointer-events: none;
+			}
+		}
+
+		&.elementor-element > .elementor-widget-container div.images {
+			margin-bottom: 0;
+		}
+
+		span.onsale {
+			top: 0;
+			background-color: var(--vamtam-accent-color-1);
+		}
+
+		.woocommerce-product-gallery {
+			display: flex;
+			flex-direction: row-reverse;
+
+			&.vamtam-hide {
+				opacity: 0 !important;
+			}
+
+			>:is(.flex-viewport, .flex-control-thumbs, .woocommerce-product-gallery__wrapper) {
+				flex: 1;
+			}
+		}
+
+		div.images {
+			.flex-control-thumbs {
+				display: flex;
+				flex-direction: column;
+				max-width: 100px;
+				gap: 10px;
+
+				li {
+					transition: opacity .3s ease;
+				}
+
+				&:not(.vamtam-thumbs-loaded) {
+					li {
+						opacity: 0;
+					}
+
+					@keyframes vamtam-thumb-loader {
+						100% { transform: rotate(360deg); transform:rotate(360deg); }
+					}
+					&::after {
+						content: '';
+						position: absolute;
+						top: 50%;
+						width:70px;
+						height:70px;
+						border-radius:50%;
+						translate: 0 -100%;
+						@cirlce-bg: 2px solid var(--vamtam-accent-color-7);
+						border-top: @cirlce-bg;
+						border-right: @cirlce-bg;
+						border-bottom: @cirlce-bg;
+						border-left: 2px solid var(--vamtam-accent-color-5);
+						animation: vamtam-thumb-loader 2s infinite linear;
+					}
+				}
+				&.vamtam-thumbs-loaded {
+					li {
+						opacity: 1;
+					}
+					&::after {
+						opacity: 0;
+					}
+				}
+
+				.woocommerce & {
+					margin-right: 10px;
+				}
+
+				.woocommerce div.product & li {
+					width: 100%;
+
+					&:last-child {
+						margin-bottom: 0;
+					}
+
+					img {
+						padding: 8px;
+						border-radius: 18px;
+						border: 2px solid var(--vamtam-accent-color-7);
+					}
+					img.flex-active {
+						border: 2px solid var(--vamtam-accent-color-6);
+						body.e--ua-safari& {
+							will-change: opacity;
+						}
+					}
+				}
+			}
+
+			.woocommerce div.product & img {
+				border-radius: 18px;
+			}
+		}
+
+		// New badge.
+		.vamtam-new {
+			display: none;
+			position: absolute;
+			text-align: center;
+			font-family: "Montserrat", Sans-serif;
+			font-size: 10px;
+			font-weight: normal;
+			line-height: 56px;
+			border-radius: 6px;
+			min-width: 56px;
+			min-height: 56px;
+			right: auto;
+			margin: 22px;
+			left: 0;
+			top: 0;
+
+			color: var(--vamtam-accent-color-5);
+			background-color: var(--vamtam-accent-color-2);
+			z-index: 9;
+			border-radius: 50%;
+		}
+		&.vamtam-has-onsale-yes {
+			:where(.vamtam-new) {
+				&.vamtam-onsale {
+					top: 63px;
+				}
+			}
+		}
+		&:is(.vamtam-has-onsale-yes, .vamtam-has-new-badge) {
+			.woocommerce-product-gallery__wrapper {
+				position: relative;
+			}
+		}
+
+		:is( span.onsale, .vamtam-new ) {
+			border-top-left-radius: 14px !important;
+			left: 0;
+		}
+
+		.wpcpv-thumb-video .wpcpv-item,
+		.woocommerce-product-gallery__image .wpcpv-item-video::before {
+			@play-btn: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 509 345' xmlns='http://www.w3.org/2000/svg'%3E%3Ctitle%3EAIRY SPRITE%3C/title%3E%3Cdesc%3ECreated with Sketch.%3C/desc%3E%3Cdefs%3E%3ClinearGradient id='c' x1='104.24%25' x2='-2.7945%25' y1='50.723%25' y2='50.723%25'%3E%3Cstop stop-color='%23F0C14B' offset='0'/%3E%3Cstop stop-color='%23E47911' offset='1'/%3E%3C/linearGradient%3E%3ClinearGradient id='d' x1='-4.2555%25' x2='102.78%25' y1='49.261%25' y2='49.261%25'%3E%3Cstop stop-color='%23F0C14B' offset='0'/%3E%3Cstop stop-color='%23E47911' offset='1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23010101'%3E%3Ccircle cx='254.02' cy='89.022' r='62.022' opacity='.15'/%3E%3Ccircle cx='89.022' cy='254.02' r='62.022' opacity='.15'/%3E%3Ccircle cx='89.023' cy='89.023' r='62.023' opacity='.15'/%3E%3Ccircle cx='254.02' cy='254.02' r='62.022' opacity='.15'/%3E%3C/g%3E%3Ccircle cx='254' cy='89' r='64' stroke='%23fff' stroke-width='4.4302'/%3E%3Cg transform='translate(226 52)'%3E%3Cpath d='m17.66 14.635c6.094-2.888 13.291-3.453 20.146-1.007 13.705 4.891 20.854 19.968 15.961 33.675-4.891 13.708-19.965 20.856-33.672 15.964-9.646-3.442-16.044-11.928-17.284-21.431' stroke='%23fff' stroke-width='11.159'/%3E%3Cpath d='m27.3 25.462-27.73-2.253 15.81-22.887 11.92 25.14z' fill='%23fff'/%3E%3C/g%3E%3Ccircle cx='89' cy='254' r='64' stroke='%23fff' stroke-width='4.4302'/%3E%3Cg fill='%23fff'%3E%3Crect x='65' y='229' width='14.398' height='49.839'/%3E%3Crect x='98' y='229' width='14.398' height='49.839'/%3E%3Cpath d='m120.68 89-47.786-29.013v58.023l47.786-29.01z'/%3E%3C/g%3E%3Ccircle cx='89' cy='89' r='64' stroke='%23fff' stroke-width='4.4302'/%3E%3Ccircle cx='254' cy='254' r='64' stroke='%23fff' stroke-width='4.4302'/%3E%3Cg fill='%23fff'%3E%3Cpath d='m255 223.44v61.78l-17.82-17.22h-17.18v-26h17.18l17.82-18.56z'/%3E%3Cpath d='m268.08 240.88 7.6 7.6 7.58-7.6 5.54 5.52-7.6 7.6 7.63 7.63-5.57 5.49-7.59-7.59-7.59 7.59-5.51-5.48 7.6-7.62-7.61-7.6 5.52-5.55v0.01z'/%3E%3Crect x='459' y='27' width='3.225' height='11.161'/%3E%3Crect x='467' y='27' width='3.225' height='11.161'/%3E%3Cpath d='m441.35 32.498-10.7-6.5v13l10.7-6.5z'/%3E%3Cpath d='m403 25v15l-3.88-4h-4.12v-7h4.12l3.88-4z'/%3E%3Cpath d='m406.62 29.235 1.85 1.846 1.84-1.846 1.34 1.339-1.85 1.846 1.86 1.852-1.35 1.334-1.85-1.844-1.84 1.844-1.34-1.331 1.84-1.849-1.84-1.846 1.34-1.345z'/%3E%3C/g%3E%3Cpath d='m370.28 26.637c3.03 0 5.49 2.609 5.49 5.827 0 3.219-2.46 5.826-5.49 5.826' stroke='%23fff' stroke-width='1.554'/%3E%3Cpath d='m370.29 29.597c1.51 0 2.73 1.299 2.73 2.903s-1.22 2.904-2.73 2.904' stroke='%23fff' stroke-width='1.554'/%3E%3Cpath d='m368 25v15l-3.88-4h-4.12v-7h4.12l3.88-4z' fill='%23fff'/%3E%3Cg transform='translate(364 94)'%3E%3Cpath d='m7.2 5.765 2.79-2.797' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m6.59 0 6 6v-6h-6z' fill='%23fff'/%3E%3Cpath d='m5.63 7.32-2.8 2.79' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m6.24 13-6.24-6.29v6.29h6.24z' fill='%23fff'/%3E%3C/g%3E%3Cg transform='translate(430 94)'%3E%3Cpath d='m7.2 5.765 2.79-2.797' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m6.59 0 6 6v-6h-6z' fill='%23fff'/%3E%3Cpath d='m5.63 7.32-2.8 2.79' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m6.24 13-6.24-6.29v6.29h6.24z' fill='%23fff'/%3E%3C/g%3E%3Cpath d='m381 91.37c0-0.753-0.62-1.37-1.37-1.37h-18.26c-0.75 0-1.37 0.616-1.37 1.37v18.26c0 0.75 0.62 1.37 1.37 1.37h18.26c0.75 0 1.37-0.62 1.37-1.37v-18.26z' stroke='%23fff' stroke-width='2'/%3E%3Cg transform='translate(399 94)'%3E%3Cpath d='m12.09 1.022-2.79 2.797' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m12.7 6-5.7-5.587v5.587h5.7z' fill='%23fff'/%3E%3Cpath d='m1.04 11.98 2.8-2.8' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m0.43 7 5.57 5.59v-5.59h-5.57z' fill='%23fff'/%3E%3C/g%3E%3Cg transform='translate(459 94)'%3E%3Cpath d='m12.09 1.022-2.79 2.797' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m12.7 6-5.7-5.587v5.587h5.7z' fill='%23fff'/%3E%3Cpath d='m1.04 11.98 2.8-2.8' stroke='%23fff' stroke-width='2.7966'/%3E%3Cpath d='m0.43 7 5.57 5.59v-5.59h-5.57z' fill='%23fff'/%3E%3C/g%3E%3Cpath d='m395 109.63c0 0.75 0.62 1.37 1.37 1.37h18.26c0.75 0 1.37-0.62 1.37-1.37v-18.26c0-0.753-0.62-1.37-1.37-1.37h-18.26c-0.75 0-1.37 0.616-1.37 1.37v18.26z' stroke='%23fff' stroke-width='2'/%3E%3Cg fill='%23bbb'%3E%3Crect x='459' y='62' width='3.225' height='11.161'/%3E%3Crect x='467' y='62' width='3.225' height='11.161'/%3E%3Cpath d='m441.35 67.561-10.7-6.5v13l10.7-6.5z'/%3E%3Cpath d='m403 60v15l-3.88-4h-4.12v-7h4.12l3.88-4z'/%3E%3Cpath d='m406.62 64.235 1.85 1.846 1.84-1.846 1.34 1.339-1.85 1.846 1.86 1.852-1.35 1.334-1.85-1.844-1.84 1.844-1.34-1.331 1.84-1.849-1.84-1.846 1.34-1.345z'/%3E%3C/g%3E%3Cpath d='m370.28 61.637c3.03 0 5.49 2.609 5.49 5.827 0 3.219-2.46 5.826-5.49 5.826' stroke='%23bbb' stroke-width='1.554'/%3E%3Cpath d='m370.29 64.597c1.51 0 2.73 1.299 2.73 2.903s-1.22 2.904-2.73 2.904' stroke='%23bbb' stroke-width='1.554'/%3E%3Cpath d='m368 60v15l-3.88-4h-4.12v-7h4.12l3.88-4z' fill='%23bbb'/%3E%3Cg transform='translate(364 129)'%3E%3Cpath d='m7.2 5.76 2.79-2.79' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m6.59 0 6 6v-6h-6z' fill='%23bbb'/%3E%3Cpath d='m5.63 7.32-2.8 2.79' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m6.24 13-6.24-6.29v6.29h6.24z' fill='%23bbb'/%3E%3C/g%3E%3Cg transform='translate(430 129)'%3E%3Cpath d='m7.2 5.76 2.79-2.79' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m6.59 0 6 6v-6h-6z' fill='%23bbb'/%3E%3Cpath d='m5.63 7.32-2.8 2.79' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m6.24 13-6.24-6.29v6.29h6.24z' fill='%23bbb'/%3E%3C/g%3E%3Cpath d='m381 126.37c0-0.75-0.62-1.37-1.37-1.37h-18.26c-0.75 0-1.37 0.62-1.37 1.37v18.26c0 0.75 0.62 1.37 1.37 1.37h18.26c0.75 0 1.37-0.62 1.37-1.37v-18.26z' stroke='%23bbb' stroke-width='2'/%3E%3Cg transform='translate(399 129)'%3E%3Cpath d='m12.09 1.02-2.79 2.8' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m12.7 6-5.7-5.59v5.59h5.7z' fill='%23bbb'/%3E%3Cpath d='m1.04 11.98 2.8-2.8' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m0.43 7 5.57 5.59v-5.59h-5.57z' fill='%23bbb'/%3E%3C/g%3E%3Cg transform='translate(459 129)'%3E%3Cpath d='m12.09 1.02-2.79 2.8' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m12.7 6-5.7-5.59v5.59h5.7z' fill='%23bbb'/%3E%3Cpath d='m1.04 11.98 2.8-2.8' stroke='%23bbb' stroke-width='2.7966'/%3E%3Cpath d='m0.43 7 5.57 5.59v-5.59h-5.57z' fill='%23bbb'/%3E%3C/g%3E%3Cpath d='m395 144.63c0 0.75 0.62 1.37 1.37 1.37h18.26c0.75 0 1.37-0.62 1.37-1.37v-18.26c0-0.75-0.62-1.37-1.37-1.37h-18.26c-0.75 0-1.37 0.62-1.37 1.37v18.26z' stroke='%23bbb' stroke-width='2'/%3E%3Cg transform='translate(350 180)' stroke-width='10'%3E%3Cpath d='m124.92 24.39c10.95 12.525 17.58 28.918 17.58 46.861 0 39.349-31.9 71.249-71.252 71.249-18.002 0-34.443-6.68-46.984-17.68' stroke='url(%23c)'/%3E%3Cpath d='m17.23 117.72c-10.74-12.48-17.23-28.72-17.23-46.47 0-39.354 31.898-71.25 71.25-71.25 17.761-2.8422e-14 34 6.498 46.48 17.246' stroke='url(%23d)'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E%0A");
+			background-position: 2.3054755% 4.3715847%;
+			background-size: 314.19753086% 212.96296296%;
+			background-image: @play-btn;
+		}
+
+		.wpcpv-thumb-video .wpcpv-item {
+			&::before {
+				content: '';
+			}
+			&, &::before {
+				width: 100%;
+				height: 100%;
+				min-width: 80px;
+				line-height: 1;
+				pointer-events: none;
+			}
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(.85);
+			transform-origin: center center;
+			background-color: transparent;
+		}
+
+		.woocommerce-product-gallery__image .wpcpv-item-video {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: transparent;
+
+			&::before {
+				content: '';
+				font-size: 2.5em;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				width: 3em;
+				min-width: 80px;
+				height: 3em;
+				line-height: 1;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				border-radius: 50%;
+				opacity: .5;
+				transition: opacity .3s ease;
+			}
+
+			&:hover {
+				&::before {
+					opacity: 1;
+				}
+			}
+
+			img {
+				visibility: hidden;
+				opacity: 0;
+			}
+		}
+	}
+}

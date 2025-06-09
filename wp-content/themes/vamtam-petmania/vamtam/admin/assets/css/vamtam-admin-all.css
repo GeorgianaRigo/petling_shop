@@ -1,0 +1,158 @@
+body.vamtam-not-verified #setting-error-tgmpa {
+  display: none;
+}
+body.vamtam-not-verified #adminmenu #toplevel_page_vamtam_theme_setup ul li:nth-child(3),
+body.vamtam-not-verified #adminmenu #toplevel_page_vamtam_theme_setup ul li:nth-child(4) {
+  display: none;
+}
+body a.nav-tab[href*="wpclever-kit"],
+body .wpclever-notice.notice {
+  display: none;
+}
+body .wpclever_settings_page_nav a[href*="tab=premium"] {
+  display: none;
+}
+body #adminmenu a[href="admin.php?page=vamtam_theme_services"] {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+body #adminmenu a[href="admin.php?page=vamtam_theme_services"] #vamtam-premium-services {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  color: white;
+  fill: white;
+  background-color: #6a51f2;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+}
+body #adminmenu a[href="admin.php?page=vamtam_theme_services"] #vamtam-premium-services svg {
+  width: 1em;
+  height: 1em;
+  margin-right: 5px;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) {
+  display: flex;
+  position: relative;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ccd0d4;
+  margin-left: 4px !important;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice)::before {
+  display: block;
+  content: "";
+  position: absolute;
+  inset-inline-start: -4px;
+  inset-block-start: -1px;
+  inset-block-end: -1px;
+  width: 4px;
+  background-color: #dba617;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice).warning::before {
+  background-color: #d63638;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice).warning .vamtam-notice-aside {
+  background-color: #FFEAEB;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice).cta::before {
+  background-color: #6a51f2;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice).cta .btn-cta {
+  color: white;
+  background-color: #6a51f2;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice).cta .btn-cta + a {
+  margin-left: 10px;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) #vamtam-logo {
+  width: 1em;
+  height: 1em;
+  font-size: 25px;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-aside {
+  overflow: hidden;
+  background-color: rgba(82, 76, 255, 0.04);
+  width: 50px;
+  text-align: center;
+  -webkit-padding-before: 15px;
+  padding-block-start: 15px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-content {
+  color: #3C434E;
+  padding: 20px;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-content h2,
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-content h3 {
+  margin: 0;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-content :last-child {
+  margin-bottom: 0;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .vamtam-notice-content h2 {
+  font-size: 1.45em;
+}
+body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnostics-notice) .notice-dismiss::before {
+  content: "\f335";
+  font-size: 24px;
+}
+body #vamtam-check-license-result .vamtam-notice-content {
+  flex: 1;
+}
+body .update-message .vamtam-update-warning__separator {
+  border: 1px solid #ffb900;
+  margin: 15px -12px;
+}
+body .update-message .vamtam-update-warning {
+  -webkit-margin-after: 5px;
+          margin-block-end: 5px;
+  max-width: 1000px;
+  display: flex;
+}
+body .update-message .vamtam-update-warning__icon {
+  font-size: 17px;
+  -webkit-margin-end: 9px;
+          margin-inline-end: 9px;
+  -webkit-margin-start: 2px;
+          margin-inline-start: 2px;
+  color: #f56e28;
+}
+body .update-message .vamtam-update-warning__title p::before,
+body .update-message .vamtam-update-warning__message p::before,
+body .update-message .vamtam-update-warning ~ p::before {
+  display: none;
+}
+body .update-message .vamtam-update-warning__message > div {
+  margin: 0.5em 0;
+}
+body .update-message > p:not(:first-of-type)::before {
+  display: none;
+}
+body .update-message .vamtam-update-warning__title {
+  font-weight: 600;
+  -webkit-margin-after: 10px;
+          margin-block-end: 10px;
+}
+body .update-message a.button-primary {
+  text-decoration: none;
+}
+body .update-message a.vamtam-update-btn {
+  margin: 0 0 10px 26px;
+}
+body .vamtam-diagnostics-notice table {
+  margin-top: 20px;
+}
+body .vamtam-diagnostics-notice table td {
+  padding-right: 20px;
+}

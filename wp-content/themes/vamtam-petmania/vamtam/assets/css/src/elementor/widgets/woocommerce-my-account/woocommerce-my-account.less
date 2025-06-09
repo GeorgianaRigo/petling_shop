@@ -1,0 +1,371 @@
+@import '../woosw/woosw.less';
+
+.elementor-widget-woocommerce-my-account {
+	// Base theme widget styles.
+	&.vamtam-has-theme-widget-styles {
+		.woocommerce {
+			.order_details {
+				tfoot {
+					td {
+						padding-top: 20px;
+						padding-bottom: 20px;
+					}
+					th {
+						padding-top: 20px;
+						padding-bottom: 20px;
+					}
+				}
+			}
+
+			:is(.woocommerce-message, .woocommerce-Message) {
+				// This is to negate a frontend.css rule that sets the bg-color of wc info buttons to 'initial' for the my-account widget.
+				a.button {
+					&, &.alt {
+						&:hover {
+							background-color: var(--vamtam-info-buttons-hover-bg-color);
+						}
+					}
+				}
+			}
+		}
+
+		.lost_reset_password {
+			margin: 0 auto;
+		}
+
+		.e-my-account-tab__payment-methods .woocommerce-info {
+			margin-bottom: 10px;
+		}
+
+		.e-my-account-tab {
+			&:not(.e-my-account-tab__dashboard--custom) {
+				.woocommerce {
+					.login {
+						background-color: transparent;
+						padding-bottom: 20px;
+						.woocommerce-LostPassword {
+							font-size: 16px;
+						}
+					}
+					.register {
+						background-color: transparent;
+						padding-bottom: 10px;
+					}
+					.woocommerce-ResetPassword {
+						background-color: transparent;
+						padding-bottom: 10px;
+					}
+				}
+			}
+		}
+
+		.e-my-account-tab:not(.e-my-account-tab__dashboard--custom) .woocommerce .woocommerce-ResetPassword .form-row-last {
+			width: 100%;
+		}
+
+		.login .button,
+		.register .button {
+			width: 100%;
+		}
+
+		.woocommerce-orders-table {
+			.woocommerce-orders-table__cell-order-actions {
+				.woocommerce-button.button.view {
+					padding: var(--tables-button-padding, 5px 10px);
+				}
+			}
+		}
+
+		.woocommerce-info {
+			.button {
+				font-size: 85.5%;
+			}
+		}
+
+		.no_subscriptions.woocommerce-message.woocommerce-message--info.woocommerce-Message.woocommerce-Message--info.woocommerce-info {
+			.woocommerce-Button.button {
+				font-size: 85.5%;
+			}
+		}
+
+		form {
+			.form-row {
+				.required {
+					color: inherit;
+				}
+			}
+
+			.show-password-input {
+				top: 30%;
+
+				&::after {
+					content: "\f070";
+					font-family: "Font Awesome 5 Free";
+				}
+			}
+		}
+
+		@media(min-width: 768px) {
+			.woocommerce-MyAccount-navigation ul li {
+				display: inline-flex !important;
+
+				a {
+					text-align: center;
+					flex-grow: 1;
+				}
+			}
+		}
+
+		.woocommerce {
+			thead .woocommerce-table__product-table.product-total,
+			tbody td.woocommerce-table__product-total.product-total,
+			tfoot td {
+				text-align: end;
+			}
+
+			.woocommerce-LostPassword.lost_password {
+				&:extend(.vamtam-font-h4);
+				color: var(--vamtam-accent-color-3);
+				text-align: center;
+
+				a {
+					position: relative;
+					color: var(--vamtam-accent-color-6);
+					font-family: var( --e-global-typography-a61aa19-font-family), Sans-serif;
+					font-size: var( --e-global-typography-a61aa19-font-size);
+					font-weight: var( --e-global-typography-a61aa19-font-weight);
+					line-height: var( --e-global-typography-a61aa19-line-height);
+					letter-spacing: var( --e-global-typography-a61aa19-letter-spacing);
+					word-spacing: var( --e-global-typography-a61aa19-word-spacing);
+
+					@keyframes vamtam-underline-move {
+						from {
+							mask-position: -8px center;
+						}
+						to {
+							mask-position: 500px center;
+						}
+					}
+
+					&::before {
+						content: "";
+						position: absolute;
+						display: inline;
+						bottom: -5px;
+						left: 0;
+						right: 0;
+						height: 6px;
+						mask-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg stroke='white' stroke-width='1px' enable-background='new 0 0 19.3 6' version='1.1' viewBox='0 0 19.3 6' xml:space='preserve' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m-5.5 3.8c1.3 1 2.7 2.2 5.5 2.2s4.2-1.2 5.5-2.2c1.1-1 2.1-1.8 4.2-1.8s3 0.8 4.2 1.8c1.3 1 2.7 2.2 5.5 2.2s4.2-1.2 5.5-2.2l-1.4-0.9c-1.1 1-2.1 1.8-4.2 1.8s-3-0.8-4.2-1.8-2.7-2.2-5.4-2.2c-2.8 0-4.2 1.2-5.5 2.2-1.2 1-2.1 1.8-4.2 1.8s-3-0.8-4.2-1.8l-1.3 0.9z'/%3E%3C/svg%3E");
+						mask-repeat: repeat-x;
+						mask-size: 13px 6px;
+						mask-position: -8px center;
+						text-decoration: none;
+						text-decoration-skip: objects;
+
+						background-color: var(--vamtam-accent-color-1);
+
+						animation: vamtam-underline-move 40s linear infinite;
+						animation-play-state: paused;
+					}
+
+					&:hover {
+						&::before {
+							animation-play-state: running;
+						}
+					}
+				}
+			}
+		}
+
+		.woocommerce-order {
+			.woocommerce-table.woocommerce-table--order-details.shop_table.order_details {
+				th.woocommerce-table__product-table.product-total,
+				td.woocommerce-table__product-total.product-total,
+				tfoot td {
+					text-align: end;
+				}
+			}
+		}
+
+		// Tabbed Login/Register form.
+		.vamtam-tabbed {
+			max-width: 455px;
+			margin: 0 auto;
+
+			> [type="radio"] {
+				display: none;
+
+				&:nth-of-type(1):checked ~ .vamtam-tabs .vamtam-tab:nth-of-type(1) label,
+				&:nth-of-type(2):checked ~ .vamtam-tabs .vamtam-tab:nth-of-type(2) label {
+					background-color: var(--vamtam-accent-color-8);
+				}
+				&:nth-of-type(1):checked ~ .vamtam-tab-content .col-1,
+				&:nth-of-type(2):checked ~ .vamtam-tab-content .col-2 {
+					display: block;
+				}
+			}
+
+			.vamtam-tabs {
+				display: flex;
+				justify-content: center;
+				list-style: none;
+				padding: 0;
+				padding-bottom: 0;
+				margin-top: 0;
+				overflow-x: hidden;
+
+				.vamtam-tab {
+					min-width: 220px;
+					min-height: 56px;
+					label {
+						display: flex;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						width: 100%;
+						height: 100%;
+						text-align: center;
+						border-radius: 4px;
+						background-color: var(--vamtam-accent-color-4);
+						color: var(--vamtam-accent-color-6);
+						text-transform: capitalize;
+						cursor: pointer;
+						transition: all 0.3s;
+						font-family: var( --e-global-typography-a61aa19-font-family), Sans-serif;
+						font-size: var( --e-global-typography-a61aa19-font-size);
+						font-weight: var( --e-global-typography-a61aa19-font-weight);
+						line-height: var( --e-global-typography-a61aa19-line-height);
+						letter-spacing: var( --e-global-typography-a61aa19-letter-spacing);
+						word-spacing: var( --e-global-typography-a61aa19-word-spacing);
+					}
+				}
+			}
+
+			.vamtam-tab-content {
+				.col-1,
+				.col-2 {
+					border: 0;
+					float: none;
+					width: 100%;
+					display: none;
+					text-align: center;
+
+					> h5 {
+						font-weight: normal;
+					}
+				}
+
+				.woocommerce-form-login,
+				.woocommerce-form-register {
+					border: 0;
+					margin-top: 10px;
+					text-align: center;
+					height: auto !important;
+					margin-bottom: 0;
+					h4 {
+						margin-top: 0;
+					}
+				}
+
+				.woocommerce-form-register {
+					display: flex;
+					flex-direction: column;
+					margin-top: 0;
+					padding-top: 0;
+
+					.vamtam-pass-notice {
+						order: 1;
+						margin-bottom: 0;
+					}
+					.woocommerce-privacy-policy-text {
+						order: -1;
+						margin-bottom: 28px;
+						p {
+							margin-top: 0;
+						}
+					}
+					.vamtam-reg-email {
+						order: 3;
+					}
+					.vamtam-submit {
+						order: 4;
+					}
+				}
+				.woocommerce-form-row {
+					label {
+						text-align: start;
+						&:extend(.vamtam-font-primary-font);
+						font-weight: bold;
+					}
+					input {
+						min-height: 56px;
+						border: 1px solid var(--vamtam-accent-color-7);
+						&:is(:active, :focus) {
+							border-color: var(--vamtam-accent-color-2);
+						}
+						border-radius: 4px;
+					}
+				}
+
+				label.woocommerce-form-login__rememberme {
+					float: left;
+					margin-bottom: 28px;
+					&:extend(.vamtam-font-primary-font);
+					input {
+						margin-right: 10px;
+					}
+				}
+
+				:is(.woocommerce-form-login__submit, .woocommerce-form-register__submit) {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					font-size: 16px;
+					max-height: 50px;
+					margin-left: 5px;
+
+					i {
+						margin-left: 5px;
+					}
+				}
+
+				input::placeholder {
+					font-size: 14px;
+				}
+				p {
+					font-size: 12px;
+					line-height: 24px;
+				}
+			}
+		}
+
+		// My Account page (Login/Register screen).
+		&:not(.logged-in) .page-header {
+			h1 {
+				&:extend(.vamtam-font-h2);
+			}
+			.vamtam-logo {
+				margin-bottom: 20px;
+			}
+		}
+
+		.woocommerce-form-login__submit {
+			.vamtam-theme-arrow-right {
+				&:before {
+					content: "\e919";
+					font-family: 'theme-icons' !important;
+				}
+			}
+		}
+		.woocommerce-form-register__submit {
+			.vamtam-theme-arrow-right {
+				&:before {
+					content: "\e919";
+					font-family: 'theme-icons' !important;
+				}
+			}
+		}
+
+		.woosw();
+	}
+}

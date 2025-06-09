@@ -1,0 +1,392 @@
+// Product Data Tabs.
+.elementor-widget-woocommerce-product-data-tabs {
+	// Base Theme Widget Styles.
+    &.vamtam-has-theme-widget-styles {
+		.woocommerce-tabs {
+			ul.tabs {
+				padding: 0 !important;
+
+				&.wc-tabs {
+					li {
+						a {
+							padding: 20px 0;
+						}
+
+						&:not(.active) {
+							border: none;
+							border-bottom: 1px solid var(--vamtam-ptabs-border-color, var( --vamtam-accent-color-7 )) !important;
+						}
+
+						&.active {
+							border: none;
+							border-bottom: 1px solid var(--vamtam-ptabs-border-color-active, var( --vamtam-accent-color-1 )) !important;
+						}
+					}
+				}
+			}
+
+			.panel {
+				border-color: var(--vamtam-ptabs-border-color, var( --vamtam-accent-color-7 )) !important;
+				padding: 40px 0 20px 0 !important;
+
+				.ets-load-more {
+					margin-top: 0;
+				}
+			}
+
+			.woocommerce-Tabs-panel--reviews #reviews .woocommerce-Reviews-title,
+			.woocommerce-Tabs-panel--ask form textarea#ques-text-ar {
+				margin-top: 0;
+				line-height: 1;
+			}
+
+			.woocommerce-Tabs-panel--reviews {
+				#reviews {
+					.woocommerce-Reviews-title {
+						margin-bottom: 25px;
+					}
+					#comments {
+						ol.commentlist {
+							border: 1px solid var(--vamtam-accent-color-7);
+							margin-bottom: 40px;
+							li {
+								border-bottom: 1px solid var(--vamtam-accent-color-7);
+								padding-bottom: 35px;
+								margin-bottom: 35px;
+								&:last-of-type {
+									border-bottom: none;
+									padding-bottom: 0;
+									margin-bottom: 0;
+								}
+								img.avatar {
+									padding: 0;
+								}
+								.comment-text {
+									border: none;
+									padding: 0;
+									.woocommerce-review__author {
+										font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+										font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+										font-weight: 600;
+										line-height: var( --e-global-typography-vamtam_primary_font-line-height);
+										letter-spacing: var( --e-global-typography-a0d0c03-letter-spacing);
+										word-spacing: var( --e-global-typography-a0d0c03-word-spacing);
+										text-transform: capitalize;
+										color: var( --vamtam-accent-color-6);
+										display: block;
+										width: 100%;
+									}
+									.woocommerce-review__published-date {
+										font-family: var( --e-global-typography-a81c87b-font-family), Sans-serif;
+										font-size: var( --e-global-typography-a81c87b-font-size);
+										font-weight: var( --e-global-typography-a81c87b-font-weight);
+										text-transform: var( --e-global-typography-a81c87b-text-transform);
+										line-height: var( --e-global-typography-a81c87b-line-height);
+										letter-spacing: var( --e-global-typography-a81c87b-letter-spacing);
+										word-spacing: var( --e-global-typography-a81c87b-word-spacing);
+										display: block;
+										width: 100%;
+									}
+								}
+								.woocommerce-review__dash {
+									display: none;
+								}
+							}
+						}
+					}
+					.comment_container {
+						.star-rating {
+							font-size: 11px;
+							letter-spacing: 4px;
+							width: 7em;
+						}
+					}
+					.comment-reply-title {
+						font-family: var( --e-global-typography-vamtam_h5-font-family), Sans-serif;
+						font-size: var( --e-global-typography-vamtam_h5-font-size);
+						font-weight: var( --e-global-typography-vamtam_h5-font-weight);
+						line-height: var( --e-global-typography-vamtam_h5-line-height);
+						letter-spacing: var( --e-global-typography-vamtam_h5-letter-spacing);
+						word-spacing: var( --e-global-typography-vamtam_h5-word-spacing);
+						color: var(--vamtam-accent-color-6);
+					}
+					#respond {
+						.comment-form-rating {
+							label {
+								font-family: var( --e-global-typography-a81c87b-font-family), Sans-serif;
+								font-size: var( --e-global-typography-a81c87b-font-size);
+								font-weight: var( --e-global-typography-a81c87b-font-weight);
+								text-transform: var( --e-global-typography-a81c87b-text-transform);
+								line-height: var( --e-global-typography-a81c87b-line-height);
+								letter-spacing: var( --e-global-typography-a81c87b-letter-spacing);
+								word-spacing: var( --e-global-typography-a81c87b-word-spacing);
+								display: block;
+								margin-top: 20px;
+								margin-bottom: 5px;
+							}
+						}
+						.comment-form {
+							p.stars {
+								font-size: 14px;
+								letter-spacing: 6px;
+							}
+							p {
+								margin: 0 0 15px;
+							}
+							margin: 0 0 15px;
+							.comment-form-author {
+								label {
+									display: block;
+									margin-bottom: 10px;
+								}
+								display: block;
+								width: 50%;
+								float: left;
+								margin-bottom: 25px;
+								input {
+									width: 100%;
+								}
+							}
+							.comment-form-email {
+								label {
+									display: block;
+									margin-bottom: 10px;
+								}
+								display: block;
+								width: 50%;
+								float: left;
+								padding-left: 30px;
+								margin-bottom: 25px;
+								input {
+									width: 100%;
+								}
+							}
+							.comment-form-comment {
+								label {
+									display: block;
+									margin-bottom: 10px;
+								}
+								margin-bottom: 25px;
+							}
+							.comment-form-autho {
+								padding-right: 30px;
+							}
+							.comment-form-cookies-consent {
+								label {
+									font-size: 12px;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.woocommerce-Tabs-panel--ask {
+			form {
+				textarea#ques-text-ar {
+					width: 100%;
+					font-family: var( --e-global-typography-96d80f8-font-family), Sans-serif;
+					font-size: var( --e-global-typography-96d80f8-font-size);
+					font-weight: var( --e-global-typography-96d80f8-font-weight);
+					letter-spacing: var( --e-global-typography-96d80f8-letter-spacing);
+					line-height: var( --e-global-typography-96d80f8-line-height);
+					word-spacing: var( --e-global-typography-96d80f8-word-spacing);
+				}
+
+				#ets-submit {
+					margin-bottom: 30px;
+				}
+
+				.btn.btn-info {
+					transition: all 0.3s;
+				}
+			}
+
+			.btn.btn-success {
+				transition: all 0.3s;
+			}
+
+			.my-table {
+				tr td {
+					background: transparent;
+					border-top: 1px solid var(--vamtam-accent-color-7);
+					padding: 20px;
+
+					&:last-of-type {
+						border-bottom: 1px solid var(--vamtam-accent-color-7);
+					}
+
+					&:nth-last-of-type(2) {
+						border-bottom: 1px solid var(--vamtam-accent-color-7);
+					}
+				}
+
+				table tr td h6 {
+					font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+					font-size: var( --e-global-typography-75063c5-font-size);
+					letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+					line-height: var( --e-global-typography-75063c5-line-height);
+					text-transform: capitalize;
+					word-spacing: var( --e-global-typography-75063c5-word-spacing);
+				}
+			}
+
+			#ets-load-more {
+				margin-top: 30px;
+			}
+
+			.ets-question-description {
+				p {
+					color: var( --vamtam-accent-color-6);
+				}
+			}
+
+			.ets-accordion {
+				background-color: transparent;
+				border-bottom: 1px solid var(--vamtam-accent-color-7);
+				color: inherit;
+				font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+				font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+				font-weight: var( --e-global-typography-vamtam_primary_font-font-family);
+				line-height: var( --e-global-typography-vamtam_primary_font-font-family);
+				margin-bottom: 0;
+				padding: 20px;
+				align-items: baseline;
+
+				.que-content {
+					font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+					font-weight: 600;
+					line-height: var( --e-global-typography-vamtam_primary_font-line-height);
+					letter-spacing: var( --e-global-typography-a0d0c03-letter-spacing);
+					word-spacing: var( --e-global-typography-a0d0c03-word-spacing);
+					text-transform: capitalize;
+				}
+
+				h6 {
+					font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+					font-weight: var( --e-global-typography-vamtam_primary_font-font-weignt);
+					line-height: var( --e-global-typography-vamtam_primary_font-line-height);
+					letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+					word-spacing: var( --e-global-typography-75063c5-word-spacing);
+					text-transform: capitalize;
+					color: inherit;
+				}
+			}
+
+			.ets-panel {
+				background-color: transparent;
+				border-bottom: 1px solid var(--vamtam-accent-color-7);
+				color: var( --vamtam-accent-color-6);
+				font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+				font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+				font-weight: var( --e-global-typography-vamtam_primary_font-font-family);
+				line-height: var( --e-global-typography-vamtam_primary_font-font-family);
+				margin-bottom: 0;
+				padding: 25px 20px;
+
+				.ans-content {
+					color: inherit;
+					font-family: var( --e-global-typography-vamtam_primary_font-font-family), Sans-serif;
+					font-size: var( --e-global-typography-vamtam_primary_font-font-size);
+					font-weight: var( --e-global-typography-vamtam_primary_font-font-family);
+					line-height: var( --e-global-typography-vamtam_primary_font-font-family);
+				}
+			}
+		}
+
+		.woocommerce-Tabs-panel--description ul {
+			margin-top: 0;
+		}
+
+		.woocommerce-Tabs-panel--additional_information {
+			h2 {
+				margin-top: 0;
+			}
+
+			h2:first-of-type {
+				margin-bottom: 25px;
+			}
+
+			table.shop_attributes {
+				border-top: 1px solid var(--vamtam-accent-color-7);
+
+				th,
+				td {
+					padding: 20px;
+				}
+
+				td {
+					font-style: normal;
+					font-size: 14px;
+				}
+
+				th,
+				td {
+					border-bottom: 1px solid var(--vamtam-accent-color-7);
+				}
+
+				th {
+					color: var( --vamtam-accent-color-6);
+					font-family: var( --e-global-typography-6d96c5f-font-family), Sans-serif;
+					font-size: var( --e-global-typography-6d96c5f-font-size);
+					font-weight: var( --e-global-typography-6d96c5f-font-weight);
+					line-height: var( --e-global-typography-6d96c5f-line-height);
+					letter-spacing: var( --e-global-typography-6d96c5f-letter-spacing);
+					word-spacing: var( --e-global-typography-6d96c5f-word-spacing);
+				}
+
+				tr:nth-child(even) th,
+				tr:nth-child(even) td {
+					background: transparent;
+				}
+			}
+		}
+
+		@media(min-width: 768px) {
+			.tabs.wc-tabs {
+				text-align: center;
+			}
+			.woocommerce-tabs ul.tabs.wc-tabs li {
+				margin: 0 20px;
+			}
+		}
+	}
+}
+
+ol.commentlist li img.avatar {
+	position: relative;
+	padding: 0px;
+	width: 60px;
+	border: none;
+	margin: 30px 20px 0 0;
+	border-radius: 100%;
+}
+
+table.shop_attributes {
+	border: 1px solid var(--vamtam-accent-color-7);
+
+	&,
+	:is(th, td) {
+		border-style: solid;
+		text-align: start;
+		padding: 10px 15px;
+	}
+
+	th {
+		border-bottom-color: var(--vamtam-accent-color-7);
+	}
+
+	td {
+		border-bottom-color: var(--vamtam-accent-color-7);
+		border-left: solid 1px var(--vamtam-accent-color-7);
+		padding-bottom: 0;
+		font-style: normal;
+
+		p {
+			padding: 0px 0 10px 0;
+		}
+	}
+}

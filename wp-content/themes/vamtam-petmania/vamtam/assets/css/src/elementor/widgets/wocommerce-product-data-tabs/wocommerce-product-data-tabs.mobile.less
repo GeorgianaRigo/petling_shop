@@ -1,0 +1,55 @@
+// Product Data Tabs - Mobile.
+.elementor-widget-woocommerce-product-data-tabs {
+	// Base Theme Widget Styles.
+    &.vamtam-has-theme-widget-styles {
+		.woocommerce-Tabs-panel--ask {
+			.ets-accordion {
+				:is(.que-content, .que-content-des, h6) {
+					width: 100%;
+					display: block;
+				}
+			}
+
+			.ets-panel .ans-content {
+				width: 33%;
+				display: block;
+			}
+			.ans-content-des {
+				width: 66%;
+				display: block;
+			}
+		}
+
+		.tabs.wc-tabs {
+			text-align: start;
+		}
+
+		&.vamtam-has-mobile-hr-layout {
+			// Titles Wrap
+			ul.tabs.wc-tabs {
+				display: flex;
+				align-items: center;
+				overflow-x: auto;
+				flex-wrap: nowrap;
+
+				// Titles
+				> li {
+					min-width: fit-content;
+					margin: 0 20px;
+
+					&:first-of-type {
+						margin-left: 0;
+					}
+
+					&:last-of-type {
+						margin-right: 0;
+					}
+
+					a {
+						padding-bottom: 20px;
+					}
+				}
+			}
+		}
+	}
+}

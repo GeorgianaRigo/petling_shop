@@ -1,0 +1,1014 @@
+# Copyright (C) 2024 Pimwick, LLC
+# This file is distributed under the same license as the PW WooCommerce Gift Cards plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: PW WooCommerce Gift Cards 2.5\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/pw-gift-cards\n"
+"POT-Creation-Date: 2024-11-12T16:20:54+00:00\n"
+"PO-Revision-Date: 2024-11-12 11:23-0500\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.5\n"
+"X-Domain: pw-woocommerce-gift-cards\n"
+
+#. Plugin Name of the plugin
+msgid "PW WooCommerce Gift Cards"
+msgstr "PW WooCommerce Gift Cards"
+
+#. Plugin URI of the plugin
+msgid "https://www.pimwick.com/gift-cards/"
+msgstr "https://www.pimwick.com/gift-cards/"
+
+#. Description of the plugin
+msgid "Sell gift cards in your WooCommerce store."
+msgstr "Sprzedawaj karty podarunkowe w swoim sklepie WooCommerce."
+
+#. Author of the plugin
+msgid "Pimwick, LLC"
+msgstr "Pimwick, LLC"
+
+#. Author URI of the plugin
+msgid "https://www.pimwick.com"
+msgstr "https://www.pimwick.com"
+
+#. translators: %s is PW Gift Cards.
+#: admin/pw-gift-cards-admin.php:34 admin/pw-gift-cards-admin.php:114
+#: admin/pw-gift-cards-admin.php:192 admin/pw-gift-cards-admin.php:203
+#: admin/pw-gift-cards-admin.php:215 admin/pw-gift-cards-admin.php:216
+#: admin/pw-gift-cards-admin.php:225 admin/pw-gift-cards-admin.php:226
+#: admin/pw-gift-cards-admin.php:376
+msgid "PW Gift Cards"
+msgstr "PW Gift Cards"
+
+#: admin/pw-gift-cards-admin.php:40
+msgid "Auto Complete Orders"
+msgstr "Automatyczne kompletowanie zamówienia"
+
+#: admin/pw-gift-cards-admin.php:41
+msgid ""
+"When an order only contains gift cards, automatically mark the order as "
+"Complete to send the gift cards immediately."
+msgstr ""
+"Jeśli zamówienie zawiera tylko karty podarunkowe, automatycznie oznacz "
+"zamówienie jako zrealizowane, aby natychmiast wysłać karty podarunkowe."
+
+#: admin/pw-gift-cards-admin.php:47
+msgid "Send When Order Received"
+msgstr "Wyślij po otrzymaniu zamówienia"
+
+#: admin/pw-gift-cards-admin.php:48
+msgid ""
+"By default we wait until the order status is Complete before generating and "
+"emailing the gift card. Check this box to send the gift card immediately "
+"when the order is received. Scheduled gift cards will still be sent on the "
+"scheduled date. Default: Unchecked"
+msgstr ""
+"Domyślnie przed wygenerowaniem i wysłaniem pocztą e-mail karty podarunkowej "
+"czekamy, aż status zamówienia będzie Kompletny. Zaznacz to pole, aby wysłać "
+"kartę podarunkową natychmiast po otrzymaniu zamówienia. Zaplanowane karty "
+"podarunkowe będą nadal wysyłane w zaplanowanym terminie. Domyślnie: "
+"Odznaczone"
+
+#: admin/pw-gift-cards-admin.php:54
+msgid "Buy Gift Cards with Gift Cards"
+msgstr "Kup karty podarunkowe z kartami podarunkowymi"
+
+#: admin/pw-gift-cards-admin.php:55
+msgid ""
+"Allow customers to purchase gift cards using another gift card. Default: "
+"Unchecked."
+msgstr ""
+"Zezwala klientom na zakup kart podarunkowych przy użyciu innej karty "
+"podarunkowej. Domyślnie: Odznaczone."
+
+#: admin/pw-gift-cards-admin.php:61
+msgid "Use the WooCommerce Transactional Email System"
+msgstr "Skorzystaj z systemu transakcyjnych wiadomości e-mail WooCommerce"
+
+#: admin/pw-gift-cards-admin.php:62
+msgid ""
+"Enabled by default. If you are not receiving your gift card emails, try "
+"disabling this setting."
+msgstr ""
+"Domyślnie włączone. Jeśli nie otrzymujesz wiadomości e-mail z kartami "
+"podarunkowymi, spróbuj wyłączyć to ustawienie."
+
+#: admin/pw-gift-cards-admin.php:68
+msgid "Apply fix for missing fields"
+msgstr "Zastosuj poprawkę dla brakujących pól"
+
+#: admin/pw-gift-cards-admin.php:69
+msgid ""
+"If you do not see the To / From / Message fields on your gift card product "
+"page, try checking this box and reloading. Some themes have out of date "
+"WooCommerce template files and need to be patched to work with the Gift Card "
+"product."
+msgstr ""
+"Jeśli nie widzisz pól Do / Od / Wiadomość na stronie produktu z kartą "
+"podarunkową, spróbuj zaznaczyć to pole i załadować je ponownie. Niektóre "
+"szablony mają nieaktualne pliki szablonów WooCommerce i muszą zostać "
+"poprawione, aby działały z produktem Gift Card."
+
+#: admin/pw-gift-cards-admin.php:75
+msgid "Format Prices"
+msgstr "Ceny formatów"
+
+#: admin/pw-gift-cards-admin.php:76
+msgid ""
+"For fixed gift card amounts, format the price with the system currency "
+"symbol. This is enabled by default. If you are having trouble with currency "
+"switchers, disable this setting. Note: You must remove and re-add your fixed "
+"gift card amounts if you change this setting."
+msgstr ""
+"W przypadku stałych kwot kart podarunkowych należy sformatować cenę za "
+"pomocą symbolu waluty systemowej. Jest to domyślnie włączone. Jeśli masz "
+"problemy z przełącznikami walut, wyłącz to ustawienie. Uwaga: Jeśli zmienisz "
+"to ustawienie, musisz usunąć i ponownie dodać stałe kwoty kart podarunkowych."
+
+#: admin/pw-gift-cards-admin.php:82
+msgid "Redeem Location - Cart"
+msgstr "Zrealizuj lokalizację - Koszyk"
+
+#: admin/pw-gift-cards-admin.php:83
+msgid "Specifies where the \"Apply Gift Card\" box appears on the Cart page."
+msgstr ""
+"Określa miejsce wyświetlania pola \"Zastosuj kartę podarunkową\" na stronie "
+"koszyka."
+
+#: admin/pw-gift-cards-admin.php:91
+msgid "Above the \"Proceed to Checkout\" button."
+msgstr "Nad przyciskiem \"Przejdź do kasy\"."
+
+#: admin/pw-gift-cards-admin.php:92 admin/pw-gift-cards-admin.php:107
+msgid "Below the \"Apply Coupon\" area."
+msgstr "Poniżej obszaru \"Zastosuj kupon\"."
+
+#: admin/pw-gift-cards-admin.php:93 admin/pw-gift-cards-admin.php:108
+msgid "Do not display gift card field."
+msgstr "Nie wyświetlaj pola karty podarunkowej."
+
+#: admin/pw-gift-cards-admin.php:97
+msgid "Redeem Location - Checkout"
+msgstr "Zrealizuj lokalizację - Kasa"
+
+#: admin/pw-gift-cards-admin.php:98
+msgid ""
+"Specifies where the \"Apply Gift Card\" box appears on the Checkout page."
+msgstr ""
+"Określa miejsce wyświetlenia pola \"Zastosuj kartę podarunkową\" na stronie "
+"kasy."
+
+#: admin/pw-gift-cards-admin.php:106
+msgid "Below the \"Payment Methods\" area."
+msgstr "Poniżej obszaru \"Metody płatności\"."
+
+#: admin/pw-gift-cards-admin.php:112
+msgid "Hide Pimwick Plugins Menu"
+msgstr "Ukryj menu wtyczek Pimwick"
+
+#. translators: %s is PW Gift Cards.
+#: admin/pw-gift-cards-admin.php:114
+msgid ""
+"Do not show the Pimwick Plugins menu on the left. You can still access the "
+"dashboard via WooCommerce > %s"
+msgstr ""
+"Nie wyświetlaj menu Pimwick Plugins po lewej stronie. Nadal można uzyskać "
+"dostęp do pulpitu nawigacyjnego za pośrednictwem WooCommerce > %s"
+
+#: admin/pw-gift-cards-admin.php:163
+msgid "Configuration error detected by"
+msgstr "Błąd konfiguracji wykryty przez"
+
+#: admin/pw-gift-cards-admin.php:164
+msgid ""
+"Your PayPal payment gateway is incorrectly configured. You should not have "
+"both IPN and PDT enabled. The \"IPN Email Notifications\" setting is enabled "
+"and there is also a \"PayPal Identity Token\" (PDT) value set. PayPal is "
+"reaching back to your site twice to confirm the payment. This causes things "
+"to happen twice including email notifications, stock reduction, and gift "
+"card generation. Go to WooCommerce -> Settings -> Payments -> PayPal and "
+"either clear the value from the \"PayPal Identity Token\" field or disable "
+"the \"IPN Email Notifications\" setting."
+msgstr ""
+"Bramka płatności PayPal jest nieprawidłowo skonfigurowana. Nie powinieneś "
+"mieć włączonych zarówno IPN, jak i PDT. Ustawienie \"Powiadomienia e-mail "
+"IPN\" jest włączone, a także ustawiona jest wartość \"Token tożsamości "
+"PayPal\" (PDT). PayPal dwukrotnie powraca do Twojej witryny, aby potwierdzić "
+"płatność. Powoduje to podwójne działanie, w tym powiadomienia e-mail, "
+"redukcję zapasów i generowanie kart podarunkowych. Przejdź do WooCommerce -> "
+"Ustawienia -> Płatności -> PayPal i usuń wartość z pola \"Token tożsamości "
+"PayPal\" lub wyłącz ustawienie \"Powiadomienia e-mail IPN\"."
+
+#: admin/pw-gift-cards-admin.php:165
+msgid "Dismiss this notice"
+msgstr "Odrzuć to powiadomienie"
+
+#: admin/pw-gift-cards-admin.php:193 admin/pw-gift-cards-admin.php:204
+msgid "Pimwick Plugins"
+msgstr "Wtyczki Pimwick"
+
+#: admin/pw-gift-cards-admin.php:253
+msgid "Note: Be sure to save changes before sending a preview email."
+msgstr ""
+"Uwaga: Pamiętaj, aby zapisać zmiany przed wysłaniem wiadomości e-mail z "
+"podglądem."
+
+#: admin/pw-gift-cards-admin.php:254
+msgid "Recipient email address?"
+msgstr "Adres e-mail odbiorcy?"
+
+#: admin/pw-gift-cards-admin.php:255
+msgid "Reset to the default Email Design?"
+msgstr "Przywrócić domyślny wygląd wiadomości e-mail?"
+
+#: admin/pw-gift-cards-admin.php:283
+msgid "Wait"
+msgstr "Czekaj"
+
+#: admin/pw-gift-cards-admin.php:284
+msgid "Add"
+msgstr "Dodaj"
+
+#: admin/pw-gift-cards-admin.php:285
+msgid "Remove"
+msgstr "Usuń"
+
+#: admin/pw-gift-cards-admin.php:286
+#: includes/class-wc-product-pw-gift-card.php:60
+msgid "Amount must be greater than zero."
+msgstr "Kwota musi być większa od zera."
+
+#: admin/pw-gift-cards-admin.php:287
+msgid "Amount must be greater than minimum amount."
+msgstr "Kwota musi być większa niż kwota minimalna."
+
+#: admin/pw-gift-cards-admin.php:288
+msgid "Amount must be less than maximum amount."
+msgstr "Kwota musi być niższa niż kwota maksymalna."
+
+#: admin/pw-gift-cards-admin.php:289 includes/pw-gift-cards-redeeming.php:671
+msgid "Error"
+msgstr "Błąd"
+
+#: admin/pw-gift-cards-admin.php:308 admin/pw-gift-cards-admin.php:582
+#: pw-gift-cards.php:139
+msgid "Gift Card"
+msgstr "Karta podarunkowa"
+
+#. translators: %s is the product id.
+#: admin/pw-gift-cards-admin.php:422
+msgid "Could not locate product id %s"
+msgstr "Nie można zlokalizować identyfikatora produktu %s"
+
+#: admin/pw-gift-cards-admin.php:446
+msgid "Could not locate product using product_id "
+msgstr "Nie można zlokalizować produktu przy użyciu product_id "
+
+#: admin/pw-gift-cards-admin.php:562
+msgid "Settings saved."
+msgstr "Ustawienia zapisane."
+
+#: admin/pw-gift-cards-admin.php:646 admin/pw-gift-cards-admin.php:660
+msgid "Gift card not found."
+msgstr "Nie znaleziono karty podarunkowej."
+
+#: admin/pw-gift-cards-admin.php:681
+msgid "Design saved."
+msgstr "Zachowany projekt."
+
+#: admin/pw-gift-cards-admin.php:699
+msgid "Preview email system"
+msgstr "System podglądu wiadomości e-mail"
+
+#: admin/pw-gift-cards-admin.php:700 admin/ui/sections/designer-panel.php:55
+msgid "Recipient Name"
+msgstr "Nazwisko odbiorcy"
+
+#: admin/pw-gift-cards-admin.php:701 admin/ui/sections/designer-panel.php:57
+msgid "Gift card message to the recipient from the sender."
+msgstr "Wiadomość do odbiorcy od nadawcy karty podarunkowej."
+
+#: admin/pw-gift-cards-admin.php:706
+msgid "Email sent."
+msgstr "Wysłano email."
+
+#: admin/ui/footer.php:30
+msgid "If you need assistance please contact us."
+msgstr "Jeśli potrzebujesz pomocy, skontaktuj się z nami."
+
+#. translators: %s is the PW Gift Card product type name.
+#: admin/ui/initial-setup.php:14
+msgid "Step 1: Create a \"%s\" product to start selling Gift Cards."
+msgstr ""
+"Krok 1: Utwórz produkt \"%s\", aby rozpocząć sprzedaż kart podarunkowych."
+
+#: admin/ui/initial-setup.php:19
+msgid "Create the Gift Card product"
+msgstr "Utwórz produkt Karta podarunkowa"
+
+#: admin/ui/initial-setup.php:27
+msgid "Success!"
+msgstr "Sukces!"
+
+#: admin/ui/initial-setup.php:28
+msgid ""
+"The Gift Card product has been created. Click on the Products menu in the "
+"left to edit it."
+msgstr ""
+"Produkt Karta podarunkowa został utworzony. Kliknij menu Produkty po lewej "
+"stronie, aby go edytować."
+
+#: admin/ui/initial-setup.php:33
+msgid "Step 2: Let your customers check their gift card balances."
+msgstr "Krok 2: Pozwól swoim klientom sprawdzić saldo ich kart podarunkowych."
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/initial-setup.php:37
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to create a Check Balance page for your customers."
+msgstr ""
+"Uaktualnij do <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards "
+"Pro</a>, aby utworzyć stronę Check Balance dla swoich klientów."
+
+#: admin/ui/order-gift-card-total.php:36
+#: includes/pw-gift-cards-redeeming.php:757
+msgid "PW Gift Card"
+msgstr "Karta podarunkowa PW"
+
+#: admin/ui/product-data-panel-cards.php:35
+msgid "Gift card amounts"
+msgstr "Kwoty kart podarunkowych"
+
+#: admin/ui/product-data-panel-cards.php:39
+msgid "The available fixed amounts that can be purchased."
+msgstr "Dostępne stałe kwoty, które można kupić."
+
+#: admin/ui/product-data-panel-cards.php:60
+msgid "PW WooCommerce Gift Cards Pro"
+msgstr "PW WooCommerce Gift Cards Pro"
+
+#: admin/ui/product-data-panel-cards.php:60
+msgid " includes these great additional features:"
+msgstr " zawiera te wspaniałe dodatkowe funkcje:"
+
+#: admin/ui/product-data-panel-cards.php:62
+msgid "Multiple Designs"
+msgstr "Wiele wzorów"
+
+#: admin/ui/product-data-panel-cards.php:62
+msgid ""
+"Create as many custom email designs as you would like. Happy birthday, "
+"congratulations, happy holidays, and more!"
+msgstr ""
+"Stwórz dowolną liczbę niestandardowych projektów wiadomości e-mail. "
+"Wszystkiego najlepszego z okazji urodzin, gratulacje, wesołych świąt i nie "
+"tylko!"
+
+#: admin/ui/product-data-panel-cards.php:63
+msgid "Custom Amounts"
+msgstr "Kwoty niestandardowe"
+
+#: admin/ui/product-data-panel-cards.php:63
+msgid ""
+"Allow customers to specify the amount. You can set a minimum and a maximum "
+"amount."
+msgstr ""
+"Pozwól klientom określić kwotę. Można ustawić kwotę minimalną i maksymalną."
+
+#: admin/ui/product-data-panel-cards.php:64
+msgid "Delivery Date"
+msgstr "Data dostawy"
+
+#: admin/ui/product-data-panel-cards.php:64
+msgid ""
+"Customers can choose when the gift card should be delivered to the recipient."
+msgstr ""
+"Klienci mogą wybrać, kiedy karta podarunkowa ma zostać dostarczona do "
+"odbiorcy."
+
+#: admin/ui/product-data-panel-cards.php:65
+msgid "Physical Gift Cards"
+msgstr "Fizyczne karty podarunkowe"
+
+#: admin/ui/product-data-panel-cards.php:65
+msgid ""
+"Sell physical gift cards to your customers without requiring a recipient "
+"email address."
+msgstr ""
+"Sprzedawaj klientom fizyczne karty podarunkowe bez konieczności podawania "
+"adresu e-mail odbiorcy."
+
+#: admin/ui/product-data-panel-cards.php:66 admin/ui/section-buttons.php:19
+msgid "Create Gift Cards"
+msgstr "Tworzenie kart podarunkowych"
+
+#: admin/ui/product-data-panel-cards.php:66
+msgid ""
+"Enter the quantity, amount, and expiration date to easily generate gift "
+"cards."
+msgstr ""
+"Wprowadź ilość, kwotę i datę ważności, aby łatwo wygenerować karty "
+"podarunkowe."
+
+#: admin/ui/product-data-panel-cards.php:67 admin/ui/section-buttons.php:23
+msgid "Import Card Numbers"
+msgstr "Import numerów kart"
+
+#: admin/ui/product-data-panel-cards.php:67
+msgid ""
+"Have physical cards or numbers from another system? Import them in one click!"
+msgstr ""
+"Masz fizyczne karty lub numery z innego systemu? Zaimportuj je jednym "
+"kliknięciem!"
+
+#: admin/ui/product-data-panel-cards.php:68
+msgid "Default Amount"
+msgstr "Domyślna Kwota"
+
+#: admin/ui/product-data-panel-cards.php:68
+msgid "choose an amount that will be pre-selected when purchasing a gift card."
+msgstr ""
+"wybierz kwotę, która zostanie wstępnie wybrana podczas zakupu karty "
+"podarunkowej."
+
+#: admin/ui/product-data-panel-cards.php:69 admin/ui/section-buttons.php:11
+msgid "Balances"
+msgstr "Salda"
+
+#: admin/ui/product-data-panel-cards.php:69
+msgid "A shortcode to let customers check their gift card balances."
+msgstr ""
+"Krótki kod umożliwiający klientom sprawdzenie salda karty podarunkowej."
+
+#: admin/ui/product-data-panel-cards.php:70
+msgid "Expiration Dates"
+msgstr "Daty wygaśnięcia"
+
+#: admin/ui/product-data-panel-cards.php:70
+msgid "Automatically set an expiration date based on the purchase date."
+msgstr "Automatycznie ustaw datę wygaśnięcia na podstawie daty zakupu."
+
+#: admin/ui/product-data-panel-cards.php:71
+msgid "Balance Adjustments"
+msgstr "Korekty salda"
+
+#: admin/ui/product-data-panel-cards.php:71
+msgid "Perform balance adjustments in the admin area."
+msgstr "Dokonaj korekty salda w obszarze administracyjnym."
+
+#: admin/ui/section-buttons.php:15
+msgid "Email Designer"
+msgstr "Projektant e-maili"
+
+#: admin/ui/section-buttons.php:27
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: admin/ui/sections/activity-records.php:26
+msgid "Date"
+msgstr "Data"
+
+#: admin/ui/sections/activity-records.php:27
+msgid "Action"
+msgstr "Akcja"
+
+#: admin/ui/sections/activity-records.php:28
+msgid "User"
+msgstr "Użytkownik"
+
+#: admin/ui/sections/activity-records.php:29
+msgid "Note"
+msgstr "Uwaga"
+
+#: admin/ui/sections/activity-records.php:30 pw-gift-cards.php:140
+#: templates/woocommerce/emails/customer-pw-gift-card.php:159
+msgid "Amount"
+msgstr "Kwota"
+
+#: admin/ui/sections/activity-records.php:31
+#: admin/ui/sections/search-results.php:33
+msgid "Balance"
+msgstr "Saldo"
+
+#: admin/ui/sections/activity-records.php:53
+msgid "Guest"
+msgstr "Gość"
+
+#: admin/ui/sections/balance-summary.php:34
+msgid "Active gift cards"
+msgstr "Aktywne karty podarunkowe"
+
+#: admin/ui/sections/balance-summary.php:38
+msgid "Outstanding balances"
+msgstr "Zaległe salda"
+
+#: admin/ui/sections/balances.php:32
+msgid "Gift card number or recipient email (leave blank for all)"
+msgstr ""
+"Numer karty podarunkowej lub adres e-mail odbiorcy (pozostaw puste dla "
+"wszystkich)"
+
+#: admin/ui/sections/balances.php:33
+msgid "Search"
+msgstr "Szukaj"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/create.php:27
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to create gift cards from the admin area."
+msgstr ""
+"Uaktualnij do <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards "
+"Pro</a>, aby tworzyć karty podarunkowe z poziomu panelu administracyjnego."
+
+#: admin/ui/sections/designer-panel.php:12
+msgid "Gift card color"
+msgstr "Kolor karty podarunkowej"
+
+#: admin/ui/sections/designer-panel.php:13
+msgid "Redeem button color"
+msgstr "Kolor przycisku realizacji"
+
+#: admin/ui/sections/designer-panel.php:14
+msgid "Redeem button text color"
+msgstr "Kolor tekstu przycisku realizacji"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/designer-panel.php:19
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to change even more settings such image, gift card title, additional "
+"colors, and more!"
+msgstr ""
+"Uaktualnij do <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards "
+"Pro</a>, aby zmienić jeszcze więcej ustawień, takich jak obraz, tytuł karty "
+"podarunkowej, dodatkowe kolory i wiele więcej!"
+
+#: admin/ui/sections/designer-panel.php:26
+msgid "Save design"
+msgstr "Zapisz projekt"
+
+#: admin/ui/sections/designer-panel.php:27
+msgid "Reset design"
+msgstr "Zresetuj projekt"
+
+#: admin/ui/sections/designer-panel.php:38
+msgid "Custom template file detected!"
+msgstr "Wykryto niestandardowy plik szablonu!"
+
+#: admin/ui/sections/designer-panel.php:41
+msgid ""
+"It appears as though you already have a custom email template file, your "
+"changes in the Designer may not appear when you actually send the email. "
+"Click the Send Preview Email button to confirm."
+msgstr ""
+"Wygląda na to, że masz już niestandardowy plik szablonu wiadomości e-mail, "
+"ale zmiany wprowadzone w kreatorze mogą nie pojawić się podczas faktycznego "
+"wysyłania wiadomości e-mail. Kliknij przycisk Wyślij podgląd wiadomości e-"
+"mail, aby potwierdzić."
+
+#: admin/ui/sections/designer-panel.php:46
+msgid "Preview"
+msgstr "Podgląd"
+
+#: admin/ui/sections/designer-panel.php:49
+msgid "Send a preview email"
+msgstr "Wyślij wiadomość e-mail z podglądem"
+
+#: admin/ui/sections/designer-panel.php:56
+msgid "The Purchasing Customer"
+msgstr "Klient dokonujący zakupów"
+
+#. translators: %s is the URL to the plugin page.
+#: admin/ui/sections/import.php:27
+msgid ""
+"Upgrade to <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards Pro</"
+"a> to import existing gift card numbers."
+msgstr ""
+"Uaktualnij do <a href=\"%s\" target=\"_blank\">PW WooCommerce Gift Cards "
+"Pro</a>, aby zaimportować istniejące numery kart podarunkowych."
+
+#: admin/ui/sections/search-results.php:25
+msgid "No results"
+msgstr "Brak wyników"
+
+#: admin/ui/sections/search-results.php:26
+msgid "There are no gift cards found matching your search terms."
+msgstr "Nie znaleziono kart podarunkowych pasujących do wyszukiwanych haseł."
+
+#: admin/ui/sections/search-results.php:32
+msgid "Card Number"
+msgstr "Numer karty"
+
+#: admin/ui/sections/search-results.php:34
+msgid "Expiration Date"
+msgstr "Data wygaśnięcia"
+
+#: admin/ui/sections/search-results.php:50
+msgid "Card has been deleted."
+msgstr "Karta została usunięta."
+
+#: admin/ui/sections/search-results.php:62
+msgid "View activity"
+msgstr "Wyświetl aktywność"
+
+#: admin/ui/sections/search-results.php:64
+msgid "Delete"
+msgstr "Usuń"
+
+#: admin/ui/sections/search-results.php:67
+msgid "Restore"
+msgstr "Przywróć"
+
+#: admin/ui/sections/search-results.php:90
+msgid "Are you sure you want to delete this gift card?"
+msgstr "Czy na pewno chcesz usunąć tę kartę podarunkową?"
+
+#: admin/ui/sections/settings.php:36
+msgid "Save Settings"
+msgstr "Zapisz ustawienia"
+
+#: includes/class-pw-gift-card-activity.php:90
+msgid "Could not find activity record"
+msgstr "Nie można znaleźć rekordu aktywności"
+
+#: includes/class-pw-gift-card-activity.php:102
+msgid "Invalid action value: "
+msgstr "Nieprawidłowa wartość akcji: "
+
+#: includes/class-pw-gift-card.php:70
+msgid "Card number does not exist."
+msgstr "Numer vouchera nie istnieje."
+
+#: includes/class-pw-gift-card.php:73
+msgid "Enter a card number."
+msgstr "Wprowadź numer voucheru."
+
+#: includes/class-pw-gift-card.php:119
+#: templates/woocommerce/cart/cart-pw-gift-card.php:55
+#: templates/woocommerce/checkout/pw-gift-cards.php:54
+msgid "Expired"
+msgstr "Wygasłe"
+
+#: includes/class-pw-gift-card.php:122
+msgid "None"
+msgstr "Brak"
+
+#: includes/class-pw-gift-card.php:213
+msgid "Amount added should be greater than zero."
+msgstr "Dodana kwota powinna być większa od zera."
+
+#: includes/class-pw-gift-card.php:226
+msgid "Amount deducted should be less than zero."
+msgstr "Odliczona kwota powinna być mniejsza od zera."
+
+#: includes/class-pw-gift-card.php:235
+msgid "Unable to adjust balance, card is not active."
+msgstr "Nie można dostosować salda, karta nie jest aktywna."
+
+#: includes/class-pw-gift-card.php:299
+msgid "Card Number cannot be empty."
+msgstr "Numer karty nie może być pusty."
+
+#. translators: %1$s is the number, %2$s is the database table name, %3$s is the inserted gift card id, and %4$s is the database error message.
+#: includes/class-pw-gift-card.php:312
+msgid ""
+"Gift Card %1$s was inserted into table %2$s and received database id %3$s "
+"but it could not be retrieved. Last error: %4$s"
+msgstr ""
+"Karta podarunkowa %1$s została wstawiona do tabeli %2$s i otrzymała "
+"identyfikator bazy danych %3$s, ale nie można jej pobrać. Ostatni błąd: %4$s"
+
+#. translators: %1$s is the number, %2$s is the database table name, %3$s is the database error message.
+#: includes/class-pw-gift-card.php:316
+msgid "Gift Card %1$s could not be inserted into table %2$s. Last error: %3$s"
+msgstr ""
+"Nie można wstawić karty podarunkowej %1$s do tabeli %2$s. Ostatni błąd: %3$s"
+
+#: includes/class-pw-gift-card.php:322
+msgid "Unknown error in add_card method."
+msgstr "Nieznany błąd w metodzie add_card."
+
+#. translators: %1$s is the property name, %2$s is the class name.
+#: includes/class-pw-gift-card.php:413
+msgid "Property %1$s does not exist on %2$s"
+msgstr "Właściwość %1$s nie istnieje w %2$s"
+
+#: includes/class-wc-product-pw-gift-card.php:73
+msgid "Amount already exists: "
+msgstr "Kwota już istnieje: "
+
+#: includes/class-wc-product-pw-gift-card.php:86
+msgid "Could not create variation."
+msgstr "Nie można utworzyć odmiany."
+
+#: includes/class-wc-product-pw-gift-card.php:107
+msgid "Could not locate variation using variation_id "
+msgstr "Nie można zlokalizować odmiany przy użyciu variation_id "
+
+#: includes/class-wc-product-pw-gift-card.php:285
+msgid "Select amount"
+msgstr "Wybierz ilość"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:35
+msgid "PW Gift Card Email"
+msgstr "E-mail z kartą podarunkową PW"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:36
+msgid "This email is sent to the recipients of a gift card."
+msgstr "Ta wiadomość e-mail jest wysyłana do odbiorców karty podarunkowej."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:38
+msgid "You were given a gift card"
+msgstr "Otrzymałeś kartę podarunkową"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:39
+msgid "{sender} sent you a gift card"
+msgstr "{sender} wysłał kartę podarunkową"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:314
+msgid "Subject"
+msgstr "Temat"
+
+#. translators: %s is the default email subject line.
+#: includes/emails/class-wc-email-pw-gift-card.php:317
+msgid ""
+"This controls the email subject line. Leave blank to use the default "
+"subject: <code>%s</code>."
+msgstr ""
+"Wpisz tytuł e-maila. Pozostaw pole puste by użyć domyślnego tytułu: "
+"<code>%s</code>."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:322
+msgid "Email Heading"
+msgstr "Nagłówek e-mail"
+
+#. translators: %s is the default heading string.
+#: includes/emails/class-wc-email-pw-gift-card.php:325
+msgid ""
+"This controls the main heading contained within the email notification. "
+"Leave blank to use the default heading: <code>%s</code>."
+msgstr ""
+"Wpisz nagłówek e-maila. Pozostaw to pole puste, aby użyć domyślnego "
+"nagłówka: <code>%s</code>."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:330
+msgid "Email type"
+msgstr "Typ e-mail"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:332
+msgid "Choose which format of email to send."
+msgstr "Wybierz format wysyłanego e-maila."
+
+#: includes/emails/class-wc-email-pw-gift-card.php:336
+msgid "Plain text"
+msgstr "Zwykły tekst"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:337
+msgid "HTML"
+msgstr "HTML"
+
+#: includes/emails/class-wc-email-pw-gift-card.php:338
+msgid "Multipart"
+msgstr "Wielokrotne"
+
+#: includes/pw-gift-cards-purchasing.php:88
+msgid "Choose an amount"
+msgstr "Wybierz kwotę"
+
+#. translators: %1$s is the order id, %2$s is the billing first name, %3$s is the billing last name.
+#: includes/pw-gift-cards-purchasing.php:290
+msgid "Order %1$s purchased by %2$s %3$s"
+msgstr "Zamówienie %1$s zakupione przez %2$s %3$s"
+
+#: includes/pw-gift-cards-purchasing.php:313
+msgid "Unable to retrieve variation "
+msgstr "Nie można pobrać odmiany "
+
+#: includes/pw-gift-cards-purchasing.php:428
+msgid " (inactive)"
+msgstr " (nieaktywny)"
+
+#: includes/pw-gift-cards-purchasing.php:453
+msgid "Generated and emailed after the order is marked Complete."
+msgstr ""
+"Generowane i wysyłane pocztą elektroniczną po oznaczeniu zamówienia jako "
+"zakończone."
+
+#. translators: %s is the count of gift cards redeemed.
+#: includes/pw-gift-cards-redeeming.php:398
+msgid "Gift card %s:"
+msgid_plural "Gift cards %s:"
+msgstr[0] "Karta podarunkowa %s:"
+msgstr[1] "Karta podarunkowa %s:"
+msgstr[2] "Karta podarunkowa %s:"
+
+#. translators: %s is the shipping method.
+#: includes/pw-gift-cards-redeeming.php:471
+msgid "Shipping via %s"
+msgstr "Wysyłka przez %s"
+
+#: includes/pw-gift-cards-redeeming.php:536
+#: includes/pw-gift-cards-redeeming.php:589
+#: includes/pw-gift-cards-redeeming.php:666 pw-gift-cards.php:211
+msgid "This gift card has a zero balance."
+msgstr "Saldo tej karty podarunkowej wynosi zero."
+
+#: includes/pw-gift-cards-redeeming.php:539
+#: includes/pw-gift-cards-redeeming.php:669 pw-gift-cards.php:215
+msgid "Gift card applied."
+msgstr "Zastosowano kartę podarunkową."
+
+#: includes/pw-gift-cards-redeeming.php:554
+msgid "Gift card removed."
+msgstr "Karta podarunkowa została usunięta."
+
+#: includes/pw-gift-cards-redeeming.php:585
+msgid "Gift cards cannot be used to purchase other gift cards."
+msgstr ""
+"Kart podarunkowych nie można wykorzystać do zakupu innych kart podarunkowych."
+
+#: includes/pw-gift-cards-redeeming.php:592
+msgid "Card is inactive."
+msgstr "Karta jest nieaktywna."
+
+#: pw-gift-cards.php:138
+msgid "Gift Card Amount"
+msgstr "Kwota vouchera"
+
+#: pw-gift-cards.php:141
+msgid "To"
+msgstr "Do"
+
+#: pw-gift-cards.php:142
+#: templates/woocommerce/emails/customer-pw-gift-card.php:129
+msgid "From"
+msgstr "Od"
+
+#: pw-gift-cards.php:143
+msgid "Message"
+msgstr "Wiadomość"
+
+#: pw-gift-cards.php:233
+msgid "Required"
+msgstr "Wymagane"
+
+#. translators: %s is the woocommerce currency symbol.
+#: pw-gift-cards.php:235
+msgid "Minimum amount is %s"
+msgstr "Minimalna kwota to %s"
+
+#. translators: %s is the woocommerce currency symbol.
+#: pw-gift-cards.php:237
+msgid "Maximum amount is %s"
+msgstr "Maksymalna kwota to %s"
+
+#: pw-gift-cards.php:238
+msgid ""
+"The \"To\" field should only contain email addresses. The following "
+"recipients do not look like valid email addresses:"
+msgstr ""
+"Pole \"Do\" powinno zawierać wyłącznie adresy e-mail. Następujący odbiorcy "
+"nie wyglądają na prawidłowe adresy e-mail:"
+
+#. translators: %s is the WooCommerce minimum version number.
+#: pw-gift-cards.php:378
+msgid "Requires WooCommerce version %s or later."
+msgstr "Wymaga WooCommerce w wersji %s lub nowszej."
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:39
+msgid "Gift Card:"
+msgstr "Karta podarunkowa:"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:40
+#: templates/woocommerce/cart/apply-gift-card.php:52
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:39
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:34
+msgid "Gift card number"
+msgstr "Numer vouchera"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:41
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:43
+msgid "Apply gift card"
+msgstr "Zastosuj voucher"
+
+#: templates/woocommerce/cart/apply-gift-card-after-cart-contents.php:41
+#: templates/woocommerce/cart/apply-gift-card.php:53
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:43
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:35
+msgid "Please wait..."
+msgstr "Proszę czekać..."
+
+#: templates/woocommerce/cart/apply-gift-card.php:50
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:31
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:32
+msgid "Have a gift card?"
+msgstr "Masz kartę podarunkową?"
+
+#: templates/woocommerce/cart/apply-gift-card.php:53
+msgid "Apply"
+msgstr "Zastosuj"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:43
+#: templates/woocommerce/checkout/pw-gift-cards.php:45
+msgid "Gift card"
+msgstr "Karta podarunkowa"
+
+#. translators: %s is the formatted balance.
+#: templates/woocommerce/cart/cart-pw-gift-card.php:48
+#: templates/woocommerce/checkout/pw-gift-cards.php:48
+msgid "Remaining balance is %s"
+msgstr "Pozostałe saldo wynosi %s"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:62
+msgid "Gift Card Total"
+msgstr "Karta podarunkowa Razem"
+
+#: templates/woocommerce/cart/cart-pw-gift-card.php:64
+#: templates/woocommerce/checkout/pw-gift-cards.php:63
+msgid "[Remove]"
+msgstr "[Usuń]"
+
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:31
+msgid "Click here to enter your gift card number"
+msgstr "Kliknij tutaj, aby wprowadzić numer karty podarunkowej"
+
+#: templates/woocommerce/checkout/coupon-area-pw-gift-card.php:36
+msgid "If you have a gift card number, please apply it below."
+msgstr "Jeśli posiadasz numer karty podarunkowej, podaj go poniżej."
+
+#: templates/woocommerce/checkout/payment-method-pw-gift-card.php:35
+msgid "Apply Gift Card"
+msgstr "Zastosuj kartę upominkową"
+
+#. translators: %s is the store name (blog name)
+#: templates/woocommerce/emails/customer-pw-gift-card.php:148
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:26
+msgid "%s Gift Card"
+msgstr "%s Karta podarunkowa"
+
+#: templates/woocommerce/emails/customer-pw-gift-card.php:167
+msgid "Gift Card Number"
+msgstr "Numer Karty Podarunkowej"
+
+#: templates/woocommerce/emails/customer-pw-gift-card.php:176
+msgid "Redeem"
+msgstr "Umorzenie"
+
+#. translators: %s is the gift card amount.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:29
+msgid "Amount: %s"
+msgstr "Kwota: %s"
+
+#. translators: %s is the gift card number.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:32
+msgid "Gift card number: %s"
+msgstr "Numer karty podarunkowej: %s"
+
+#. translators: %s is the link to redeem the gift card.
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:35
+msgid "Link: %s"
+msgstr "Link: %s"
+
+#: templates/woocommerce/emails/plain/customer-pw-gift-card.php:39
+msgid "Message:"
+msgstr "Wiadomość:"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:113
+msgid "Enter an email address for each recipient"
+msgstr "Wprowadź adres e-mail dla każdego odbiorcy"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:114
+msgid "Separate multiple email addresses with a comma."
+msgstr "Oddziel wiele adresów e-mail przecinkiem."
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:119
+msgid "Your name"
+msgstr "Twoje imię"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:123
+msgid "(optional)"
+msgstr "(opcjonalnie)"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:124
+msgid "Add a message"
+msgstr "Dodawanie wiadomości"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:125
+msgid "characters remaining"
+msgstr "znaków pozostało"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:129
+msgid "Quantity"
+msgstr "Ilość"
+
+#: templates/woocommerce/single-product/add-to-cart/pw-gift-card-before-add-to-cart-quantity.php:130
+msgid "1 to each recipient"
+msgstr "1 dla każdego odbiorcy"

@@ -1,0 +1,97 @@
+.elementor-widget-woocommerce-product-images.vamtam-has-theme-widget-styles {
+	div.images {
+		--vamtam-thumbs-height: calc( var( --vamtam-single-product-vertical-thumbs, 4 ) * 100px + ( var( --vamtam-single-product-vertical-thumbs, 4 ) - 1 ) * 10px );
+
+		&:has(.flex-control-thumbs) {
+			min-height: calc( var( --vamtam-thumbs-height ) + 45px );
+		}
+
+		ol.flex-control-thumbs {
+			max-height: var( --vamtam-thumbs-height );
+			overflow-y: auto;
+			scroll-snap-type: y mandatory;
+			scrollbar-width: none;
+
+			li {
+				scroll-snap-align: start;
+			}
+
+			&::-webkit-scrollbar {
+				width: 0;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-clip: content-box;
+				border: 4px solid transparent;
+				border-radius: 7px;
+				box-shadow: inset 0 0 0 10px;
+			}
+
+			&::-webkit-scrollbar-button {
+				width: 0;
+				height: 0;
+				display: none;
+			}
+
+			&::-webkit-scrollbar-corner {
+				background-color: transparent;
+			}
+		}
+
+		:is( .vamtam-product-gallery-thumbs-prev, .vamtam-product-gallery-thumbs-next ) {
+			cursor: pointer;
+			pointer-events: none;
+			position: absolute;
+			display: inline-block;
+			height: 35px;
+			width: 45px;
+			left: 0;
+			top: calc( var( --vamtam-thumbs-height ) + 10px );
+			background-color: var(--vamtam-accent-color-3-hc);
+			color: var(--vamtam-accent-color-3);
+			border: 1px solid var(--vamtam-accent-color-7);
+			border-radius: 10px;
+			display: flex;
+			flex-flow: row;
+			align-content: center;
+			justify-content: center;
+			z-index: 10;
+			visibility: inherit; // "visible" creates an issue with artifacts on scroll, when the gallery container is set to fixed.
+			transition: opacity .3s ease-out;
+
+			&::before {
+				content: var( --vamtam-icon-arrow-top );
+				font-family: theme-icons;
+				margin: auto;
+			}
+
+			&.hidden {
+				opacity: 0.4;
+			}
+		}
+
+		&:hover :is( .vamtam-product-gallery-thumbs-prev, .vamtam-product-gallery-thumbs-next ) {
+			pointer-events: all;
+		}
+
+		.vamtam-product-gallery-thumbs-next {
+			left: 55px;
+
+			&::before {
+				transform: rotate(-180deg);
+			}
+		}
+	}
+
+	&.vamtam-onsale-left {
+		span.onsale {
+			margin-left: 110px;
+		}
+	}
+
+	&.vamtam-onsale-right {
+		span.onsale {
+			margin-right: 110px;
+		}
+	}
+}

@@ -1,0 +1,31 @@
+@import '../woosw/woosw.mobile.less';
+
+// WC My Account - Mobile.
+.elementor-widget-woocommerce-my-account {
+	// Base theme widget styles.
+	&.vamtam-has-theme-widget-styles {
+
+		.woocommerce-MyAccount-navigation {
+			ul li a {
+				text-align: start;
+			}
+		}
+
+		.no_subscriptions.woocommerce-message.woocommerce-message--info.woocommerce-Message.woocommerce-Message--info.woocommerce-info {
+			.woocommerce-Button.button {
+				float: left;
+				margin-top: 20px;
+			}
+		}
+
+		.woocommerce-MyAccount-content {
+			.u-columns.woocommerce-Addresses.col2-set.addresses {
+				.u-column1.col-1.woocommerce-Address {
+					margin-bottom: 20px;
+				}
+			}
+		}
+
+		.woosw-mobile();
+	}
+}

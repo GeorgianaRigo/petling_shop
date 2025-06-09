@@ -1,0 +1,120 @@
+// Tabs - Mobile.
+.elementor-widget-tabs {
+	// Base Theme Widget Styles.
+    &.vamtam-has-theme-widget-styles {
+        .elementor-tab-mobile-title {
+			letter-spacing: inherit;
+		}
+
+		&.vamtam-force-mobile-hr {
+			&.elementor-tabs-view-horizontal {
+				.elementor-tab-content {
+					border-style: solid;
+					border-top-style: none;
+					padding: 0;
+				}
+
+				// Fix for ios-safari.
+				html.ios-safari & .elementor-tab-desktop-title {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+			}
+
+			.elementor-tabs {
+				margin-right: -10px;
+			}
+
+			&.elementor-tabs-alignment- {
+
+				&center,
+				&end,
+				&stretch {
+					.elementor-tabs-wrapper {
+						display: flex;
+					}
+				}
+
+				&center {
+					.elementor-tabs-wrapper {
+						justify-content: unset;
+					}
+				}
+
+				&end {
+					.elementor-tabs-wrapper {
+						justify-content: flex-end;
+					}
+				}
+
+				&stretch.elementor-tabs-view-horizontal  {
+					.elementor-tab-title {
+						width: 100%;
+					}
+				}
+			}
+
+			.elementor-tab-mobile-title {
+				display: none;
+			}
+
+			.elementor-tabs-content-wrapper {
+				.elementor-tab-content .elementor-top-section > .elementor-container > .elementor-row {
+					flex-wrap: nowrap;
+					overflow: scroll;
+					> .elementor-column {
+						min-width: fit-content;
+					}
+				}
+			}
+
+			.elementor-tabs-wrapper {
+				overflow-x: auto;
+				flex-wrap: nowrap;
+				margin-bottom: 10px;
+				padding-bottom: 0px;
+
+				.elementor-tab-desktop-title {
+					min-width: fit-content;
+				}
+			}
+		}
+
+		&.vamtam-tabs {
+			.elementor-tab-title.elementor-active {
+				padding: 0px 0px 1px 0px;
+				margin: 0 20px;
+				transition: all .3s;
+				border-style: dashed;
+				border-width: 1px !important;
+				border-color: var(--vamtam-accent-color-7);
+				background-color: var(--vamtam-accent-color-8);
+			}
+
+			.elementor-tabs-wrapper {
+				.elementor-tab-title {
+					border-width: 1px !important;
+					border-color: transparent;
+					padding: 7px 20px;
+					margin: 0 5px;
+					border-radius: 6px;
+					border-style: dashed;
+
+					&:first-of-type {
+						margin-left: 0;
+					}
+
+					&:last-of-type {
+						margin-right: 0;
+					}
+				}
+			}
+
+			.elementor-tab-content {
+				padding: 0;
+				padding-top: 15px;
+			}
+		}
+    }
+}

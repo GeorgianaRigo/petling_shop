@@ -1,0 +1,93 @@
+// Posts / Archive Posts.
+
+// Theme-dependant.
+.posts-base() {
+	// Pagination Border.
+	&.elementor-show-pagination-border-yes {
+		.elementor-pagination .page-numbers {
+			border: 1px solid var(--vamtam-default-line-color);
+		}
+	}
+
+	.elementor-post__title {
+		a {
+			text-decoration: underline solid transparent;
+			text-underline-offset: 2px;
+			text-decoration-thickness: 1px;
+			transition: text-decoration-color 1s ease;
+		}
+
+		&:hover {
+			a {
+				text-decoration-color: currentColor;
+			}
+		}
+	}
+
+	.vamtam-post__categories {
+		display: flex;
+		a {
+			text-transform: uppercase;
+			&:not(:first-of-type) {
+				padding-left: 5px;
+			}
+		}
+	}
+
+	&.elementor-posts--align- {
+		&center {
+			.elementor-post__meta-data {
+				text-align: center;
+				.vamtam-post__categories {
+					justify-content: center;
+				}
+			}
+		}
+		&left {
+			.elementor-post__meta-data {
+				text-align: start;
+				.vamtam-post__categories {
+					justify-content: flex-start;
+				}
+			}
+		}
+		&right {
+			.elementor-post__meta-data {
+				text-align: end;
+				.vamtam-post__categories {
+					justify-content: flex-end;
+				}
+			}
+		}
+	}
+
+	.elementor-post > .elementor-post__meta-data {
+		padding: var(--vamtam-content-padding, 0);
+	}
+
+	.elementor-post {
+
+		.elementor-post__thumbnail {
+			transition-duration: 0.9s;
+		}
+
+		&:hover {
+			.elementor-post__thumbnail {
+				transform: scale(1.2);
+				transition-duration: 1.2s;
+			}
+		}
+
+		.elementor-post__thumbnail__link {
+			// overflow: hidden;
+			border-radius: var(--vamtam-img-border-radius);
+			mask-image: radial-gradient(white, black);
+		}
+	}
+
+	&.vamtam-has-hr-layout {
+		.elementor-post {
+			overflow: hidden; // We need this since the change from overflow: hidden to mask-image: radial-gradient(white, black).
+		}
+	}
+}

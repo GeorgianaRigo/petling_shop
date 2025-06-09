@@ -1,0 +1,449 @@
+@import '../woosw/woosw.less';
+
+// Product Add To Cart.
+.elementor-widget-woocommerce-product-add-to-cart {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		.elementor-widget-container {
+			form.cart {
+				margin: 0;
+
+				.reset_variations {
+					padding-top: 0;
+				}
+				.variations {
+					margin-bottom: 0;
+
+					td.label {
+						padding: 0;
+						line-height: initial;
+						width: 120px;
+					}
+
+					select {
+						min-width: 60px;
+						box-sizing: border-box;
+						padding: 6px 20px;
+						min-height: 47px;
+						margin-right: 15px;
+						position: relative;
+						outline: 0;
+						appearance: none;
+						background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='m5.52 6.05 4.55-4.56a.56.56 0 0 0 0-.8L9.54.17a.56.56 0 0 0-.8 0L5.12 3.77 1.49.17a.56.56 0 0 0-.8 0L.17.7a.56.56 0 0 0 0 .8l4.56 4.55c.22.22.58.22.8 0Z' fill='%236A6A6A' fill-rule='nonzero'%3E%3C/path%3E%3C/svg%3E") no-repeat right 20px top 50%/12px!important;
+						background-position: 96% 52% !important;
+						top: 50%;
+						width: 100%;
+					}
+				}
+				.vamtam-count-wrap {
+					max-width: 100px;
+				}
+				#quantity {
+					input.qty {
+						max-width: 100%;
+					}
+				}
+				div.quantity {
+					margin: 0;
+					input.qty {
+						margin-right: 10px;
+						outline: none !important;
+						width:100px;
+						height:100%;
+					}
+				}
+				.single_add_to_cart_button {
+
+					&.loading:after {
+						display: inline-block; // To clear inherited text-decoration (underline).
+						position: relative;
+						top: unset;
+						right: unset;
+						margin-left: 10px;
+					}
+
+					&.disabled,
+					&.disabled:hover,
+					&:disabled,
+					&:disabled:hover,
+					&:disabled[disabled],
+					&:disabled[disabled]:hover {
+						background-color: var( --vamtam-accent-color-1 );
+						color: var( --vamtam-accent-color-1-hc );
+						opacity: .5;
+						pointer-events: none !important;
+					}
+				}
+			}
+
+			.woocommerce div.product.elementor & .elementor-add-to-cart form.cart .button {
+				margin-left: 0px;
+			}
+
+			form.variations_form {
+				table.variations {
+					tr {
+						border: 0;
+					}
+				}
+				.woocommerce-variation-price {
+					&:not(:first-child) {
+						margin-top: 10px;
+					}
+				}
+				.single_variation {
+					margin-bottom: 10px;
+				}
+
+				.woocommerce-variation-add-to-cart {
+					display: flex !important;
+					flex-wrap: wrap !important;
+				}
+
+				.e-atc-qty-button-holder {
+					flex-grow: 1;
+				}
+			}
+		}
+
+		.woocommerce-variation-price {
+			font-family: var(--vamtam-h5-font-family); /* This is a good option to be able to align with the Product Price widget without the code.  https://www.dropbox.com/s/vvco4bq5c7ldl1q/Screenshot%202021-05-28%20at%2020.41.19.png?dl=0 */
+
+			.price {
+				color: inherit;
+				display: flex;
+				flex-direction: row;
+				align-items: baseline;
+				&:extend(.vamtam-font-h4);
+
+				del {
+					order: 2;
+				}
+
+				ins {
+					order: 1;
+					margin-right: 5px;
+					font-weight: var( --e-global-typography-da31895-font-weight);
+				}
+			}
+		}
+
+		.added_to_cart {
+			text-align: center;
+		}
+		&.elementor-add-to-cart--align-justify {
+			.added_to_cart {
+				flex-basis: 100%;
+			}
+		}
+
+		.cart {
+			.thwepo-extra-options.thwepo_simple {
+				width: 100%;
+				.required {
+					display: none;
+				}
+				input {
+					margin: 10px 0 25px 0;
+					outline: none;
+					&:focus {
+						border-width: 1px;
+					}
+				}
+			}
+
+			.thwepo-extra-options {
+				width: 100%;
+			}
+
+			input.thwepof-input-field.thwepof-date-picker.hasDatepicker {
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='m5.52 6.05 4.55-4.56a.56.56 0 0 0 0-.8L9.54.17a.56.56 0 0 0-.8 0L5.12 3.77 1.49.17a.56.56 0 0 0-.8 0L.17.7a.56.56 0 0 0 0 .8l4.56 4.55c.22.22.58.22.8 0Z' fill='%236A6A6A' fill-rule='nonzero'%3E%3C/path%3E%3C/svg%3E");
+				top: 50%;
+				background-repeat: no-repeat;
+				background-position: 96% 52%;
+			}
+
+			.variations {
+				td {
+					width: 100%;
+					display: block;
+					text-align: start;
+				}
+				th {
+					width: 100%;
+					display: block;
+					text-align: start;
+					margin-bottom: 5px;
+				}
+				.thwepo-extra-options.thwepo_variable {
+					display: block;
+				}
+			}
+
+			.thwepo-extra-options.thwepo_variable {
+				display: block;
+			}
+
+			&.variations_form {
+				.variations {
+					td {
+						width: 100%;
+						display: block;
+						text-align: start;
+					}
+					th {
+						width: 100%;
+						display: block;
+						text-align: start;
+						margin-bottom: 5px;
+					}
+
+					input, textarea, select {
+						width: 100%;
+					}
+				}
+				.reset_variations {
+					visibility: hidden !important;
+					display: none !important;
+				}
+				.pwgc-subtitle {
+					display: none;
+				}
+			}
+
+			.reset_variations {
+				visibility: hidden !important;
+				display: none !important;
+			}
+
+			.pwgc-subtitle {
+				display: none;
+			}
+
+			.pwgc-input-text {
+				width: 100%;
+			}
+
+			#pwgc-message {
+				width: 100%;
+			}
+
+			.pwgc-field-container {
+				margin-bottom: 25px;
+			}
+
+			.pwgc-label {
+				margin-bottom: 10px;
+			}
+		}
+
+		.elementor-editor-active & {
+			.product form.variations_form {
+				.single_variation {
+					display: none;
+				}
+			}
+		}
+
+		.woocommerce-variation-add-to-cart {
+			.thwepo-extra-options tbody {
+				width: 100%;
+				display: block;
+
+				:is(tr, tr td) {
+					width: 100%;
+					display: block;
+				}
+
+				tr td input {
+					margin: 10px 0 25px 0;
+					outline: none;
+				}
+			}
+		}
+
+		.elementor-add-to-cart.elementor-product-variable-subscription {
+			form.variations_form.cart {
+				table.variations {
+					tr {
+						td {
+							&:first-of-type {
+								padding-bottom: 5px;
+							}
+						}
+					}
+					td.label {
+						line-height: 2em;
+						vertical-align: top;
+					}
+				}
+			}
+		}
+
+		.elementor-product-grouped {
+			.group_table {
+				td {
+					label {
+						font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+						font-size: var( --e-global-typography-75063c5-font-size);
+						font-weight: var( --e-global-typography-75063c5-font-weight);
+						line-height: var( --e-global-typography-75063c5-line-height);
+						letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+						word-spacing: var( --e-global-typography-75063c5-word-spacing);
+					}
+					.woocommerce-Price-amount {
+						font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+						font-size: var( --e-global-typography-75063c5-font-size);
+						font-weight: 600;
+						line-height: var( --e-global-typography-75063c5-line-height);
+						letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+						word-spacing: var( --e-global-typography-75063c5-word-spacing);
+
+						bdi {
+							margin-right: 3px;
+						}
+					}
+				}
+
+				td.woocommerce-grouped-product-list-item__price {
+					text-align: end;
+					width: 7em;
+				}
+			}
+
+
+			.woocommerce & {
+				.group_table {
+					td {
+						padding-top: 10px;
+						padding-bottom: 10px;
+						vertical-align: middle;
+						border-bottom: 1px solid var( --e-global-color-vamtam_accent_7);
+					}
+					td.woocommerce-grouped-product-list-item__label {
+						padding-left: 10px;
+						padding-right: 10px;
+					}
+					margin-bottom: 20px;
+					width: 100%;
+				}
+			}
+		}
+
+		.woocommerce div.product.elementor & .elementor-widget-container .elementor-add-to-cart.elementor-product-grouped form.cart :is(button, .added_to_cart) {
+			margin-left: 0;
+		}
+
+		@media(min-width: 768px) {
+			.woocommerce div.product.elementor & {
+				.elementor-widget-container .elementor-add-to-cart form.cart :is(button, .added_to_cart) {
+					width: calc(100% - 160px);
+					flex-grow: 1;
+				}
+			}
+		}
+
+		.cart {
+			button {
+				&.woosw-added {
+					background-color: transparent;
+					color: var(--vamtam-accent-color-2);
+				}
+
+				&.woosw-btn {
+					margin-left: 0 !important;
+					background-color: transparent;
+					color: var(--vamtam-accent-color-1);
+
+					&:hover {
+						background-color: transparent;
+						color: var(--vamtam-accent-color-2);
+					}
+				}
+			}
+
+			.added_to_cart.wc-forward {
+				display: none;
+			}
+		}
+
+		.single-product .sold-individually &,
+		.stock.last-one ~ .cart {
+			.single_add_to_cart_button.button[type="submit"] {
+				margin-left: 0;
+			}
+		}
+
+		.woosw-btn();
+	}
+}
+
+.ui-datepicker.ui-widget.ui-widget-content {
+	.ui-widget-header {
+		border: none;
+		color: var(--vamtam-accent-color-1);
+		background: var(--vamtam-accent-color-8);
+	}
+	.ui-datepicker-prev {
+		top: 25%;
+	}
+	.ui-datepicker-next {
+		top: 25%;
+	}
+
+	.ui-datepicker-title select {
+		margin-left: 3px;
+		margin-right: 3px;
+	}
+}
+.ui-state-highlight {
+	background: var(--vamtam-accent-color-2);
+	border: 1px solid var(--vamtam-accent-color-2);
+}
+.ui-widget-content {
+	.ui-state-highlight {
+		background: var(--vamtam-accent-color-2);
+		border: 1px solid var(--vamtam-accent-color-2);
+	}
+	.ui-priority-secondary {
+		opacity: 1;
+	}
+}
+.ui-widget-header {
+	.ui-state-highlight {
+		background: var(--vamtam-accent-color-2);
+		border: 1px solid var(--vamtam-accent-color-2);
+	}
+	.ui-priority-secondary {
+		opacity: 1;
+	}
+}
+table.ui-datepicker-calendar {
+	tbody {
+		tr {
+			.ui-state-default {
+				background: var(--vamtam-accent-color-5);
+			}
+			.ui-state-default.ui-state-highlight.ui-state-active {
+				background: var(--vamtam-accent-color-8);
+				border: 1px solid var(--vamtam-accent-color-2);
+			}
+		}
+	}
+}
+.ui-datepicker-buttonpane.ui-widget-content {
+	button {
+		&:extend(.vamtam-font-h6);
+		color: var(--vamtam-accent-color-5);
+		background: var(--vamtam-accent-color-2);
+		border: 1px solid var(--vamtam-accent-color-2);
+		&:hover {
+			background: var(--vamtam-accent-color-1);
+			border: 1px solid var(--vamtam-accent-color-1);
+			color: var(--vamtam-accent-color-5);
+		}
+	}
+}
+.ui-priority-secondary {
+	opacity: 1;
+}

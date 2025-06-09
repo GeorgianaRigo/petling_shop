@@ -1,0 +1,108 @@
+// Products / Archive Products / Product Related / Upsells - Desktop.
+
+// Theme-dependant.
+.products-base-desktop() {
+	// WC Products
+    ul.products li.product:not(.product-category) {
+
+		.woocommerce-loop-product__link {
+			order: 1;
+		}
+
+		.vamtam-product-content {
+			z-index: 1;
+			order: 3;
+			flex: 1;
+		}
+	}
+
+	&.vamtam-products {
+		ul.products {
+			li.product {
+				&:nth-child(3n+2) {
+					padding-top: 160px;
+				}
+				&:nth-child(3n+3) {
+					padding-bottom: 160px;
+				}
+				&:nth-child(3n+1) {
+					padding-bottom: 160px;
+				}
+			}
+		}
+	}
+
+	.products li.product {
+		:where(.star-rating) {
+			margin-left: 0px;
+			margin-right: 15px;
+			margin-bottom: 15px;
+		}
+	}
+
+	// Desktop with fine pointing device (f.e. mouse).
+	@media (pointer:fine) {
+		ul.products li.product:not(.product-category) {
+
+			.vamtam-product-content {
+				order: 2;
+			}
+
+			.vamtam-add-to-cart-wrap {
+				position: absolute;
+				z-index: 2;
+				width: 100%;
+				height: 35px;
+				right: 0;
+				bottom: 0px;
+				order: 2;
+
+				a.button,
+				a.added_to_cart {
+					pointer-events: none;
+					left: auto;
+					right: 5px;
+					bottom: 5px;
+					transition: transform .3s ease, opacity .3s ease, color .3s ease-out, border .3s ease-out, background .3s ease-out, box-shadow .3s ease-out !important;
+					opacity: 1;
+					transform: translateY(100px);
+					margin: 0;
+					width: auto;
+
+					&::after {
+						pointer-events: all;
+						font-family: 'theme-icons' !important;
+						content: "\e909";
+						line-height: 1;
+						font-size: 30px;
+						color: var(--vamtam-accent-color-2);
+						margin-left: 6px;
+					}
+
+					@keyframes vamtam-atc-spin {
+						0% {
+						  transform: rotate(0deg);
+						}
+						100% {
+						  transform: rotate(360deg);
+						}
+					}
+
+					&.loading::after {
+						animation: vamtam-atc-spin infinite 1.3s !important;
+						height: auto;
+					}
+
+					&:not(:hover) {
+						background-color: transparent;
+						color: transparent;
+					}
+
+					&:hover {
+						pointer-events: all;
+					}
+				}
+			}
+		}
+	}
+}

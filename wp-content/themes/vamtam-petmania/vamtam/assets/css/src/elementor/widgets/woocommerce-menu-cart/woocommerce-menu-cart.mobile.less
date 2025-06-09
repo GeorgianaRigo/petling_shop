@@ -1,0 +1,34 @@
+// Menu cart - Tablet.
+.elementor-widget-woocommerce-menu-cart {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		.elementor-menu-cart__container .elementor-menu-cart__main {
+			min-width: 100%;
+		}
+
+		&.elementor-menu-cart--buttons-mobile- {
+			&inline {
+				.elementor-menu-cart__footer-buttons {
+					grid-template-columns: 1fr 1fr;
+				}
+			}
+			&stacked {
+				.elementor-menu-cart__footer-buttons {
+					grid-template-columns: 1fr;
+				}
+			}
+		}
+
+		// Caridad-after.
+		.elementor-menu-cart__wrapper .elementor-menu-cart__container > .elementor-menu-cart__main {
+			padding-left: 0;
+			padding-right: 0;
+		}
+		> .vamtam-elementor-menu-cart__header,
+		> .widget_shopping_cart_content .cart_item,
+		> .widget_shopping_cart_content > :not(.woocommerce-cart-form__contents) {
+			padding-left: 20px; // Should also be replicated in Elementor selector (woocommerce-menu-cart--fixed-mobile-cart-padding).
+			padding-right: 20px; // Should also be replicated in Elementor selector (woocommerce-menu-cart--fixed-mobile-cart-padding).
+		}
+	}
+}

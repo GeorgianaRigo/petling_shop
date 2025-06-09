@@ -1,0 +1,23 @@
+// Archive Products - Mobile.
+@import '../products-base/products-base.mobile.less';
+
+.elementor-widget-wc-archive-products {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		.products-base-mobile();
+
+		.woocommerce-ordering {
+			width: 100%;
+			font-size: 16px;
+
+			.woocommerce-ordering__submenu {
+				width: 100%;
+				width: calc(100% + 2px);
+			}
+		}
+
+		ul.products {
+			padding-top: 10px;
+		}
+	}
+}

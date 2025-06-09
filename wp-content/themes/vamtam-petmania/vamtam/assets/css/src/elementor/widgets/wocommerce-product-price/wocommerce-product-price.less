@@ -1,0 +1,47 @@
+// Product Price.
+.elementor-widget-woocommerce-product-price {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		p.price {
+			margin: 0;
+			padding: 0;
+		}
+
+		.price {
+			display: flex;
+			flex-direction: row;
+			align-items: baseline;
+			flex-wrap: wrap;
+
+			del {
+				order: 2;
+			}
+
+			ins {
+				order: 1;
+				margin-right: 10px;
+			}
+
+			.from {
+				margin-right: 5px;
+			}
+
+			span.subscription-details {
+				font-family: var( --e-global-typography-75063c5-font-family), Sans-serif;
+				font-size: var( --e-global-typography-75063c5-font-size);
+				line-height: var( --e-global-typography-75063c5-line-height);
+				letter-spacing: var( --e-global-typography-75063c5-letter-spacing);
+				word-spacing: var( --e-global-typography-75063c5-word-spacing);
+				font-weight: normal;
+				margin-right: 8px;
+				margin-top: 5px;
+				margin-bottom: 11px;
+				width: 100%;
+
+				&::first-letter {
+					text-transform: capitalize;
+				}
+			}
+		}
+	}
+}

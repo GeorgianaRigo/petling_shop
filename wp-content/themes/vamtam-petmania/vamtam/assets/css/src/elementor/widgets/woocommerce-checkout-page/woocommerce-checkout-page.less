@@ -1,0 +1,183 @@
+.elementor-widget-woocommerce-checkout-page {
+	// Base theme widget styles.
+	&.vamtam-has-theme-widget-styles {
+		form {
+			.form-row {
+				.required {
+					color: inherit;
+				}
+			}
+		}
+
+		.woocommerce {
+			.cart-subtotal {
+				:is(th, td) {
+					border-bottom: 1px solid var( --vamtam-default-line-color );
+				}
+
+				+ .order-total {
+					:is(th, td) {
+						border-top: 0;
+					}
+				}
+			}
+
+			:is(
+				.woocommerce-shipping-totals,
+				.shipping.recurring-total
+			) {
+				th {
+					display: none;
+				}
+
+				td::before {
+					content: attr(data-title);
+					font-weight: 700;
+					display: block;
+					margin-bottom: 10px;
+				}
+			}
+
+			.checkout {
+				.e-coupon-box {
+					.form-row {
+						margin-top: 10px;
+					}
+				}
+			}
+
+			.shop_table {
+				th.product-total {
+					display: none;
+				}
+
+				td {
+					padding-right: 0;
+				}
+
+				// Fix for Safari cause it doesn't support relative position on table elements.
+				html.safari & {
+					position: relative;
+				}
+
+				tr.woocommerce-shipping-totals.shipping {
+					position: relative;
+
+					td {
+						width: 100%;
+					}
+
+					:is(.tax_label, .woocommerce-Price-amount) {
+						position: absolute;
+						right: 0;
+					}
+
+					.tax_label {
+						margin-top: 1.5em;
+					}
+
+					+ .tax-total :is(th, td) {
+						border-top: var(--order-summary-totals-divider-weight, 0) solid var(--order-summary-totals-divider-color, #818a91);
+					}
+				}
+
+				&.woocommerce-checkout-review-order-table {
+					td.product-total,
+					:is(.cart-subtotal, .tax-total, .order-total) td {
+						text-align: end;
+					}
+				}
+			}
+
+			.e-coupon-box {
+				.e-coupon-anchor {
+					.e-coupon-anchor-description {
+						font-weight: inherit;
+					}
+				}
+			}
+
+			.woocommerce-checkout-review-order-table {
+				tbody {
+					.cart_item {
+						&:first-of-type {
+							td {
+								border-top: 1px solid var(--vamtam-accent-color-7);
+							}
+						}
+					}
+				}
+			}
+
+			ul#shipping_method {
+				margin-bottom: -6px;
+
+				li {
+					input {
+						margin: 3px 0.4375em 6px 0;
+					}
+
+					&:last-of-type {
+						margin-bottom: 0 !important;
+					}
+				}
+			}
+
+			.wc_payment_method {
+				input:not(:checked) + label {
+					font-weight: normal !important;
+				}
+
+				.payment_box.payment_method_ppcp-credit-card-gateway {
+					.form-row-last label {
+						display: block;
+					}
+
+					label {
+						display: block;
+						margin-bottom: 10px;
+					}
+
+					.form-row-last span {
+						width: 100% !important;
+					}
+				}
+			}
+		}
+
+		.woocommerce-checkout {
+			#payment {
+				#place_order {
+					width: 100%;
+				}
+
+				ul.payment_methods {
+					li {
+						&.woocommerce-notice {
+							padding: .7em 1.4em;
+						}
+
+						margin: 0 0 .5em;
+
+						input {
+							margin: 0px 2px 2px 0;
+						}
+					}
+				}
+			}
+			.form-row {
+				.input-checkbox {
+					margin: 2px 5px 0 0;
+				}
+			}
+		}
+
+		#ppcp-hosted-fields .button.alt.ppcp-dcc-order-button {
+			width: 100% !important;
+		}
+
+		small {
+			font-size: 10px;
+		}
+	}
+}

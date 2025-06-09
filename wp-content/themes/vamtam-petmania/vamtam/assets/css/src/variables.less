@@ -1,0 +1,36 @@
+body {
+	each(range(8), {
+		--vamtam-accent-color-@{value}: e("var(--e-global-color-vamtam_accent_@{value})");
+		--vamtam-accent-color-@{value}-hc: e("hsl(from var(--e-global-color-vamtam_accent_@{value}) h 0 calc(100 - round(calc(l + 10), 100)))");
+	});
+
+	@fonts: {
+		primary-font: primary_font;
+		h1: h1;
+		h2: h2;
+		h3: h3;
+		h4: h4;
+		h5: h5;
+		h6: h6;
+	}
+
+	@options: font-size, font-family, font-weight, font-style, text-transform, text-decoration;
+
+	each(@fonts, {
+		--vamtam-@{key}-color: e("var(--e-global-color-vamtam_@{value}_color)");
+
+		each( @options, .(@v, @k, @i) {
+			--vamtam-@{key}-@{v}: e("var(--e-global-typography-vamtam_@{value}-@{v})");
+		});
+	});
+
+	--vamtam-default-bg-color: #fff;
+	--vamtam-default-line-color: var( --vamtam-accent-color-7 );
+	--vamtam-vertical-padding: 30px;
+	--vamtam-no-border-link: none;
+	--vamtam-border-radius: 0px;
+	--vamtam-border-radius-oval: 0px;
+	--vamtam-border-radius-small: 0px;
+
+	--vamtam-sticky-header-bg-color: var( --e-global-color-vamtam_sticky_header_bg_color );
+}

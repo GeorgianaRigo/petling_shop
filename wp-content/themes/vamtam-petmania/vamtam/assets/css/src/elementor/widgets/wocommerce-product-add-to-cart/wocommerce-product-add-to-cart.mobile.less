@@ -1,0 +1,67 @@
+// Product Add To Cart - Mobile.
+.elementor-widget-woocommerce-product-add-to-cart {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		form.cart {
+			/* fix this problem: https://www.dropbox.com/s/kbwtz4tpqwrx1a9/Screenshot%202021-05-21%20at%2015.35.39.png?dl=0 */
+			&.variations_form .woocommerce-variation-add-to-cart,
+			&:not(.grouped_form):not(.variations_form) {
+				flex-wrap: wrap;
+				flex-direction: column;
+			}
+
+			html body:not(.rtl) & {
+				.quantity {
+					+ .button,
+					~ .added_to_cart {
+						margin: 0 0 0 var(--button-spacing);
+					}
+				}
+			}
+
+			.variations td,
+			.variations th {
+				display: block;
+			}
+
+			.group_table td:first-child {
+				width: 70px;
+			}
+
+			&.variations_form .woocommerce-variation-add-to-cart,
+			&:not(.grouped_form):not(.variations_form) {
+				flex-direction: row;
+			}
+		}
+
+		.elementor-widget-container form.cart div.quantity input.qty {
+			width: 60px;
+		}
+
+		&.elementor-add-to-cart-mobile--align-justify {
+			.added_to_cart {
+				flex-basis: 100%;
+			}
+		}
+
+		html body.woocommerce & {
+			&.elementor-add-to-cart--align-center {
+				form.cart .woocommerce-variation-add-to-cart {
+					.quantity,
+					.button {
+						margin-left: auto !important;
+						margin-right: auto !important;
+					}
+				}
+			}
+		}
+
+		.woocommerce div.product.elementor & {
+			.elementor-widget-container .elementor-add-to-cart form.cart {
+				:is(button, .added_to_cart) {
+					width: calc(100% - 120px);
+				}
+			}
+		}
+	}
+}

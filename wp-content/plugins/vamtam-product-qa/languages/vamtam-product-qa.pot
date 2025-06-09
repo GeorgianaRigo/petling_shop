@@ -1,0 +1,135 @@
+# Copyright (C) 2022 VamTam
+# This file is distributed under the same license as the Product Questions & Answers for WooCommerce package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Product Questions & Answers for WooCommerce 1.1.1\n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/vamtam-product-qa\n"
+"POT-Creation-Date: 2022-02-16 17:31:12+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: includes/ets_admin_qa_function.php:49
+msgid "Products Q & A"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:58 includes/ets_admin_qa_function.php:481
+#: includes/ets_admin_qa_function.php:550
+#: includes/ets_admin_qa_function.php:571 includes/ets_user_qa_function.php:57
+msgid "Access not allowed"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:71 includes/ets_admin_qa_function.php:99
+#: includes/ets_admin_qa_function.php:107
+#: includes/ets_admin_qa_function.php:122 includes/ets_user_qa_function.php:204
+msgid "Load More"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:117
+msgid "Product Q & A Setting"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:129
+msgid "Page Size"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:133
+msgid "Paging Button Name"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:137
+msgid "Layout"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:139
+msgid "Normal"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:140
+msgid "Accordion"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:145 includes/ets_user_qa_function.php:176
+msgid "Submit"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:159
+msgid "Q & A"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:251
+#: includes/ets_admin_qa_function.php:299
+#: includes/ets_admin_qa_function.php:587 includes/ets_user_qa_function.php:222
+#: includes/ets_user_qa_function.php:264 includes/ets_user_qa_function.php:310
+#: includes/ets_user_qa_function.php:373 includes/ets_user_qa_function.php:411
+msgid "Question"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:259
+#: includes/ets_admin_qa_function.php:308
+#: includes/ets_admin_qa_function.php:596 includes/ets_user_qa_function.php:229
+#: includes/ets_user_qa_function.php:236 includes/ets_user_qa_function.php:273
+#: includes/ets_user_qa_function.php:320 includes/ets_user_qa_function.php:326
+#: includes/ets_user_qa_function.php:380 includes/ets_user_qa_function.php:421
+msgid "Answer"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:321
+msgid "Add New"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:454
+msgid "Answer to Your Question was Updated"
+msgstr ""
+
+#: includes/ets_admin_qa_function.php:463
+msgid "Your Question was Answered"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:66
+msgid "You are not logged in"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:112
+msgid "Question submitted successfully"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:122
+msgid "Please enter your question"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:169
+msgid "Enter your question here"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:189
+msgid "Please login to post questions"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:237 includes/ets_user_qa_function.php:281
+#: includes/ets_user_qa_function.php:327 includes/ets_user_qa_function.php:388
+#: includes/ets_user_qa_function.php:428
+msgid "Answer awaiting"
+msgstr ""
+
+#: includes/ets_user_qa_function.php:280 includes/ets_user_qa_function.php:387
+#: includes/ets_user_qa_function.php:427
+msgid "Answer:"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Product Questions & Answers for WooCommerce"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://vamtam.com"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "VamTam"
+msgstr ""

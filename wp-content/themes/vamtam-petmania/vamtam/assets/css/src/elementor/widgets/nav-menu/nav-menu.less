@@ -1,0 +1,57 @@
+.elementor-widget-nav-menu {
+	&.vamtam-has-theme-widget-styles {
+		.sub-arrow {
+			font-size: 16px;
+		}
+
+		html.ios-safari & li {
+			outline: 0 !important;
+		}
+
+		&.vamtam-hr-underline .elementor-nav-menu--main .elementor-nav-menu .menu-item .elementor-item::after {
+			bottom: 20px;
+		}
+
+		&.vamtam-menu-icon {
+			&.elementor-nav-menu--toggle {
+				.eicon-menu-bar {
+					font-family: theme-icons;
+
+					&:before {
+						content: "\e90c";
+						content: "\e90c";
+					}
+				}
+
+				.eicon-close {
+					font-family: theme-icons;
+
+					&:before {
+						content: "\e904";
+					}
+				}
+			}
+		}
+
+		.vamtam-menu-click-on-hover {
+			.sub-arrow .fa-chevron-down {
+				font-size: inherit;
+				&::before {
+					content: "\f107";
+				}
+			}
+		}
+
+		:is(.mega-menu, .vamtam-menu-click-on-hover) {
+			> a:not([href]) {
+				cursor: pointer;
+			}
+		}
+
+		&:not(.vamtam-has-submenu-icon) {
+			.elementor-nav-menu .sub-arrow {
+				display: none;
+			}
+		}
+	}
+}

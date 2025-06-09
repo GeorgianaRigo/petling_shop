@@ -1,0 +1,47 @@
+# WordPress core files – should not be versioned
+wp-admin/
+wp-includes/
+
+# WordPress content to ignore (but keep your custom theme!)
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+
+# Αγνόησε όλα τα plugins
+#wp-content/plugins/*
+
+# Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
+!wp-content/plugins/elementor/
+!wp-content/plugins/elementor-pro/**
+
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor config files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Log files
+*.log
+
+# Build artifacts (if using any build tools)
+node_modules/
+dist/
+build/
+*.zip
+*.tar.gz
+
+# Composer dependencies and lock file
+/vendor/
+composer.lock
+
+# Environment files, backups, temporary/swap files
+.env
+.env.*
+*.bak
+*.tmp
+*.swp

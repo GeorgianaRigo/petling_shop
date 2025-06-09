@@ -1,0 +1,45 @@
+.elementor-widget.vamtam-has-theme-widget-styles {
+	&.vamtam-has-hr-layout {
+		:is( ul.products, .elementor-posts-container ) {
+			// FF - Scrollbar Transition.
+			.e--ua-firefox & {
+				transition: scrollbar-color .7s ease;
+				scrollbar-color: transparent transparent;
+
+				&:hover {
+					scrollbar-color: var(--vamtam-accent-color-3) transparent;
+				}
+			}
+
+			// Webkit - Scrollbar Transition (Variation of: https://stackoverflow.com/questions/19230289/use-transition-on-webkit-scrollbar/57483486#57483486).
+			.e--ua-webkit:not(.e--ua-safari) & {
+				border-color: e("color( from var(--vamtam-accent-color-3) srgb r g b / 0 )");
+  				transition: border-color .7s ease;
+
+				&:hover,
+				&::-webkit-scrollbar-thumb:hover,
+				&::-webkit-scrollbar-thumb:active {
+					border-color: e("color( from var(--vamtam-accent-color-3) srgb r g b / 1 )");;
+				}
+
+				&::-webkit-scrollbar {
+					width: 7px !important;
+					height: 7px !important;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					/* add border to act as background-color */
+					border-right-style: inset;
+					/* sum viewport dimensions to guarantee border will fill scrollbar */
+					border-right-width: calc(100vw + 100vh);
+					border-color: inherit;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					border-color: inherit;
+					border-radius: 10px;
+				}
+			}
+		}
+	}
+}

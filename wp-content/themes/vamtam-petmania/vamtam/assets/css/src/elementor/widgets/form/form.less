@@ -1,0 +1,315 @@
+// Form.
+.elementor-widget-form {
+	// Base Theme Widget Styles.
+	&.vamtam-has-theme-widget-styles {
+		.flatpickr-mobile {
+			&:is([type=date],[type=time]) {
+				-webkit-appearance: initial;
+			}
+		}
+
+		&.vamtam-booking-form {
+			.elementor-field-group {
+				&:not(.elementor-field-group.e-form__buttons__wrapper) {
+					padding: 20px 25px;
+					border-radius: 18px;
+					background-color: var(--vamtam-accent-color-5);
+				}
+
+				&:not(.elementor-field-group.e-form__buttons__wrapper).elementor-field-type-html {
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
+					background-color: var(--vamtam-accent-color-4);
+					text-align: center;
+					margin-bottom: -20px;
+					padding-bottom: 25px;
+
+					p {
+						line-height: 1.4em;
+						font-size: 90%;
+						strong {
+							font-size: 110%;
+							font-weight: 600;
+						}
+					}
+				}
+
+				.elementor-field-label {
+					padding-left: 0;
+					flex-basis: 100%;
+				}
+
+				.elementor-field-subgroup {
+					-ms-flex-preferred-size: auto;
+					flex-basis: auto;
+				}
+
+				>.elementor-select-wrapper {
+					-ms-flex-preferred-size: auto;
+					flex-basis: auto;
+				}
+
+				> input {
+					-ms-flex-preferred-size: auto;
+					flex-basis: auto;
+				}
+
+				> textarea {
+					-ms-flex-preferred-size: auto;
+					flex-basis: auto;
+				}
+			}
+
+			.elementor-field-subgroup.elementor-subgroup-inline {
+				.elementor-field-option {
+					padding-right: 20px;
+				}
+			}
+
+			form.elementor-form {
+				.elementor-field-option {
+					label {
+						padding-left: 30px;
+					}
+				}
+			}
+
+			.e-form__buttons__wrapper__button-next {
+				&::after {
+					content: "\e919";
+					font-family: 'theme-icons' !important;
+					margin-left: 5px;
+					display: inline-block;
+				}
+			}
+
+			.e-form__buttons__wrapper__button-previous {
+				&::before {
+					content: "\e919";
+					font-family: 'theme-icons' !important;
+					margin-right: 5px;
+					display: inline-block;
+					transform: rotate(180deg);
+				}
+			}
+
+			.e-form__indicators__indicator__separator {
+				max-width: 60px;
+				margin-top: 0;
+				transform: rotate(270deg);
+			}
+
+			.e-form__indicators.e-form__indicators--type-number_text {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.e-form__indicators__indicator {
+				flex-basis: auto;
+				flex-direction: row;
+			}
+		}
+
+		@media (min-width: 768px) {
+			&.vamtam-booking-form {
+				.e-form__indicators__indicator {
+					flex-direction: row;
+				}
+
+				.e-form__indicators__indicator__number {
+					margin-bottom: 0;
+					margin-right: 5px;
+					border-width: 2px;
+				}
+
+				.elementor-field-group {
+					.elementor-field-label {
+						max-width: 150px;
+					}
+				}
+
+				.elementor-field-subgroup.elementor-subgroup-inline {
+					.elementor-field-option {
+						width: auto;
+					}
+				}
+			}
+		}
+
+		&.vamtam-input-fields {
+			[type="checkbox"] {
+				&:not(:checked) {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+					&:focus+label {
+						&:before {
+							box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
+						}
+					}
+				}
+				&:checked {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+					&:focus+label {
+						&:before {
+							box-shadow: inset 0 1px 3px rgba(0, 0, 0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
+						}
+					}
+				}
+				&:not(:checked)+label {
+					position: relative;
+					padding-left: 2.3em;
+					cursor: pointer;
+				}
+				&:checked+label {
+					position: relative;
+					padding-left: 2.3em;
+					cursor: pointer;
+				}
+			}
+			[type="radio"] {
+				&:not(:checked) {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+				}
+				&:checked {
+					position: absolute;
+					left: 0;
+					opacity: 0.01;
+				}
+				&:not(:checked)+label {
+					position: relative;
+					padding-left: 2.3em;
+					cursor: pointer;
+				}
+				&:checked+label {
+					position: relative;
+					padding-left: 2.3em;
+					cursor: pointer;
+				}
+			}
+			input[type="checkbox"] {
+				&:not(:checked)+label {
+					&:before {
+						content: '';
+						position: absolute;
+						left: 0;
+						top: 0;
+						width: 1.3em;
+						height: 1.3em;
+						border-radius: 4px;
+						border: solid 2px var( --e-global-color-vamtam_accent_6);
+						background-color: var(--vamtam-accent-color-5);
+						transition: all .275s;
+					}
+					&:after {
+						content: '✔︎';
+						position: absolute;
+						top: .68em;
+						left: .32em;
+						font-size: 0.9em;
+						color: var(--vamtam-accent-color-6);
+						line-height: 0;
+						transition: all .2s;
+						opacity: 0;
+						transform: scale(0);
+					}
+				}
+				&:checked+label {
+					&:before {
+						content: '';
+						position: absolute;
+						left: 0;
+						top: 0;
+						width: 1.3em;
+						height: 1.3em;
+						border-radius: 4px;
+						border: solid 2px var( --e-global-color-vamtam_accent_6);
+						background-color: var(--vamtam-accent-color-5);
+						transition: all .275s;
+						background: var( --e-global-color-vamtam_accent_6);
+					}
+					&:after {
+						content: '✔︎';
+						position: absolute;
+						top: .68em;
+						left: .32em;
+						font-size: 0.9em;
+						color: var(--vamtam-accent-color-6);
+						line-height: 0;
+						transition: all .2s;
+						opacity: 1;
+						transform: scale(1);
+						color: var(--vamtam-accent-color-1);
+					}
+				}
+			}
+			input[type="radio"] {
+				&:not(:checked)+label {
+					&:before {
+						content: '';
+						position: absolute;
+						left: 0;
+						top: 0;
+						width: 1.3em;
+						height: 1.3em;
+						border-radius: 4px;
+						border: solid 2px var( --e-global-color-vamtam_accent_6);
+						background-color: var(--vamtam-accent-color-5);
+						transition: all .275s;
+						border-radius: 100px;
+					}
+					&:after {
+						content: '✔︎';
+						position: absolute;
+						top: .68em;
+						left: .32em;
+						font-size: 0.9em;
+						color: var(--vamtam-accent-color-6);
+						line-height: 0;
+						transition: all .2s;
+						opacity: 0;
+						transform: scale(0);
+					}
+				}
+				&:checked+label {
+					&:before {
+						content: '';
+						position: absolute;
+						left: 0;
+						top: 0;
+						width: 1.3em;
+						height: 1.3em;
+						border-radius: 4px;
+						border: solid 2px var( --e-global-color-vamtam_accent_6);
+						background-color: var(--vamtam-accent-color-5);
+						transition: all .275s;
+						border-radius: 100px;
+						background: var( --e-global-color-vamtam_accent_6);
+					}
+					&:after {
+						content: '✔︎';
+						position: absolute;
+						top: .68em;
+						left: .32em;
+						font-size: 0.9em;
+						color: var(--vamtam-accent-color-6);
+						line-height: 0;
+						transition: all .2s;
+						opacity: 1;
+						transform: scale(1);
+						color: var(--vamtam-accent-color-1);
+					}
+				}
+			}
+		}
+	}
+}
+
