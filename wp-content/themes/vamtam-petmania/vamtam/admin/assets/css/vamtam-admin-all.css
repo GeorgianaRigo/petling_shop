@@ -84,7 +84,6 @@ body .notice:is(.vamtam-license-notice, .vamtam-services-notice, .vamtam-diagnos
   background-color: rgba(82, 76, 255, 0.04);
   width: 50px;
   text-align: center;
-  -webkit-padding-before: 15px;
   padding-block-start: 15px;
   flex-grow: 0;
   flex-shrink: 0;
@@ -115,17 +114,14 @@ body .update-message .vamtam-update-warning__separator {
   margin: 15px -12px;
 }
 body .update-message .vamtam-update-warning {
-  -webkit-margin-after: 5px;
-          margin-block-end: 5px;
+  margin-block-end: 5px;
   max-width: 1000px;
   display: flex;
 }
 body .update-message .vamtam-update-warning__icon {
   font-size: 17px;
-  -webkit-margin-end: 9px;
-          margin-inline-end: 9px;
-  -webkit-margin-start: 2px;
-          margin-inline-start: 2px;
+  margin-inline-end: 9px;
+  margin-inline-start: 2px;
   color: #f56e28;
 }
 body .update-message .vamtam-update-warning__title p::before,
@@ -141,8 +137,7 @@ body .update-message > p:not(:first-of-type)::before {
 }
 body .update-message .vamtam-update-warning__title {
   font-weight: 600;
-  -webkit-margin-after: 10px;
-          margin-block-end: 10px;
+  margin-block-end: 10px;
 }
 body .update-message a.button-primary {
   text-decoration: none;

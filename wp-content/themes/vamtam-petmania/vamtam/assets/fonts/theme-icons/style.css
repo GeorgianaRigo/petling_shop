@@ -1181,7 +1181,8 @@
   content: "\e0ba";
 }
 .vamtam-theme-close:before {
-  content: "\e0bb";
+  content: "\f00d";
+  font-family: "Font Awesome 5 Free";
 }
 .vamtam-theme-cloud-download:before {
   content: "\e0bc";

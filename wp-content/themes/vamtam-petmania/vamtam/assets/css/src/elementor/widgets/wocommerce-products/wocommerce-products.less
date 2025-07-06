@@ -6,4 +6,39 @@
 	&.vamtam-has-theme-widget-styles {
 		.products-base();
 	}
+	&.vamtam-has-theme-widget-styles .woocommerce-ordering .woocommerce-ordering__submenu {
+		border: 1px solid var(--e-global-color-a0ebf33);	
+	}
+	&.vamtam-has-theme-widget-styles .woocommerce-ordering {
+		border-bottom: 1px solid var(--e-global-color-a0ebf33);
+			
+	}
+	&.vamtam-has-theme-widget-styles .woocommerce-result-count{
+		color: black;
+	}
+	ul.products {
+		li {
+			border-radius: 3px;
+			.button {
+				padding: 8px!important;
+			}
+			.vamtam-product-content {
+				padding: 0 15px;
+				margin-top: 15px;
+
+				.star-rating { display: none;}
+
+				span.price { margin-top: 15px; }
+			}
+			.vamtam-add-to-cart-wrap {
+				a:hover {
+					// padding: 10px;
+					// padding: 12px;
+					background-color: var(--e-global-color-a0ebf33);
+				}
+	
+			}
+		}
+	}
+
 }

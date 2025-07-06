@@ -102,8 +102,7 @@ body.toplevel_page_layerslider #wpbody-content .screen-meta-toggle a {
 .vamtam-ts #vamtam-ts-main {
   flex: 0 1 75%;
   background-color: #f1f1f1;
-  -webkit-margin-start: 300px;
-          margin-inline-start: 300px;
+  margin-inline-start: 300px;
   flex-basis: 100%;
 }
 .vamtam-ts #vamtam-ts-main > .main-content {
@@ -161,7 +160,6 @@ body.toplevel_page_layerslider #wpbody-content .screen-meta-toggle a {
 .vamtam-ts #vamtam-ts-main > .main-content .vamtam-box-wrap > .content a.vamtam-ts-button {
   border-radius: 3px;
   min-height: auto;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
 }
@@ -208,12 +206,6 @@ body.toplevel_page_layerslider #wpbody-content .screen-meta-toggle a {
   border: 1px solid #dedede;
   font-weight: bold;
   margin: 0;
-}
-.vamtam-ts#vamtam-ts-homepage #vamtam-envato-license-key::-webkit-input-placeholder {
-  color: #d2d2d2;
-}
-.vamtam-ts#vamtam-ts-homepage #vamtam-envato-license-key:-ms-input-placeholder {
-  color: #d2d2d2;
 }
 .vamtam-ts#vamtam-ts-homepage #vamtam-envato-license-key::-ms-input-placeholder {
   color: #d2d2d2;
@@ -725,8 +717,7 @@ body:not(.vamtam-not-verified) .vamtam-ts#vamtam-ts-homepage .form-table td {
 }
 .vamtam-ts #vamtam-ts-dash-register #vamtam-envato-market-radios input[type="radio"] {
   clip: rect(0 0 0 0);
-  -webkit-clip-path: inset(100%);
-          clip-path: inset(100%);
+  clip-path: inset(100%);
   height: 1px;
   overflow: hidden;
   position: absolute;
@@ -939,10 +930,8 @@ body:not(.vamtam-not-verified) .vamtam-ts#vamtam-ts-homepage .form-table td {
   display: block;
   left: 0;
   right: 0;
-  -webkit-margin-start: 20px;
-          margin-inline-start: 20px;
-  -webkit-margin-end: 20px;
-          margin-inline-end: 20px;
+  margin-inline-start: 20px;
+  margin-inline-end: 20px;
 }
 .vamtam-ts .vamtam-diagnostics-box {
   display: flex;
