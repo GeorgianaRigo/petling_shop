@@ -241,85 +241,41 @@
 		}, 400 );
 	}
 
-	document.addEventListener('DOMContentLoaded', function() {
-		if ( 'elementorFrontend' in window && ! window.elementorFrontend.isEditMode() ) {
-			let elements = document.querySelectorAll('.vamtam-menu-click-on-hover a');
-			let header = document.querySelector( '.elementor-location-header' );
 
-			let timeout_prevent_close, timeout_prevent_open;
+	document.addEventListener('DOMContentLoaded', function () {
+		// TODO: check again einai gia to menu - pop up, twra paizei mono sthn arxikh
+		const menuItem = document.querySelector('.elementor-nav-menu > li:nth-child(2)');
+		const popup = document.querySelector('.vamtam-header-mega-menu');
 
-			// used as an interlock to prevent flickering when the pointer returns to the original menu item
-			let currently_open = false;
-
-			// used to prevent a situation where the popup is not shown following a second hover,
-			// because timeout_prevent_open was cleared before the popup was opened
-			let open_from = null;
-
-			const closeMenu = function() {
-				header.style.zIndex = undefined;
-				header.style.position = undefined;
-
-				if ( currently_open ) {
-					$( document.body ).click();
-				}
-
-				open_from = null;
-				currently_open = false;
-			};
-
-			$( document.body ).on( 'mouseenter', '.dialog-widget-content', function() {
-				clearTimeout( timeout_prevent_close );
-			} );
-
-			$( document.body ).on( 'mouseleave', '.dialog-widget-content', function() {
-				timeout_prevent_close = setTimeout( closeMenu, 500 );
-			} );
-
-			$( document.body ).on( 'mouseenter', '.elementor-nav-menu > .menu-item-has-children, .vamtam-menu-click-on-hover', function( e ) {
-				if ( e.target !== open_from ) {
-					clearTimeout( timeout_prevent_close );
-					clearTimeout( timeout_prevent_open );
-
-					closeMenu();
-				}
-			} );
-
-			elements.forEach(function( el ) {
-				el.addEventListener('mouseenter', function( ev ) {
-					ev.preventDefault();
-					ev.stopPropagation();
-
-					if ( open_from !== el && ! currently_open ) {
-						open_from = el;
-
-						timeout_prevent_open = setTimeout( () => {
-							header.style.zIndex = 9999;
-							header.style.position = 'relative';
-
-							currently_open = true;
-
-							$( el ).click();
-						}, 200 );
-					} else {
-						clearTimeout( timeout_prevent_close );
-					}
-				});
-
-				el.addEventListener('mouseleave', function() {
-					clearTimeout( timeout_prevent_open );
-
-					if ( currently_open ) {
-						timeout_prevent_close = setTimeout( closeMenu, 500 );
-					} else {
-						open_from = null;
-						currently_open = false;
-					}
-				});
-
-				el.innerHTML += '<span class="sub-arrow"><i class="fas fa-chevron-down"></i></span>';
-			});
+		if (menuItem && popup) {
+		  let hideTimeout;
+	  
+		  popup.style.display = 'none';
+	  
+		  menuItem.addEventListener('mouseenter', function () {
+			clearTimeout(hideTimeout);
+			popup.style.display = 'block';
+		  });
+	  
+		  menuItem.addEventListener('mouseleave', function () {
+			hideTimeout = setTimeout(() => {
+			  if (!popup.matches(':hover')) {
+				popup.style.display = 'none';
+			  }
+			}, 200);
+		  });
+	  
+		  popup.addEventListener('mouseenter', function () {
+			clearTimeout(hideTimeout);
+			popup.style.display = 'block';
+		  });
+	  
+		  popup.addEventListener('mouseleave', function () {
+			popup.style.display = 'none';
+		  });
 		}
-	});
+	  });
+	  
 })( jQuery, window.VAMTAM );
 
 /* jshint multistr:true */
