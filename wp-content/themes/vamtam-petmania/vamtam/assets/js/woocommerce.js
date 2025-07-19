@@ -12,6 +12,33 @@
 		}
 	};
 
+	document.addEventListener('DOMContentLoaded', function () {
+		//FIX για τα filtra sta proioda
+		//otan kaneis sort xanodai oi epiloges twn filtrwn
+		const sortLinks = document.querySelectorAll('.woocommerce-ordering__submenu a');
+	
+		if (!sortLinks.length) {
+			return;
+		}
+	
+		sortLinks.forEach(link => {
+			link.addEventListener('click', function (e) {
+				e.preventDefault();
+	
+				const currentUrl = new URL(window.location.href);
+				const clickedUrl = new URL(this.href, window.location.origin);
+				const newOrderby = clickedUrl.searchParams.get('orderby');
+	
+				// Βάζουμε νέο orderby χωρίς να χαθούν τα φίλτρα
+				currentUrl.searchParams.set('orderby', newOrderby);
+				currentUrl.searchParams.set('paged', '1'); // Reset pagination
+	
+				window.location.href = currentUrl.toString();
+			});
+		});
+	});
+	
+
 	// DOMContentLoaded.
 	$( function() {
 		var dropdown        = $( '.fixed-header-box .cart-dropdown' ),
