@@ -3,7 +3,7 @@
  * Plugin Name: Custom Shopify Products API
  * Description: Προσφέρει REST API endpoint για να εμφανίζει προϊόντα από Shopify.
  * Version: 1.0
- * Author: ChatGPT
+ * http://localhost/petling_shop/wp-json/shopify/v1/products
  */
 
 // Βασική συνάρτηση που καλεί το Shopify Admin API
@@ -18,12 +18,14 @@ function get_shopify_products_data() {
     }
 
     // Αν δεν υπάρχει cache, χτύπα το Shopify API
-    $shop = 'petmenu.gr'; // όχι petmenu.gr
-    $shopify_token = getenv('SHOPIFY_TOKEN');
+    load_env_variables();
 
-    $response = wp_remote_get("https://$shop/admin/api/2024-07/products.json?limit=50", [
+    $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
+    $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
+
+    $response = wp_remote_get("https://$shopify_store/admin/api/2024-07/products.json?limit=50", [
         'headers' => [
-            'X-Shopify-Access-Token' => $access_token,
+            'X-Shopify-Access-Token' => $shopify_access_token,
             'Content-Type' => 'application/json',
         ],
     ]);
@@ -50,3 +52,27 @@ add_action('rest_api_init', function () {
         'permission_callback' => '__return_true', // Προσοχή: δημόσιο endpoint
     ]);
 });
+
+function load_env_variables($path = null) {
+    if (!$path) {
+        $path = dirname(__DIR__, 2) . '/.env'; // ανέβασμα 2 φακέλους για να βρει τη ρίζα WordPress
+    }
+
+    if (!file_exists($path)) {
+        error_log("⚠ Δεν βρέθηκε το .env αρχείο: $path");
+        return;
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue; // σχόλια
+        list($key, $value) = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+
+        if (!array_key_exists($key, $_ENV)) {
+            $_ENV[$key] = $value;
+        }
+    }
+}

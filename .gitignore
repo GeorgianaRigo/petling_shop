@@ -47,3 +47,7 @@ composer.lock
 *.bak
 *.tmp
 *.swp
+
+# Για το custom plugin τα access token, γιατί εντός του κώδικα δε μου επέτρεπε το git 
+# να τα pusharw
+.env
