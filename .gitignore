@@ -9,6 +9,8 @@ wp-content/upgrade/
 
 # Αγνόησε όλα τα plugins
 wp-content/plugins/*
+!wp-content/plugins/shopify-product-importer
+!wp-content/plugins/shopify-products-api
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
 !wp-content/plugins/elementor-pro/
