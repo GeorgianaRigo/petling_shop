@@ -3,7 +3,8 @@
  * Plugin Name: Custom Shopify Products API
  * Description: Προσφέρει REST API endpoint για να εμφανίζει προϊόντα από Shopify.
  * Version: 1.0
- * http://localhost/petling_shop/wp-json/shopify/v1/products
+ * Author: Georgiana
+ * URL δοκιμής: http://localhost/petling_shop/wp-json/shopify/v1/products
  */
 
 // Βασική συνάρτηση που καλεί το Shopify Admin API
@@ -14,16 +15,27 @@ function get_shopify_products_data() {
     // Προσπάθησε να πάρεις τα δεδομένα από την cache (transient)
     $cached = get_transient($cache_key);
     if ($cached !== false) {
-        return $cached; // Αν υπάρχει cache, επέστρεψέ την
+        return $cached;
     }
 
-    // Αν δεν υπάρχει cache, χτύπα το Shopify API
+    // Αν δεν υπάρχει cache, φόρτωσε μεταβλητές περιβάλλοντος
     load_env_variables();
 
     $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
     $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
 
-    $response = wp_remote_get("https://$shopify_store/admin/api/2024-07/products.json?limit=50", [
+    // print_r("🔍 Token loaded: " . ($shopify_access_token ? '✅' : '❌'));
+    // print_r("🔍 Store loaded: " . $shopify_store);
+    // print_r("📄 Env path used: " . dirname(__DIR__, 3) . '/.env');
+
+    if (empty($shopify_access_token) || empty($shopify_store)) {
+        return new WP_Error('shopify_env_missing', '🚫 Το .env δεν φορτώθηκε σωστά ή λείπουν μεταβλητές.', ['status' => 500]);
+    }
+
+    $url = "https://$shopify_store/admin/api/2024-07/products.json?limit=50";
+    print_r("🌐 Shopify request URL: $url");
+
+    $response = wp_remote_get($url, [
         'headers' => [
             'X-Shopify-Access-Token' => $shopify_access_token,
             'Content-Type' => 'application/json',
@@ -31,7 +43,8 @@ function get_shopify_products_data() {
     ]);
 
     if (is_wp_error($response)) {
-        return new WP_Error('shopify_api_error', 'API error', ['status' => 500]);
+        // print_r('🛑 Shopify API error: ' . $response->get_error_message());
+        return new WP_Error('shopify_api_error', $response->get_error_message(), ['status' => 500]);
     }
 
     $body = wp_remote_retrieve_body($response);
@@ -43,7 +56,6 @@ function get_shopify_products_data() {
     return $products;
 }
 
-
 // Δημιουργία REST API endpoint
 add_action('rest_api_init', function () {
     register_rest_route('shopify/v1', '/products', [
@@ -53,13 +65,14 @@ add_action('rest_api_init', function () {
     ]);
 });
 
+// Συνάρτηση για φόρτωμα .env αρχείου
 function load_env_variables($path = null) {
     if (!$path) {
-        $path = dirname(__DIR__, 2) . '/.env'; // ανέβασμα 2 φακέλους για να βρει τη ρίζα WordPress
+        $path = dirname(__DIR__, 3) . '/.env'; // 3 επίπεδα πάνω από plugin → WordPress root
     }
 
     if (!file_exists($path)) {
-        error_log("⚠ Δεν βρέθηκε το .env αρχείο: $path");
+        print_r("⚠ Δεν βρέθηκε το .env αρχείο: $path");
         return;
     }
 
