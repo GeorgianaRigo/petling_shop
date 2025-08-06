@@ -2,20 +2,17 @@
 /**
  * Plugin Name: Custom Shopify Products API
  * Description: Προσφέρει REST API endpoints για εμφάνιση και μαζική ανάκτηση προϊόντων από Shopify με φίλτρα.
- * Version: 1.2
+ * Version: 1.3
  * Author: Georgiana
  */
 
-// Δημιουργία REST API routes
 add_action('rest_api_init', function () {
-    // GET /products
     register_rest_route('shopify/v1', '/products', [
         'methods' => 'GET',
         'callback' => 'get_filtered_shopify_products_data',
         'permission_callback' => '__return_true',
     ]);
 
-    // POST /products-by-ids
     register_rest_route('shopify/v1', '/products-by-ids', [
         'methods' => 'POST',
         'callback' => 'get_shopify_products_by_ids',
@@ -30,10 +27,7 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-/**
- * GET /products - Φέρνει όλα τα προϊόντα από Shopify με φίλτρα και cursor pagination
- */
-function get_filtered_shopify_products_data() {
+function get_filtered_shopify_products_data($request) {
     load_env_variables();
 
     $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
@@ -65,7 +59,6 @@ function get_filtered_shopify_products_data() {
 
         $all_products = array_merge($all_products, $products);
 
-        // Αν υπάρχει επόμενο batch μέσω link header (cursor pagination)
         $headers = wp_remote_retrieve_headers($response);
         $link_header = $headers['link'] ?? $headers['Link'] ?? '';
 
@@ -76,7 +69,6 @@ function get_filtered_shopify_products_data() {
         }
     }
 
-    // Φιλτράρισμα προϊόντων σύμφωνα με κριτήρια
     $filtered_products = [];
 
     foreach ($all_products as $product) {
@@ -88,7 +80,7 @@ function get_filtered_shopify_products_data() {
         $status = $product['status'] ?? '';
 
         if (!$sku) continue;
-        if (wc_get_product_id_by_sku($sku)) continue; // SKU υπάρχει ήδη στη βάση
+        if (wc_get_product_id_by_sku($sku)) continue;
         if (!$title) continue;
         if ($price <= 0) continue;
         if ($status !== 'active') continue;
@@ -97,12 +89,21 @@ function get_filtered_shopify_products_data() {
         $filtered_products[] = $product;
     }
 
-    return rest_ensure_response($filtered_products);
+    $page = max(1, intval($request->get_param('page') ?? 1));
+    $per_page = max(200, intval($request->get_param('per_page') ?? 50));
+    $offset = ($page - 1) * $per_page;
+
+    $paged_products = array_slice($filtered_products, $offset, $per_page);
+
+    return rest_ensure_response([
+        'products' => $paged_products,
+        'total'    => count($filtered_products),
+        'page'     => $page,
+        'per_page' => $per_page,
+        'has_more' => ($offset + $per_page) < count($filtered_products),
+    ]);
 }
 
-/**
- * POST /products-by-ids - Φέρνει συγκεκριμένα προϊόντα βάσει Shopify IDs
- */
 function get_shopify_products_by_ids($request) {
     load_env_variables();
 
@@ -131,9 +132,7 @@ function get_shopify_products_by_ids($request) {
             'timeout' => 30,
         ]);
 
-        if (is_wp_error($response)) {
-            continue;
-        }
+        if (is_wp_error($response)) continue;
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
@@ -161,12 +160,8 @@ function get_shopify_products_by_ids($request) {
     return rest_ensure_response($results);
 }
 
-/**
- * Φόρτωμα μεταβλητών από .env αρχείο (π.χ. SHOPIFY_STORE, SHOPIFY_TOKEN)
- */
 function load_env_variables($path = null) {
     if (!$path) {
-        // Υποθέτω το .env είναι 3 επίπεδα πάνω από το plugin
         $path = dirname(__DIR__, 3) . '/.env';
     }
 
@@ -175,8 +170,8 @@ function load_env_variables($path = null) {
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue; // Παράλειψη σχολίων
-        if (strpos($line, '=') === false) continue;  // Παράλειψη αν δεν υπάρχει '='
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') === false) continue;
 
         list($key, $value) = explode('=', $line, 2);
         $_ENV[trim($key)] = trim($value);

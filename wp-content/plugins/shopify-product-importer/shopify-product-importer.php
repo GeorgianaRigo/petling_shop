@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shopify Product Importer
  * Description: Εισαγωγή προϊόντων από το Custom Shopify Products API plugin σε batches με Ajax.
- * Version: 1.4
+ * Version: 1.6
  * Author: Georgiana
  */
 
@@ -20,46 +20,12 @@ function render_shopify_importer_page() {
     <?php
     wp_enqueue_script('shopify-import-js', plugin_dir_url(__FILE__) . 'shopify-import-ajax.js', ['jquery'], null, true);
     wp_localize_script('shopify-import-js', 'shopifyImportAjax', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('shopify_import_nonce'),
+        'ajax_url'  => admin_url('admin-ajax.php'),
+        'nonce'     => wp_create_nonce('shopify_import_nonce'),
+        'rest_url'  => get_site_url(null, '/wp-json/shopify/v1/products'),
     ]);
 }
 
-/**
- * AJAX: Ξεκινά την εισαγωγή, φέρνει τα πρώτα προϊόντα από το Custom API plugin
- */
-add_action('wp_ajax_shopify_import_start', 'shopify_import_start');
-function shopify_import_start() {
-    check_ajax_referer('shopify_import_nonce', 'nonce');
-
-    // Κλήση REST API του API plugin (limit 50 προϊόντα)
-    $url = rest_url('shopify/v1/products?limit=50');
-
-    $response = wp_remote_get($url);
-
-    if (is_wp_error($response)) {
-        wp_send_json_error(['message' => 'API error: ' . $response->get_error_message()]);
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $products = json_decode($body, true);
-
-    if (!is_array($products)) {
-        wp_send_json_error(['message' => 'Invalid API response']);
-    }
-
-    // Επιστρέφουμε τα προϊόντα και την επόμενη σελίδα (δεν υπάρχει pagination στο API plugin, οπότε next_page_info = null)
-    wp_send_json_success([
-        'products' => $products,
-        'next_page_info' => null,
-    ]);
-}
-
-/**
- * AJAX: Εισαγωγή batch προϊόντων στο WooCommerce
- * Δεν χρησιμοποιούμε cursor pagination εδώ γιατί το API plugin δεν υποστηρίζει pagination σε REST endpoint.
- * Εισάγουμε όλα τα προϊόντα που στέλνει το JS (batch).
- */
 add_action('wp_ajax_shopify_import_batch', 'shopify_import_batch');
 function shopify_import_batch() {
     check_ajax_referer('shopify_import_nonce', 'nonce');
@@ -111,7 +77,6 @@ function shopify_import_batch() {
         update_post_meta($post_id, '_manage_stock', 'yes');
         update_post_meta($post_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
 
-        // Φωτογραφία
         if (!empty($product['image']['src'])) {
             require_once(ABSPATH . 'wp-admin/includes/image.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -130,6 +95,6 @@ function shopify_import_batch() {
     wp_send_json_success([
         'imported' => $imported,
         'errors'   => $errors,
-        'done'     => true,  // Επειδή εισάγουμε όλο το batch που λάβαμε
+        'done'     => false,
     ]);
 }
