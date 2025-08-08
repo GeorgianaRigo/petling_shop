@@ -2,13 +2,16 @@ jQuery(document).ready(function ($) {
     let currentPage = 1;
     let totalProducts = 0;
     let importedCount = 0;
+    let maxRetries = 3;
 
-    function importBatch(page) {
+    function importBatch(page, retryCount = 0) {
         $('#progress').append('<p>📦 Φόρτωση batch ' + page + '...</p>');
 
-        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=50`;
+        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=150&force_refresh=1`;
 
         $.get(url, function (response) {
+            console.log('REST API response:', response);
+
             const products = response.products || [];
 
             if (page === 1) {
@@ -38,8 +41,9 @@ jQuery(document).ready(function ($) {
                         });
                     }
 
+                    // Προσθήκη flag has_more που δεν υπήρχε - διορθώθηκε
                     if (response.has_more) {
-                        importBatch(page + 1);
+                        setTimeout(() => importBatch(page + 1), 500);
                     } else {
                         $('#progress').append('<p><strong>🎉 Ολοκληρώθηκε: ' + importedCount + ' από ' + totalProducts + ' προϊόντα.</strong></p>');
                         $('#start-import').prop('disabled', false);
@@ -48,14 +52,37 @@ jQuery(document).ready(function ($) {
                     $('#progress').append('<p style="color:red;">Σφάλμα: ' + resp.data.message + '</p>');
                     $('#start-import').prop('disabled', false);
                 }
-            }).fail(function () {
-                $('#progress').append('<p style="color:red;">❌ Σφάλμα δικτύου.</p>');
-                $('#start-import').prop('disabled', false);
+            }).fail(function (xhr) {
+                if (xhr.status === 429 && retryCount < maxRetries) {
+                    let wait = Math.pow(2, retryCount) * 1000;
+                    $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
+                    setTimeout(() => importBatch(page, retryCount + 1), wait);
+                } else if (retryCount < maxRetries) {
+                    let wait = Math.pow(2, retryCount) * 500;
+                    $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα δικτύου, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
+                    setTimeout(() => importBatch(page, retryCount + 1), wait);
+                } else {
+                    $('#progress').append('<p style="color:red;">❌ Απέτυχε η εισαγωγή batch ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
+                    $('#start-import').prop('disabled', false);
+                }
             });
 
-        }).fail(function () {
-            $('#progress').append('<p style="color:red;">❌ Σφάλμα REST API (404 ή άλλη αποτυχία).</p>');
-            $('#start-import').prop('disabled', false);
+        }).fail(function (xhr, status, error) {
+            console.error('REST API request failed:', status, error, xhr.responseText);
+            $('#progress').append('<p style="color:red;">REST API error: ' + error + '</p>');
+
+            if (xhr.status === 429 && retryCount < maxRetries) {
+                let wait = Math.pow(2, retryCount) * 1000;
+                $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit στο REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
+                setTimeout(() => importBatch(page, retryCount + 1), wait);
+            } else if (retryCount < maxRetries) {
+                let wait = Math.pow(2, retryCount) * 500;
+                $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
+                setTimeout(() => importBatch(page, retryCount + 1), wait);
+            } else {
+                $('#progress').append('<p style="color:red;">❌ Απέτυχε το REST API batch ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
+                $('#start-import').prop('disabled', false);
+            }
         });
     }
 

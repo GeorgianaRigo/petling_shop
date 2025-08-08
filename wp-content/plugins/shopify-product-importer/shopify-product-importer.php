@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shopify Product Importer
  * Description: Εισαγωγή προϊόντων από το Custom Shopify Products API plugin σε batches με Ajax.
- * Version: 1.6
+ * Version: 1.7
  * Author: Georgiana
  */
 
@@ -13,8 +13,11 @@ add_action('admin_menu', function () {
 function render_shopify_importer_page() {
     ?>
     <div class="wrap">
-        <h1>🛍️ Shopify Importer</h1>
+        <h1>🏭️ Shopify Importer</h1>
         <button id="start-import" class="button button-primary">Ξεκίνα Εισαγωγή</button>
+        <label style="margin-left:15px;">
+            <input type="checkbox" id="force-refresh"> Εξαναγκασμένα επαναφορά (bypass cache)
+        </label>
         <div id="progress" style="margin-top: 20px;"></div>
     </div>
     <?php
@@ -39,12 +42,12 @@ function shopify_import_batch() {
     $errors = [];
 
     foreach ($products as $product) {
-        $variant = $product['variants'][0] ?? null;
-        $sku = $variant['sku'] ?? '';
-        $price = floatval($variant['price'] ?? 0);
-        $inventory = intval($variant['inventory_quantity'] ?? 0);
-        $title = $product['title'] ?? '';
-        $description = $product['body_html'] ?? '';
+        // Πάρε απευθείας τα πεδία από το product
+        $sku = sanitize_text_field($product['sku'] ?? '');
+        $price = floatval($product['price'] ?? 0);
+        $inventory = intval($product['inventory_quantity'] ?? 0);
+        $title = sanitize_text_field($product['title'] ?? '');
+        $description = sanitize_textarea_field($product['body_html'] ?? '');
 
         if (!$sku || wc_get_product_id_by_sku($sku)) {
             $errors[] = "Παραλείφθηκε SKU: " . ($sku ?: 'Άγνωστο');
@@ -57,8 +60,8 @@ function shopify_import_batch() {
         }
 
         $post_id = wp_insert_post([
-            'post_title'   => wp_strip_all_tags($title),
-            'post_content' => wp_kses_post($description),
+            'post_title'   => $title,
+            'post_content' => $description,
             'post_status'  => 'publish',
             'post_type'    => 'product',
         ]);
@@ -70,24 +73,12 @@ function shopify_import_batch() {
 
         wp_set_object_terms($post_id, 'simple', 'product_type');
 
-        update_post_meta($post_id, '_sku', sanitize_text_field($sku));
+        update_post_meta($post_id, '_sku', $sku);
         update_post_meta($post_id, '_price', $price);
         update_post_meta($post_id, '_regular_price', $price);
         update_post_meta($post_id, '_stock', $inventory);
         update_post_meta($post_id, '_manage_stock', 'yes');
         update_post_meta($post_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
-
-        if (!empty($product['image']['src'])) {
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-            require_once(ABSPATH . 'wp-admin/includes/media.php');
-
-            $image_url = esc_url_raw($product['image']['src']);
-            $image_id = media_sideload_image($image_url, $post_id, $title, 'id');
-            if (!is_wp_error($image_id)) {
-                set_post_thumbnail($post_id, $image_id);
-            }
-        }
 
         $imported++;
     }
@@ -97,4 +88,5 @@ function shopify_import_batch() {
         'errors'   => $errors,
         'done'     => false,
     ]);
+    wp_die();
 }
