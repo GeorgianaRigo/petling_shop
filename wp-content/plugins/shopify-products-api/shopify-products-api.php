@@ -83,6 +83,16 @@ function get_filtered_shopify_products_data($request) {
             $variant = $product['variants'][0] ?? null;
             if (!$variant) continue;
 
+            // Πάρε όλα τα URLs των εικόνων
+            $image_urls = [];
+            if (!empty($product['images']) && is_array($product['images'])) {
+                foreach ($product['images'] as $img) {
+                    if (!empty($img['src'])) {
+                        $image_urls[] = $img['src'];
+                    }
+                }
+            }
+
             $lightweight_products[] = [
                 'id'       => $product['id'] ?? null,
                 'title'    => $product['title'] ?? '',
@@ -90,6 +100,7 @@ function get_filtered_shopify_products_data($request) {
                 'price'    => $variant['price'] ?? '',
                 'status'   => $product['status'] ?? '',
                 'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
+                'image_urls' => $image_urls,
             ];
         }
 
@@ -123,16 +134,6 @@ function get_filtered_shopify_products_data($request) {
     $offset = ($page - 1) * $per_page;
     $paged_products = array_slice($filtered_products, $offset, $per_page);
 
-    // Print debug info στο HTML output
-    $debug_info = [
-        'cache_used' => (!$force_refresh && $cached_products !== false),
-        'total_products_fetched' => count($all_products),
-        'total_products_filtered' => count($filtered_products),
-        'page' => $page,
-        'per_page' => $per_page,
-    ];
-    // echo '<pre>'; print_r($debug_info); echo '</pre>';
-
     return rest_ensure_response([
         'products' => $paged_products,
         'total'    => count($filtered_products),
@@ -141,7 +142,6 @@ function get_filtered_shopify_products_data($request) {
         'has_more' => ($offset + $per_page) < count($filtered_products),
     ]);
 }
-
 
 function get_shopify_products_by_ids($request) {
     load_env_variables();
@@ -192,6 +192,19 @@ function get_shopify_products_by_ids($request) {
         if ($price <= 0) continue;
         if ($status !== 'active') continue;
         if ($inventory <= 0) continue;
+
+        // Πάρε όλα τα URLs εικόνων
+        $image_urls = [];
+        if (!empty($product['images']) && is_array($product['images'])) {
+            foreach ($product['images'] as $img) {
+                if (!empty($img['src'])) {
+                    $image_urls[] = $img['src'];
+                }
+            }
+        }
+
+        // Πρόσθεσε τα URLs εικόνων στο προϊόν
+        $product['image_urls'] = $image_urls;
 
         $results[] = $product;
     }

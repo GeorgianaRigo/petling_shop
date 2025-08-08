@@ -41,8 +41,11 @@ function shopify_import_batch() {
     $imported = 0;
     $errors = [];
 
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+    require_once(ABSPATH . 'wp-admin/includes/file.php');
+    require_once(ABSPATH . 'wp-admin/includes/media.php');
+
     foreach ($products as $product) {
-        // Πάρε απευθείας τα πεδία από το product
         $sku = sanitize_text_field($product['sku'] ?? '');
         $price = floatval($product['price'] ?? 0);
         $inventory = intval($product['inventory_quantity'] ?? 0);
@@ -79,6 +82,31 @@ function shopify_import_batch() {
         update_post_meta($post_id, '_stock', $inventory);
         update_post_meta($post_id, '_manage_stock', 'yes');
         update_post_meta($post_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
+
+        // --- Εισαγωγή εικόνων ---
+        $image_urls = $product['image_urls'] ?? [];
+        $attachment_ids = [];
+
+        foreach ($image_urls as $index => $image_url) {
+            // Κατέβασε και πρόσθεσε ως attachment
+            $media = media_sideload_image($image_url, $post_id, null, 'id');
+            if (!is_wp_error($media)) {
+                $attachment_ids[] = $media;
+            }
+        }
+
+        if (!empty($attachment_ids)) {
+            // Featured image = πρώτη εικόνα
+            set_post_thumbnail($post_id, $attachment_ids[0]);
+
+            // Gallery = οι υπόλοιπες εικόνες
+            if (count($attachment_ids) > 1) {
+                // Στο WooCommerce gallery αποθηκεύουμε ως comma-separated string
+                $gallery_ids = array_slice($attachment_ids, 1);
+                update_post_meta($post_id, '_product_image_gallery', implode(',', $gallery_ids));
+            }
+        }
+        // --- τέλος εικόνων ---
 
         $imported++;
     }
