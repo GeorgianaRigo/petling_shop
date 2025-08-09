@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+    console.log('Shopify Import JS loaded');
     let currentPage = 1;
     let totalProducts = 0;
     let importedCount = 0;

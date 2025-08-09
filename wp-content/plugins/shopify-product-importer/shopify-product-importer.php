@@ -37,6 +37,12 @@ function shopify_import_batch() {
         wp_send_json_error(['message' => 'Missing or invalid products data']);
     }
 
+    if (!class_exists('WooCommerce')) {
+        wp_send_json_error(['message' => 'WooCommerce plugin is not active']);
+    }
+
+    global $wpdb;
+
     $products = $_POST['products'];
     $imported = 0;
     $errors = [];
@@ -46,14 +52,26 @@ function shopify_import_batch() {
     require_once(ABSPATH . 'wp-admin/includes/media.php');
 
     foreach ($products as $product) {
-        $sku = sanitize_text_field($product['sku'] ?? '');
+        $raw_sku = $product['sku'] ?? '';
+        $sku = strtolower(trim(sanitize_text_field($raw_sku)));
         $price = floatval($product['price'] ?? 0);
         $inventory = intval($product['inventory_quantity'] ?? 0);
         $title = sanitize_text_field($product['title'] ?? '');
         $description = sanitize_textarea_field($product['body_html'] ?? '');
 
-        if (!$sku || wc_get_product_id_by_sku($sku)) {
-            $errors[] = "Παραλείφθηκε SKU: " . ($sku ?: 'Άγνωστο');
+        if (!$sku) {
+            $errors[] = "Παραλείφθηκε προϊόν με άγνωστο SKU.";
+            continue;
+        }
+
+        // Σφιχτός έλεγχος διπλοεγγραφής μέσω SQL
+        $existing_product_id = $wpdb->get_var( $wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_sku' AND LOWER(meta_value) = %s LIMIT 1",
+            $sku
+        ));
+
+        if ($existing_product_id) {
+            $errors[] = "Παραλείφθηκε διπλότυπο SKU: {$sku} (ID προϊόντος: {$existing_product_id})";
             continue;
         }
 
@@ -65,7 +83,7 @@ function shopify_import_batch() {
         $post_id = wp_insert_post([
             'post_title'   => $title,
             'post_content' => $description,
-            'post_status'  => 'publish',
+            'post_status'  => 'draft',
             'post_type'    => 'product',
         ]);
 
@@ -87,11 +105,17 @@ function shopify_import_batch() {
         $image_urls = $product['image_urls'] ?? [];
         $attachment_ids = [];
 
-        foreach ($image_urls as $index => $image_url) {
-            // Κατέβασε και πρόσθεσε ως attachment
-            $media = media_sideload_image($image_url, $post_id, null, 'id');
-            if (!is_wp_error($media)) {
-                $attachment_ids[] = $media;
+        if (is_array($image_urls)) {
+            foreach ($image_urls as $index => $image_url) {
+                $image_url = esc_url_raw($image_url);
+                if (!$image_url) {
+                    continue;
+                }
+                // Κατέβασε και πρόσθεσε ως attachment
+                $media = media_sideload_image($image_url, $post_id, null, 'id');
+                if (!is_wp_error($media)) {
+                    $attachment_ids[] = $media;
+                }
             }
         }
 
@@ -101,7 +125,6 @@ function shopify_import_batch() {
 
             // Gallery = οι υπόλοιπες εικόνες
             if (count($attachment_ids) > 1) {
-                // Στο WooCommerce gallery αποθηκεύουμε ως comma-separated string
                 $gallery_ids = array_slice($attachment_ids, 1);
                 update_post_meta($post_id, '_product_image_gallery', implode(',', $gallery_ids));
             }
