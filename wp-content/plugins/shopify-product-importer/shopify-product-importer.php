@@ -2,8 +2,9 @@
 /**
  * Plugin Name: Shopify Product Importer
  * Description: Εισαγωγή και ενημέρωση προϊόντων από το Custom Shopify Products API plugin σε batches με Ajax και cron.
- * Version: 1.9
+ * Version: 1.10
  * Author: Georgiana
+ * με τιμες και περιγραφές
  */
 
 add_action('admin_menu', function () {
@@ -38,7 +39,7 @@ add_filter('cron_schedules', function($schedules){
     return $schedules;
 });
 
-// Προγραμματισμός cron κατά ενεργοποίηση plugin
+// Cron activation
 register_activation_hook(__FILE__, function() {
     if (!wp_next_scheduled('shopify_import_daily_event')) {
         wp_schedule_event(time(), 'daily', 'shopify_import_daily_event');
@@ -48,24 +49,86 @@ register_activation_hook(__FILE__, function() {
     }
 });
 
-// Καθαρισμός cron κατά απενεργοποίηση plugin
 register_deactivation_hook(__FILE__, function() {
     wp_clear_scheduled_hook('shopify_import_daily_event');
     wp_clear_scheduled_hook('shopify_update_every_10_minutes_event');
 });
 
-// Cron hooks που καλούν τις αντίστοιχες λειτουργίες
 add_action('shopify_import_daily_event', 'shopify_cron_import');
 add_action('shopify_update_every_10_minutes_event', 'shopify_cron_update');
 
-// --- Βοηθητική συνάρτηση για εισαγωγή batch ---
+// --- Fetch με περιγραφές σε chunks ---
+function shopify_fetch_products_with_descriptions($batch_size = 50, $force_refresh = false) {
+
+    // Καθαρισμός παλιών transient αν υπάρχει force refresh
+    if ($force_refresh) {
+        $i = 0;
+        while (get_transient("shopify_light_products_cache_chunk_$i") !== false) {
+            delete_transient("shopify_light_products_cache_chunk_$i");
+            $i++;
+        }
+    }
+
+    // Ανάκτηση από cache
+    $all_products = [];
+    $i = 0;
+    while (($chunk = get_transient("shopify_light_products_cache_chunk_$i")) !== false) {
+        $all_products = array_merge($all_products, $chunk);
+        $i++;
+    }
+    if (!empty($all_products)) return $all_products;
+
+    // Αν δεν υπάρχει cache, fetch από API
+    $response = wp_remote_get(get_site_url(null, '/wp-json/shopify/v1/products?per_page=250'));
+    if (is_wp_error($response)) return false;
+
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+    if (!is_array($data) || empty($data['products'])) return false;
+
+    $all_products_raw = $data['products'];
+    $results = [];
+
+    $chunks = array_chunk($all_products_raw, $batch_size);
+    foreach ($chunks as $idx => $chunk) {
+        $ids = array_column($chunk, 'id');
+        $resp = wp_remote_post(get_site_url(null, '/wp-json/shopify/v1/products-by-ids'), [
+            'body' => json_encode(['ids' => $ids]),
+            'headers' => ['Content-Type' => 'application/json'],
+            'timeout' => 60,
+        ]);
+        if (is_wp_error($resp)) continue;
+
+        $body_chunk = wp_remote_retrieve_body($resp);
+        $products_with_desc = json_decode($body_chunk, true);
+        if (!is_array($products_with_desc)) continue;
+
+        // Αποθήκευση κάθε chunk σε δικό του transient
+        if (!empty($products_with_desc)) {
+            set_transient("shopify_light_products_cache_chunk_$idx", $products_with_desc, 300);
+        }
+
+        $results = array_merge($results, $products_with_desc);
+    }
+
+    return $results;
+}
+
+function shopify_fetch_products_for_import() {
+    return shopify_fetch_products_with_descriptions();
+}
+
+function shopify_fetch_products_for_update() {
+    return shopify_fetch_products_with_descriptions();
+}
+
+// --- Εισαγωγή batch ---
 function shopify_process_import_batch($products) {
     if (!class_exists('WooCommerce')) {
         return ['success' => false, 'message' => 'WooCommerce plugin is not active'];
     }
 
     global $wpdb;
-
     require_once(ABSPATH . 'wp-admin/includes/image.php');
     require_once(ABSPATH . 'wp-admin/includes/file.php');
     require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -77,30 +140,19 @@ function shopify_process_import_batch($products) {
         $raw_sku = $product['sku'] ?? '';
         $sku = strtolower(trim(sanitize_text_field($raw_sku)));
         $price = floatval($product['price'] ?? 0);
+        $compare_at_price = floatval($product['compare_at_price'] ?? 0);
         $inventory = intval($product['inventory_quantity'] ?? 0);
         $title = sanitize_text_field($product['title'] ?? '');
-        $description = sanitize_textarea_field($product['body_html'] ?? '');
+        $description = $product['description'] ?? '';
 
-        if (!$sku) {
-            $errors[] = "Παραλείφθηκε προϊόν με άγνωστο SKU.";
-            continue;
-        }
+        if (!$sku) { $errors[] = "Παραλείφθηκε προϊόν με άγνωστο SKU."; continue; }
 
-        // Έλεγχος διπλοεγγραφής
-        $existing_product_id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_sku' AND LOWER(meta_value) = %s LIMIT 1",
-            $sku
+        $existing_product_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_sku' AND LOWER(meta_value) = %s LIMIT 1", $sku
         ));
+        if ($existing_product_id) { $errors[] = "Παραλείφθηκε διπλότυπο SKU: {$sku}"; continue; }
 
-        if ($existing_product_id) {
-            $errors[] = "Παραλείφθηκε διπλότυπο SKU: {$sku} (ID προϊόντος: {$existing_product_id})";
-            continue;
-        }
-
-        if (!$title || $price <= 0) {
-            $errors[] = "Παραλείφθηκε προϊόν χωρίς τίτλο ή με μη έγκυρη τιμή.";
-            continue;
-        }
+        if (!$title || $price <= 0) { $errors[] = "Παραλείφθηκε προϊόν χωρίς τίτλο ή με μη έγκυρη τιμή."; continue; }
 
         $post_id = wp_insert_post([
             'post_title'   => $title,
@@ -108,42 +160,38 @@ function shopify_process_import_batch($products) {
             'post_status'  => 'draft',
             'post_type'    => 'product',
         ]);
-
-        if (is_wp_error($post_id) || !$post_id) {
-            $errors[] = "❌ Αποτυχία εισαγωγής: {$title}";
-            continue;
-        }
+        if (is_wp_error($post_id) || !$post_id) { $errors[] = "❌ Αποτυχία εισαγωγής: {$title}"; continue; }
 
         wp_set_object_terms($post_id, 'simple', 'product_type');
-
         update_post_meta($post_id, '_sku', $sku);
-        update_post_meta($post_id, '_price', $price);
-        update_post_meta($post_id, '_regular_price', $price);
+
+        if ($compare_at_price > $price) {
+            update_post_meta($post_id, '_regular_price', $compare_at_price);
+            update_post_meta($post_id, '_sale_price', $price);
+            update_post_meta($post_id, '_price', $price);
+        } else {
+            update_post_meta($post_id, '_regular_price', $price);
+            update_post_meta($post_id, '_price', $price);
+        }
+
         update_post_meta($post_id, '_stock', $inventory);
         update_post_meta($post_id, '_manage_stock', 'yes');
         update_post_meta($post_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
 
-        // Εισαγωγή εικόνων
         $image_urls = $product['image_urls'] ?? [];
         $attachment_ids = [];
-
         if (is_array($image_urls)) {
-            foreach ($image_urls as $index => $image_url) {
+            foreach ($image_urls as $image_url) {
                 $image_url = esc_url_raw($image_url);
                 if (!$image_url) continue;
-
                 $media = media_sideload_image($image_url, $post_id, null, 'id');
-                if (!is_wp_error($media)) {
-                    $attachment_ids[] = $media;
-                }
+                if (!is_wp_error($media)) $attachment_ids[] = $media;
             }
         }
-
         if (!empty($attachment_ids)) {
             set_post_thumbnail($post_id, $attachment_ids[0]);
             if (count($attachment_ids) > 1) {
-                $gallery_ids = array_slice($attachment_ids, 1);
-                update_post_meta($post_id, '_product_image_gallery', implode(',', $gallery_ids));
+                update_post_meta($post_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
             }
         }
 
@@ -153,14 +201,11 @@ function shopify_process_import_batch($products) {
     return ['success' => true, 'imported' => $imported, 'errors' => $errors];
 }
 
-// --- Βοηθητική συνάρτηση για ενημέρωση batch ---
+// --- Ενημέρωση batch ---
 function shopify_process_update_batch($products) {
-    if (!class_exists('WooCommerce')) {
-        return ['success' => false, 'message' => 'WooCommerce plugin is not active'];
-    }
+    if (!class_exists('WooCommerce')) return ['success' => false, 'message' => 'WooCommerce plugin is not active'];
 
     global $wpdb;
-
     require_once(ABSPATH . 'wp-admin/includes/image.php');
     require_once(ABSPATH . 'wp-admin/includes/file.php');
     require_once(ABSPATH . 'wp-admin/includes/media.php');
@@ -172,29 +217,19 @@ function shopify_process_update_batch($products) {
         $raw_sku = $product['sku'] ?? '';
         $sku = strtolower(trim(sanitize_text_field($raw_sku)));
         $price = floatval($product['price'] ?? 0);
+        $compare_at_price = floatval($product['compare_at_price'] ?? 0);
         $inventory = intval($product['inventory_quantity'] ?? 0);
         $title = sanitize_text_field($product['title'] ?? '');
-        $description = sanitize_textarea_field($product['body_html'] ?? '');
+        $description = $product['description'] ?? '';
 
-        if (!$sku) {
-            $errors[] = "Παραλείφθηκε προϊόν με άγνωστο SKU.";
-            continue;
-        }
+        if (!$sku) { $errors[] = "Παραλείφθηκε προϊόν με άγνωστο SKU."; continue; }
 
-        $existing_product_id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_sku' AND LOWER(meta_value) = %s LIMIT 1",
-            $sku
+        $existing_product_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_sku' AND LOWER(meta_value) = %s LIMIT 1", $sku
         ));
+        if (!$existing_product_id) { $errors[] = "Δεν βρέθηκε προϊόν με SKU: {$sku} για ενημέρωση."; continue; }
 
-        if (!$existing_product_id) {
-            $errors[] = "Δεν βρέθηκε προϊόν με SKU: {$sku} για ενημέρωση.";
-            continue;
-        }
-
-        if (!$title || $price <= 0) {
-            $errors[] = "Παραλείφθηκε προϊόν χωρίς τίτλο ή με μη έγκυρη τιμή.";
-            continue;
-        }
+        if (!$title || $price <= 0) { $errors[] = "Παραλείφθηκε προϊόν χωρίς τίτλο ή με μη έγκυρη τιμή."; continue; }
 
         $update_result = wp_update_post([
             'ID'           => $existing_product_id,
@@ -202,41 +237,37 @@ function shopify_process_update_batch($products) {
             'post_content' => $description,
         ], true);
 
-        if (is_wp_error($update_result)) {
-            $errors[] = "❌ Αποτυχία ενημέρωσης: {$title}";
-            continue;
+        if (is_wp_error($update_result)) { $errors[] = "❌ Αποτυχία ενημέρωσης: {$title}"; continue; }
+
+        if ($compare_at_price > $price) {
+            update_post_meta($existing_product_id, '_regular_price', $compare_at_price);
+            update_post_meta($existing_product_id, '_sale_price', $price);
+            update_post_meta($existing_product_id, '_price', $price);
+        } else {
+            update_post_meta($existing_product_id, '_regular_price', $price);
+            update_post_meta($existing_product_id, '_price', $price);
         }
 
-        update_post_meta($existing_product_id, '_price', $price);
-        update_post_meta($existing_product_id, '_regular_price', $price);
         update_post_meta($existing_product_id, '_stock', $inventory);
         update_post_meta($existing_product_id, '_manage_stock', 'yes');
         update_post_meta($existing_product_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
 
-        // Ενημέρωση εικόνων
         $image_urls = $product['image_urls'] ?? [];
         $attachment_ids = [];
-
         if (is_array($image_urls)) {
             delete_post_thumbnail($existing_product_id);
             update_post_meta($existing_product_id, '_product_image_gallery', '');
-
-            foreach ($image_urls as $index => $image_url) {
+            foreach ($image_urls as $image_url) {
                 $image_url = esc_url_raw($image_url);
                 if (!$image_url) continue;
-
                 $media = media_sideload_image($image_url, $existing_product_id, null, 'id');
-                if (!is_wp_error($media)) {
-                    $attachment_ids[] = $media;
-                }
+                if (!is_wp_error($media)) $attachment_ids[] = $media;
             }
         }
-
         if (!empty($attachment_ids)) {
             set_post_thumbnail($existing_product_id, $attachment_ids[0]);
             if (count($attachment_ids) > 1) {
-                $gallery_ids = array_slice($attachment_ids, 1);
-                update_post_meta($existing_product_id, '_product_image_gallery', implode(',', $gallery_ids));
+                update_post_meta($existing_product_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
             }
         }
 
@@ -246,123 +277,24 @@ function shopify_process_update_batch($products) {
     return ['success' => true, 'updated' => $updated, 'errors' => $errors];
 }
 
-// --- AJAX για εισαγωγή batch ---
+// --- AJAX εισαγωγή ---
 add_action('wp_ajax_shopify_import_batch', function() {
     check_ajax_referer('shopify_import_nonce', 'nonce');
-
     if (empty($_POST['products']) || !is_array($_POST['products'])) {
         wp_send_json_error(['message' => 'Missing or invalid products data']);
     }
-
     $result = shopify_process_import_batch($_POST['products']);
-
-    if (!$result['success']) {
-        wp_send_json_error(['message' => $result['message'] ?? 'Unknown error']);
-    }
-
-    wp_send_json_success([
-        'imported' => $result['imported'],
-        'errors'   => $result['errors'],
-        'done'     => false,
-    ]);
+    wp_send_json_success(['imported' => $result['imported'], 'errors' => $result['errors'], 'done' => false]);
     wp_die();
 });
 
-// --- AJAX για ενημέρωση batch ---
+// --- AJAX ενημέρωση ---
 add_action('wp_ajax_shopify_update_batch', function() {
     check_ajax_referer('shopify_import_nonce', 'nonce');
-
     if (empty($_POST['products']) || !is_array($_POST['products'])) {
         wp_send_json_error(['message' => 'Missing or invalid products data']);
     }
-
     $result = shopify_process_update_batch($_POST['products']);
-
-    if (!$result['success']) {
-        wp_send_json_error(['message' => $result['message'] ?? 'Unknown error']);
-    }
-
-    wp_send_json_success([
-        'updated' => $result['updated'],
-        'errors'  => $result['errors'],
-        'done'    => false,
-    ]);
+    wp_send_json_success(['updated' => $result['updated'], 'errors' => $result['errors'], 'done' => false]);
     wp_die();
 });
-
-// --- Cron function για εισαγωγή ---
-function shopify_cron_import() {
-    // Φόρτωσε τα δεδομένα προϊόντων από το REST API ή από άλλη πηγή
-    $products = shopify_fetch_products_for_import();
-
-    if (!$products) {
-        error_log('Shopify Importer Cron: Δεν βρέθηκαν προϊόντα για εισαγωγή');
-        return;
-    }
-
-    $result = shopify_process_import_batch($products);
-
-    if (!$result['success']) {
-        error_log('Shopify Importer Cron: Σφάλμα εισαγωγής - ' . ($result['message'] ?? ''));
-    } else {
-        error_log("Shopify Importer Cron: Εισήχθησαν {$result['imported']} προϊόντα με " . count($result['errors']) . " σφάλματα.");
-    }
-}
-
-// --- Cron function για ενημέρωση ---
-function shopify_cron_update() {
-    // Φόρτωσε τα δεδομένα προϊόντων από το REST API ή από άλλη πηγή
-    $products = shopify_fetch_products_for_update();
-
-    if (!$products) {
-        error_log('Shopify Importer Cron: Δεν βρέθηκαν προϊόντα για ενημέρωση');
-        return;
-    }
-
-    $result = shopify_process_update_batch($products);
-
-    if (!$result['success']) {
-        error_log('Shopify Importer Cron: Σφάλμα ενημέρωσης - ' . ($result['message'] ?? ''));
-    } else {
-        error_log("Shopify Importer Cron: Ενημερώθηκαν {$result['updated']} προϊόντα με " . count($result['errors']) . " σφάλματα.");
-    }
-}
-
-// --- Βοηθητικές συναρτήσεις για φόρτωση προϊόντων ---
-// Εδώ πρέπει να προσθέσεις τη λογική που φέρνει τα προϊόντα από το Custom Shopify Products API
-
-function shopify_fetch_products_for_import() {
-    // Παράδειγμα: κάνε GET request στο REST endpoint και επέστρεψε πίνακα προϊόντων
-    $response = wp_remote_get(get_site_url(null, '/wp-json/shopify/v1/products?import=1'));
-
-    if (is_wp_error($response)) {
-        return false;
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $data = json_decode($body, true);
-
-    if (!is_array($data)) {
-        return false;
-    }
-
-    return $data;
-}
-
-function shopify_fetch_products_for_update() {
-    // Παράδειγμα: κάνε GET request στο REST endpoint και επέστρεψε πίνακα προϊόντων
-    $response = wp_remote_get(get_site_url(null, '/wp-json/shopify/v1/products?update=1'));
-
-    if (is_wp_error($response)) {
-        return false;
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $data = json_decode($body, true);
-
-    if (!is_array($data)) {
-        return false;
-    }
-
-    return $data;
-}
