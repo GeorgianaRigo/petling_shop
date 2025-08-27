@@ -178,20 +178,51 @@ function shopify_process_import_batch($products) {
         update_post_meta($post_id, '_manage_stock', 'yes');
         update_post_meta($post_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
 
+        // --- Εισαγωγή εικόνων με ασφαλή τρόπο ---
         $image_urls = $product['image_urls'] ?? [];
         $attachment_ids = [];
-        if (is_array($image_urls)) {
-            foreach ($image_urls as $image_url) {
+
+        if (is_array($image_urls) && !empty($image_urls)) {
+            foreach ($image_urls as $index => $image_url) {
                 $image_url = esc_url_raw($image_url);
                 if (!$image_url) continue;
-                $media = media_sideload_image($image_url, $post_id, null, 'id');
-                if (!is_wp_error($media)) $attachment_ids[] = $media;
+
+                $tmp = download_url($image_url);
+                if (is_wp_error($tmp)) {
+                    $errors[] = "❌ Αποτυχία download εικόνας για SKU: {$sku}, URL: {$image_url} - " . $tmp->get_error_message();
+                    continue;
+                }
+
+                $extension = pathinfo(parse_url($image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $filename = sanitize_file_name("{$sku}_{$index}.{$extension}");
+
+                $file_array = [
+                    'name' => $filename,
+                    'tmp_name' => $tmp,
+                ];
+
+                $filetype = wp_check_filetype($file_array['name']);
+                if (!$filetype['type']) {
+                    @unlink($tmp);
+                    $errors[] = "❌ Αποτυχία MIME type εικόνας για SKU: {$sku}, URL: {$image_url}";
+                    continue;
+                }
+
+                $attach_id = media_handle_sideload($file_array, $post_id);
+                if (is_wp_error($attach_id)) {
+                    @unlink($tmp);
+                    $errors[] = "❌ Αποτυχία εισαγωγής εικόνας για SKU: {$sku}, URL: {$image_url} - " . $attach_id->get_error_message();
+                    continue;
+                }
+
+                $attachment_ids[] = $attach_id;
             }
-        }
-        if (!empty($attachment_ids)) {
-            set_post_thumbnail($post_id, $attachment_ids[0]);
-            if (count($attachment_ids) > 1) {
-                update_post_meta($post_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
+
+            if (!empty($attachment_ids)) {
+                set_post_thumbnail($post_id, $attachment_ids[0]);
+                if (count($attachment_ids) > 1) {
+                    update_post_meta($post_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
+                }
             }
         }
 
@@ -231,6 +262,7 @@ function shopify_process_update_batch($products) {
 
         if (!$title || $price <= 0) { $errors[] = "Παραλείφθηκε προϊόν χωρίς τίτλο ή με μη έγκυρη τιμή."; continue; }
 
+        // Ενημέρωση βασικών πεδίων
         $update_result = wp_update_post([
             'ID'           => $existing_product_id,
             'post_title'   => $title,
@@ -239,6 +271,7 @@ function shopify_process_update_batch($products) {
 
         if (is_wp_error($update_result)) { $errors[] = "❌ Αποτυχία ενημέρωσης: {$title}"; continue; }
 
+        // Τιμές και απόθεμα
         if ($compare_at_price > $price) {
             update_post_meta($existing_product_id, '_regular_price', $compare_at_price);
             update_post_meta($existing_product_id, '_sale_price', $price);
@@ -252,22 +285,59 @@ function shopify_process_update_batch($products) {
         update_post_meta($existing_product_id, '_manage_stock', 'yes');
         update_post_meta($existing_product_id, '_stock_status', $inventory > 0 ? 'instock' : 'outofstock');
 
+        // --- Εισαγωγή εικόνων με ασφαλή τρόπο ---
         $image_urls = $product['image_urls'] ?? [];
         $attachment_ids = [];
-        if (is_array($image_urls)) {
+
+        if (is_array($image_urls) && !empty($image_urls)) {
+            // Καθαρισμός παλιάς featured και gallery εικόνας
             delete_post_thumbnail($existing_product_id);
             update_post_meta($existing_product_id, '_product_image_gallery', '');
-            foreach ($image_urls as $image_url) {
+
+            foreach ($image_urls as $index => $image_url) {
                 $image_url = esc_url_raw($image_url);
                 if (!$image_url) continue;
-                $media = media_sideload_image($image_url, $existing_product_id, null, 'id');
-                if (!is_wp_error($media)) $attachment_ids[] = $media;
+
+                $tmp = download_url($image_url);
+                if (is_wp_error($tmp)) {
+                    $errors[] = "❌ Αποτυχία download εικόνας για SKU: {$sku}, URL: {$image_url} - " . $tmp->get_error_message();
+                    continue;
+                }
+
+                // Καθαρισμός ονόματος αρχείου: χρησιμοποιούμε SKU + index, χωρίς query string
+                $extension = pathinfo(parse_url($image_url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                $filename = sanitize_file_name("{$sku}_{$index}.{$extension}");
+
+                $file_array = [
+                    'name' => $filename,
+                    'tmp_name' => $tmp,
+                ];
+
+                // Έλεγχος MIME type
+                $filetype = wp_check_filetype($file_array['name']);
+                if (!$filetype['type']) {
+                    @unlink($tmp);
+                    $errors[] = "❌ Αποτυχία MIME type εικόνας για SKU: {$sku}, URL: {$image_url}";
+                    continue;
+                }
+
+                // Upload εικόνας
+                $attach_id = media_handle_sideload($file_array, $existing_product_id);
+                if (is_wp_error($attach_id)) {
+                    @unlink($tmp);
+                    $errors[] = "❌ Αποτυχία εισαγωγής εικόνας για SKU: {$sku}, URL: {$image_url} - " . $attach_id->get_error_message();
+                    continue;
+                }
+
+                $attachment_ids[] = $attach_id;
             }
-        }
-        if (!empty($attachment_ids)) {
-            set_post_thumbnail($existing_product_id, $attachment_ids[0]);
-            if (count($attachment_ids) > 1) {
-                update_post_meta($existing_product_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
+
+            // Αν έχουμε εικόνες, η πρώτη γίνεται featured, οι υπόλοιπες gallery
+            if (!empty($attachment_ids)) {
+                set_post_thumbnail($existing_product_id, $attachment_ids[0]);
+                if (count($attachment_ids) > 1) {
+                    update_post_meta($existing_product_id, '_product_image_gallery', implode(',', array_slice($attachment_ids, 1)));
+                }
             }
         }
 
