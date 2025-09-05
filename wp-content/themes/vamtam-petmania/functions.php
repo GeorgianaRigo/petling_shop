@@ -40,6 +40,8 @@ function vamtam_shortcode_compat_fix( $codes ) {
 
 	return $codes;
 }
+// Εξαφανίζει τελείως το stock message από Single Product page
+add_filter( 'woocommerce_get_stock_html', '__return_empty_string', 10, 2 );
 
 // Envato Hosted compatibility
 add_filter( 'option_' . VamtamFramework::get_purchase_code_option_key(), 'vamtam_envato_hosted_license_key' );
@@ -60,5 +62,3 @@ function vamtam_woocommerce_paypal_payments_single_product_renderer_hook( $hook 
 	return 'woocommerce_after_add_to_cart_form';
 }
 add_filter( 'woocommerce_paypal_payments_single_product_renderer_hook', 'vamtam_woocommerce_paypal_payments_single_product_renderer_hook' );
-
-// build: 7ec41fa9a78dfb8b426c67c5117e582e2a631c1c
