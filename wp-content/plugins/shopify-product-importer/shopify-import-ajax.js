@@ -10,7 +10,7 @@ jQuery(document).ready(function ($) {
         $('#progress').append('<p>📦 Φόρτωση batch ' + page + '...</p>');
 
         const forceRefresh = $('#force-refresh').is(':checked') ? 1 : 0;
-        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=150&force_refresh=${forceRefresh}`;
+        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=50&force_refresh=${forceRefresh}`;
 
         $.get(url, function (response) {
             console.log('REST API response:', response);
@@ -62,7 +62,7 @@ jQuery(document).ready(function ($) {
         
         // ---- ΚΡΙΣΙΜΗ ΑΛΛΑΓΗ ΓΙΑ ΤΟ UPDATE ----
         // Προσθέτουμε την παράμετρο context=update στο URL
-        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=150&force_refresh=${forceRefresh}&context=update`;
+        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=50&force_refresh=${forceRefresh}&context=update`;
 
         $.get(url, function (response) {
             console.log('REST API response for update:', response);
