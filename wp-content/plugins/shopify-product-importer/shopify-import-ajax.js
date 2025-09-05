@@ -35,15 +35,12 @@ jQuery(document).ready(function ($) {
             }, function (resp) {
                 if (resp.success) {
                     processedCount += resp.data.imported;
-
                     $('#progress').append('<p>✅ Εισήχθησαν <strong>' + resp.data.imported + '</strong> προϊόντα. (Σύνολο: ' + processedCount + ' από ' + totalProducts + ')</p>');
-
                     if (resp.data.errors.length > 0) {
                         resp.data.errors.forEach(err => {
                             $('#progress').append('<p style="color:red;">' + err + '</p>');
                         });
                     }
-
                     if (response.has_more) {
                         setTimeout(() => importBatch(page + 1), 500);
                     } else {
@@ -54,37 +51,7 @@ jQuery(document).ready(function ($) {
                     $('#progress').append('<p style="color:red;">Σφάλμα: ' + resp.data.message + '</p>');
                     $('#start-import, #start-update').prop('disabled', false);
                 }
-            }).fail(function (xhr) {
-                if (xhr.status === 429 && retryCount < maxRetries) {
-                    let wait = Math.pow(2, retryCount) * 1000;
-                    $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                    setTimeout(() => importBatch(page, retryCount + 1), wait);
-                } else if (retryCount < maxRetries) {
-                    let wait = Math.pow(2, retryCount) * 500;
-                    $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα δικτύου, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                    setTimeout(() => importBatch(page, retryCount + 1), wait);
-                } else {
-                    $('#progress').append('<p style="color:red;">❌ Απέτυχε η εισαγωγή batch ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
-                    $('#start-import, #start-update').prop('disabled', false);
-                }
             });
-
-        }).fail(function (xhr, status, error) {
-            console.error('REST API request failed:', status, error, xhr.responseText);
-            $('#progress').append('<p style="color:red;">REST API error: ' + error + '</p>');
-
-            if (xhr.status === 429 && retryCount < maxRetries) {
-                let wait = Math.pow(2, retryCount) * 1000;
-                $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit στο REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                setTimeout(() => importBatch(page, retryCount + 1), wait);
-            } else if (retryCount < maxRetries) {
-                let wait = Math.pow(2, retryCount) * 500;
-                $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                setTimeout(() => importBatch(page, retryCount + 1), wait);
-            } else {
-                $('#progress').append('<p style="color:red;">❌ Απέτυχε το REST API batch ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
-                $('#start-import, #start-update').prop('disabled', false);
-            }
         });
     }
 
@@ -92,7 +59,10 @@ jQuery(document).ready(function ($) {
         $('#progress').append('<p>📦 Φόρτωση batch (ενημέρωση) ' + page + '...</p>');
 
         const forceRefresh = $('#force-refresh').is(':checked') ? 1 : 0;
-        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=150&force_refresh=${forceRefresh}`;
+        
+        // ---- ΚΡΙΣΙΜΗ ΑΛΛΑΓΗ ΓΙΑ ΤΟ UPDATE ----
+        // Προσθέτουμε την παράμετρο context=update στο URL
+        const url = `${shopifyImportAjax.rest_url}?page=${page}&per_page=150&force_refresh=${forceRefresh}&context=update`;
 
         $.get(url, function (response) {
             console.log('REST API response for update:', response);
@@ -117,15 +87,12 @@ jQuery(document).ready(function ($) {
             }, function (resp) {
                 if (resp.success) {
                     processedCount += resp.data.updated;
-
                     $('#progress').append('<p>✅ Ενημερώθηκαν <strong>' + resp.data.updated + '</strong> προϊόντα. (Σύνολο: ' + processedCount + ' από ' + totalProducts + ')</p>');
-
                     if (resp.data.errors.length > 0) {
                         resp.data.errors.forEach(err => {
                             $('#progress').append('<p style="color:red;">' + err + '</p>');
                         });
                     }
-
                     if (response.has_more) {
                         setTimeout(() => updateBatch(page + 1), 500);
                     } else {
@@ -136,37 +103,7 @@ jQuery(document).ready(function ($) {
                     $('#progress').append('<p style="color:red;">Σφάλμα: ' + resp.data.message + '</p>');
                     $('#start-import, #start-update').prop('disabled', false);
                 }
-            }).fail(function (xhr) {
-                if (xhr.status === 429 && retryCount < maxRetries) {
-                    let wait = Math.pow(2, retryCount) * 1000;
-                    $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                    setTimeout(() => updateBatch(page, retryCount + 1), wait);
-                } else if (retryCount < maxRetries) {
-                    let wait = Math.pow(2, retryCount) * 500;
-                    $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα δικτύου, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                    setTimeout(() => updateBatch(page, retryCount + 1), wait);
-                } else {
-                    $('#progress').append('<p style="color:red;">❌ Απέτυχε η ενημέρωση batch ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
-                    $('#start-import, #start-update').prop('disabled', false);
-                }
             });
-
-        }).fail(function (xhr, status, error) {
-            console.error('REST API request failed (update):', status, error, xhr.responseText);
-            $('#progress').append('<p style="color:red;">REST API error (update): ' + error + '</p>');
-
-            if (xhr.status === 429 && retryCount < maxRetries) {
-                let wait = Math.pow(2, retryCount) * 1000;
-                $('#progress').append('<p style="color:orange;">⚠️ Rate limit hit στο REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                setTimeout(() => updateBatch(page, retryCount + 1), wait);
-            } else if (retryCount < maxRetries) {
-                let wait = Math.pow(2, retryCount) * 500;
-                $('#progress').append('<p style="color:orange;">⚠️ Σφάλμα REST API, retry σε ' + (wait / 1000) + ' δευτερόλεπτα...</p>');
-                setTimeout(() => updateBatch(page, retryCount + 1), wait);
-            } else {
-                $('#progress').append('<p style="color:red;">❌ Απέτυχε το REST API batch ενημέρωσης ' + page + ' μετά από ' + maxRetries + ' προσπάθειες.</p>');
-                $('#start-import, #start-update').prop('disabled', false);
-            }
         });
     }
 
