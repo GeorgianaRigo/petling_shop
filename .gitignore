@@ -11,6 +11,7 @@ wp-content/upgrade/
 wp-content/plugins/*
 !wp-content/plugins/shopify-product-importer
 !wp-content/plugins/shopify-products-api
+!wp-content/plugins/supplier-shipping-rules
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
 !wp-content/plugins/elementor-pro/
