@@ -117,7 +117,6 @@ function get_filtered_shopify_products_data($request) {
         if (empty($product['title'])) continue;
         if (floatval($product['price']) <= 0) continue;
         if ($product['status'] !== 'active') continue;
-        if (intval($product['inventory_quantity']) <= 0) continue;
 
         $filtered_products[] = $product;
     }
