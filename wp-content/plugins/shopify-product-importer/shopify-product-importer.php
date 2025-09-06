@@ -35,8 +35,36 @@ function render_shopify_importer_page() {
     ]);
 }
 
+// Δημιουργία του πεδίου "Προμηθευτής"
 
-// --- ΒΕΛΤΙΩΣΗ: Ενοποιημένη συνάρτηση για την επεξεργασία δεδομένων προϊόντος ---
+/**
+ * 1. Προσθέτει το πεδίο "Προμηθευτής" στην καρτέλα "Γενικά" των δεδομένων προϊόντος.
+ */
+add_action('woocommerce_product_options_general_product_data', 'add_supplier_custom_field_to_products');
+function add_supplier_custom_field_to_products() {
+    echo '<div class="options_group">';
+    woocommerce_wp_text_input(array(
+        'id'          => '_supplier_name', // Το όνομα του πεδίου στη βάση δεδομένων
+        'label'       => __('Προμηθευτής', 'woocommerce'),
+        'placeholder' => 'Εισάγετε το όνομα του προμηθευτή',
+        'desc_tip'    => 'true',
+        'description' => __('Το όνομα του προμηθευτή για αυτό το προϊόν.', 'woocommerce'),
+    ));
+    echo '</div>';
+}
+
+/**
+ * Αποθηκεύει την τιμή του πεδίου "Προμηθευτής" όταν αποθηκεύεται το προϊόν.
+ */
+add_action('woocommerce_process_product_meta', 'save_supplier_custom_field_value');
+function save_supplier_custom_field_value($post_id) {
+    $product = wc_get_product($post_id);
+    $supplier_name = isset($_POST['_supplier_name']) ? sanitize_text_field($_POST['_supplier_name']) : '';
+    $product->update_meta_data('_supplier_name', $supplier_name);
+    $product->save_meta_data();
+}
+
+
 function _populate_wc_product_from_shopify_data(WC_Product $product, array $data) {
     $product->set_name(sanitize_text_field($data['title'] ?? ''));
     $product->set_description($data['description'] ?? '');
@@ -58,11 +86,14 @@ function _populate_wc_product_from_shopify_data(WC_Product $product, array $data
     $product->set_manage_stock(true);
     $product->set_stock_quantity($inventory);
     $product->set_stock_status($inventory > 0 ? 'instock' : 'outofstock');
+
+    // Αυτόματη συμπλήρωση του πεδίου "Προμηθευτής" ---
+    $supplier_name_to_set = 'Petmenu'; 
+    $product->update_meta_data('_supplier_name', $supplier_name_to_set);
     
     return $product;
 }
 
-// --- ΒΕΛΤΙΩΣΗ: Ασφαλής διαχείριση εικόνων (v2.1) ---
 function _handle_product_images(int $product_id, string $sku, array $image_urls) {
     if (empty($image_urls) || !is_array($image_urls)) {
         return [];
@@ -79,8 +110,7 @@ function _handle_product_images(int $product_id, string $sku, array $image_urls)
         $image_url = esc_url_raw($image_url);
         if (!$image_url) continue;
 
-        // --- ΔΙΟΡΘΩΣΗ v2.1: Χειροκίνητος χειρισμός για καλύτερο έλεγχο και debugging ---
-        $tmp = download_url($image_url, 15); // 15 δευτερόλεπτα timeout
+        $tmp = download_url($image_url, 15);
 
         if (is_wp_error($tmp)) {
             $errors[] = "❌ Αποτυχία download εικόνας για SKU: {$sku}, URL: {$image_url} - " . $tmp->get_error_message();
@@ -88,10 +118,9 @@ function _handle_product_images(int $product_id, string $sku, array $image_urls)
             continue;
         }
 
-        // Δημιουργία καθαρού ονόματος αρχείου
-        $file_name_part = sanitize_title($sku) . '-' . $index; // π.χ. 'we-0020-0'
+        $file_name_part = sanitize_title($sku) . '-' . $index;
         $extension = strtolower(pathinfo(parse_url($image_url, PHP_URL_PATH), PATHINFO_EXTENSION));
-        if (empty($extension)) $extension = 'jpg'; // Default extension
+        if (empty($extension)) $extension = 'jpg';
         $file_name = "{$file_name_part}.{$extension}";
 
         $file_array = [
@@ -124,8 +153,6 @@ function _handle_product_images(int $product_id, string $sku, array $image_urls)
     return $errors;
 }
 
-
-// --- Εισαγωγή batch ---
 function shopify_process_import_batch($products) {
     if (!class_exists('WooCommerce')) {
         return ['success' => false, 'message' => 'WooCommerce plugin is not active'];
@@ -151,7 +178,7 @@ function shopify_process_import_batch($products) {
 
         try {
             $new_product = new WC_Product_Simple();
-            $new_product->set_status('publish');
+            $new_product->set_status('draft');
             $new_product->set_sku($sku);
 
             $new_product = _populate_wc_product_from_shopify_data($new_product, $product_data);
@@ -176,8 +203,6 @@ function shopify_process_import_batch($products) {
     return ['success' => true, 'imported' => $imported, 'errors' => $errors];
 }
 
-
-// --- Ενημέρωση batch ---
 function shopify_process_update_batch($products) {
     if (!class_exists('WooCommerce')) return ['success' => false, 'message' => 'WooCommerce plugin is not active'];
 
@@ -225,8 +250,6 @@ function shopify_process_update_batch($products) {
     return ['success' => true, 'updated' => $updated, 'errors' => $errors];
 }
 
-
-// --- AJAX Handlers ---
 add_action('wp_ajax_shopify_import_batch', function() {
     check_ajax_referer('shopify_import_nonce', 'nonce');
     if (empty($_POST['products']) || !is_array($_POST['products'])) {
@@ -245,7 +268,6 @@ add_action('wp_ajax_shopify_update_batch', function() {
     wp_send_json_success(['updated' => $result['updated'], 'errors' => $result['errors']]);
 });
 
-// CRON functions... (rest of the file is the same)
 add_filter('cron_schedules', function($schedules){
     $schedules['every_ten_minutes'] = [
         'interval' => 10 * 60,
@@ -267,7 +289,6 @@ register_deactivation_hook(__FILE__, function() {
     wp_clear_scheduled_hook('shopify_import_daily_event');
     wp_clear_scheduled_hook('shopify_update_every_10_minutes_event');
 });
-
 
 
 // --- ΠΡΟΣΩΡΙΝΟΣ ΔΙΑΓΝΩΣΤΙΚΟΣ ΚΩΔΙΚΑΣ ---
