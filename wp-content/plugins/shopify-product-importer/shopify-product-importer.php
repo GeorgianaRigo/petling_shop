@@ -6,6 +6,8 @@
  * Author: Georgiana
  */
 
+ //TODO: να κάνουμε ένα νεο πεδίο όπως τον προηθευτή και να βάζουμε και εκεί τον τίτλο
+ // και στο update να μην κάνουμε update οτον τίτλο του wordpress ούτε την περιγραφή
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
