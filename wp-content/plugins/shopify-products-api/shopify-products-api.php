@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Shopify Products API
  * Description: Προσφέρει REST API endpoints για εμφάνιση και μαζική ανάκτηση προϊόντων από Shopify με φίλτρα.
- * Version: 1.7
+ * Version: 1.8
  * Author: Georgiana
  */
 
@@ -12,143 +12,117 @@ add_action('rest_api_init', function () {
         'callback' => 'get_filtered_shopify_products_data',
         'permission_callback' => '__return_true',
     ]);
-
-    register_rest_route('shopify/v1', '/products-by-ids', [
-        'methods' => 'POST',
-        'callback' => 'get_shopify_products_by_ids',
-        'permission_callback' => '__return_true',
-        'args' => [
-            'ids' => [
-                'required' => true,
-                'type' => 'array',
-                'items' => ['type' => 'integer'],
-            ],
-        ],
-    ]);
 });
 
 function get_filtered_shopify_products_data($request) {
     load_env_variables();
 
-    $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
-    $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
-
-    if (empty($shopify_access_token) || empty($shopify_store)) {
-        return new WP_Error('shopify_env_missing', '🚫 Το .env δεν φορτώθηκε σωστά ή λείπουν μεταβλητές.', ['status' => 500]);
-    }
-
+    $page = max(1, intval($request->get_param('page') ?? 1));
+    $per_page = intval($request->get_param('per_page') ?? 50);
     $force_refresh = boolval($request->get_param('force_refresh') ?? false);
-    // ---- ΚΡΙΣΙΜΗ ΑΛΛΑΓΗ ΓΙΑ ΤΟ UPDATE ----
-    // Ελέγχουμε αν η κλήση είναι για import ή update
     $context = $request->get_param('context') ?? 'import';
 
-    // --- Fetch raw products ---
-    $raw_products = [];
-    $url = "https://{$shopify_store}/admin/api/2024-07/products.json?limit=250&fields=id,title,body_html,status,variants,images";
+    // --- ΛΟΓΙΚΗ CACHING ΓΙΑ ΣΤΑΘΕΡΗ ΛΙΣΤΑ ΠΡΟΪΟΝΤΩΝ ---
+    $cache_key = "shopify_product_list_cache_{$context}";
+    $cached_products = get_transient($cache_key);
 
-    while ($url) {
-        $response = wp_remote_get($url, [
-            'headers' => [
-                'X-Shopify-Access-Token' => $shopify_access_token,
-                'Content-Type' => 'application/json',
-            ],
-            'timeout' => 60,
-        ]);
-
-        if (is_wp_error($response)) {
-            return new WP_Error('shopify_api_error', $response->get_error_message(), ['status' => 500]);
-        }
-
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-        $products = $data['products'] ?? [];
-        $raw_products = array_merge($raw_products, $products);
-
-        $headers = wp_remote_retrieve_headers($response);
-        $link_header = $headers['link'] ?? $headers['Link'] ?? '';
-        if (preg_match('/<([^>]+)>;\s*rel="next"/', $link_header, $matches)) {
-            $url = $matches[1];
-        } else {
-            $url = null;
-        }
+    if ($force_refresh || ($page === 1 && $cached_products === false)) {
+        delete_transient($cache_key);
+        $cached_products = false;
     }
 
-    // --- Lightweight products ---
-    $lightweight_products = [];
-    foreach ($raw_products as $product) {
-        $variant = $product['variants'][0] ?? null;
-        if (!$variant) continue;
-
-        $image_urls = [];
-        if (!empty($product['images']) && is_array($product['images'])) {
-            foreach ($product['images'] as $img) {
-                if (!empty($img['src'])) $image_urls[] = $img['src'];
-            }
-        }
-
-        $lightweight_products[] = [
-            'id'       => $product['id'] ?? null,
-            'title'    => $product['title'] ?? '',
-            'description' => $product['body_html'] ?? '',
-            'sku'      => $variant['sku'] ?? '',
-            'price'    => $variant['price'] ?? '',
-            'compare_at_price' => $variant['compare_at_price'] ?? null,
-            'status'   => $product['status'] ?? '',
-            'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
-            'image_urls' => $image_urls,
-        ];
-    }
-
-    // --- Φιλτράρισμα προϊόντων ---
     $filtered_products = [];
-    foreach ($lightweight_products as $product) {
-        if (empty($product['sku'])) continue;
 
-        // ---- ΚΡΙΣΙΜΗ ΑΛΛΑΓΗ ΓΙΑ ΤΟ UPDATE ----
-        // Εφαρμόζουμε το φίλτρο ύπαρξης ΜΟΝΟ κατά την εισαγωγή (import)
-        if ($context === 'import') {
-            $existing_product_id = wc_get_product_id_by_sku($product['sku']);
-            if ($existing_product_id && get_post_status($existing_product_id) !== 'trash') {
-                continue; // Αν υπάρχει ήδη, το αγνοούμε
+    if ($cached_products !== false) {
+        // Αν έχουμε αποθηκευμένη λίστα, τη φορτώνουμε.
+        $filtered_products = $cached_products;
+    } else {
+        // Αλλιώς, φτιάχνουμε τη λίστα από την αρχή (μόνο μία φορά).
+        $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
+        $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
+
+        if (empty($shopify_access_token) || empty($shopify_store)) {
+            return new WP_Error('shopify_env_missing', '🚫 Το .env δεν φορτώθηκε σωστά ή λείπουν μεταβλητές.', ['status' => 500]);
+        }
+        
+        $raw_products = [];
+        $url = "https://{$shopify_store}/admin/api/2024-07/products.json?limit=250&fields=id,title,body_html,status,variants,images";
+        
+        while ($url) {
+            $response = wp_remote_get($url, ['headers' => ['X-Shopify-Access-Token' => $shopify_access_token], 'timeout' => 60]);
+            if (is_wp_error($response)) {
+                return new WP_Error('shopify_api_error', $response->get_error_message(), ['status' => 500]);
+            }
+            $body = wp_remote_retrieve_body($response);
+            $data = json_decode($body, true);
+            $products = $data['products'] ?? [];
+            $raw_products = array_merge($raw_products, $products);
+            $headers = wp_remote_retrieve_headers($response);
+            $link_header = $headers['link'] ?? $headers['Link'] ?? '';
+            if (preg_match('/<([^>]+)>;\s*rel="next"/', $link_header, $matches)) {
+                $url = $matches[1];
+            } else {
+                $url = null;
             }
         }
 
-        // Αυτά τα φίλτρα εφαρμόζονται πάντα (και στο import και στο update)
-        if (empty($product['title'])) continue;
-        if (floatval($product['price']) <= 0) continue;
-        if ($product['status'] !== 'active') continue;
+        foreach ($raw_products as $product) {
+            $variant = $product['variants'][0] ?? null;
+            if (!$variant) continue;
 
-        $filtered_products[] = $product;
+            $image_urls = [];
+            if (!empty($product['images']) && is_array($product['images'])) {
+                foreach ($product['images'] as $img) {
+                    if (!empty($img['src'])) $image_urls[] = $img['src'];
+                }
+            }
+            
+            $lightweight_product = [
+                'id'       => $product['id'] ?? null,
+                'title'    => $product['title'] ?? '',
+                'description' => $product['body_html'] ?? '',
+                'sku'      => $variant['sku'] ?? '',
+                'price'    => $variant['price'] ?? '',
+                'compare_at_price' => $variant['compare_at_price'] ?? null,
+                'status'   => $product['status'] ?? '',
+                'inventory_quantity' => $variant['inventory_quantity'] ?? 0,
+                'image_urls' => $image_urls,
+            ];
+            
+            // --- Εφαρμογή φίλτρων ---
+            if (empty($lightweight_product['sku'])) continue;
+
+            if ($context === 'import') {
+                $existing_product_id = wc_get_product_id_by_sku($lightweight_product['sku']);
+                if ($existing_product_id && get_post_status($existing_product_id) !== 'trash') {
+                    continue;
+                }
+            }
+
+            if (empty($lightweight_product['title'])) continue;
+            if (floatval($lightweight_product['price']) <= 0) continue;
+            if ($lightweight_product['status'] !== 'active') continue;
+            // if (intval($lightweight_product['inventory_quantity']) <= 0) continue; // Αφαιρέθηκε για να συγχρονίζει και τα out-of-stock
+            
+            $filtered_products[] = $lightweight_product;
+        }
+        
+        // Αποθηκεύουμε την τελική, φιλτραρισμένη λίστα στο cache για 15 λεπτά.
+        set_transient($cache_key, $filtered_products, 15 * MINUTE_IN_SECONDS);
     }
-
-    // Pagination response
-    $page = max(1, intval($request->get_param('page') ?? 1));
-    $per_page = intval($request->get_param('per_page') ?? 100);
+    
+    // --- Η σελιδοποίηση γίνεται πάντα πάνω στη σταθερή λίστα ---
+    $total_products = count($filtered_products);
     $offset = ($page - 1) * $per_page;
     $paged_products = array_slice($filtered_products, $offset, $per_page);
 
     return rest_ensure_response([
         'products' => $paged_products,
-        'total'    => count($filtered_products),
+        'total'    => $total_products,
         'page'     => $page,
         'per_page' => $per_page,
-        'has_more' => ($offset + $per_page) < count($filtered_products),
+        'has_more' => ($offset + $per_page) < $total_products,
     ]);
-}
-
-function get_shopify_products_by_ids($request) {
-    // This function is not changed
-    load_env_variables();
-    $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
-    $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
-    $ids = $request->get_param('ids');
-    if (empty($shopify_access_token) || empty($shopify_store)) {
-        return new WP_Error('shopify_env_missing', '🚫 Το .env δεν φορτώθηκε σωστά ή λείπουν μεταβλητές.', ['status' => 500]);
-    }
-    if (empty($ids) || !is_array($ids)) {
-        return new WP_Error('invalid_ids', '🚫 Πρέπει να παρέχονται έγκυρα IDs.', ['status' => 400]);
-    }
-    return rest_ensure_response([]);
 }
 
 function load_env_variables($path = null) {
