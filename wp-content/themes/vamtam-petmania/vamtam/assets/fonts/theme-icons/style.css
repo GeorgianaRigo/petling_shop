@@ -1,6 +1,6 @@
 [class^="vamtam-theme-"], [class*=" vamtam-theme-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'theme' !important;
+  /* font-family: 'theme' !important; */
   speak: none;
   font-style: normal;
   font-weight: normal;

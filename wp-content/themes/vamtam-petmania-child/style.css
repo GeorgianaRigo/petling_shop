@@ -1,0 +1,115 @@
+/*
+ Theme Name:   Petmania Child
+ Theme URI:    https://petmania.vamtam.com
+ Description:  Child theme for Petmania
+ Author:       Georgiana
+ Author URI:   www.petling.gr
+ Template:     vamtam-petmania
+ Version:      1.0.0
+ License:      Envato
+ License URI:  https://themeforest.net/licenses
+ Text Domain:  vamtam-petmania-child
+*/
+
+/* ubuntu-300 - greek_latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 300;
+    src: url('./fonts/ubuntu-v21-greek_latin-300.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-300italic - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: italic;
+    font-weight: 300;
+    src: url('./fonts/ubuntu-v21-greek_latin-300italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-regular - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 400;
+    src: url('./fonts/ubuntu-v21-greek_latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-italic - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: italic;
+    font-weight: 400;
+    src: url('./fonts/ubuntu-v21-greek_latin-italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-500 - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 500;
+    src: url('./fonts/ubuntu-v21-greek_latin-500.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-500italic - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: italic;
+    font-weight: 500;
+    src: url('./fonts/ubuntu-v21-greek_latin-500italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-700 - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: normal;
+    font-weight: 700;
+    src: url('./fonts/ubuntu-v21-greek_latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+  /* ubuntu-700italic - greek_latin */
+  @font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Ubuntu';
+    font-style: italic;
+    font-weight: 700;
+    src: url('./fonts/ubuntu-v21-greek_latin-700italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+  }
+
+
+  /* overide default theme */
+
+/* TODO: COMMIT 9ba214742f500f240d2db9b395cc16039b6b0e21 na perastoun oles oi allages css edw */
+
+/* product image */
+.single-product.woocommerce div.product .elementor-widget-woocommerce-product-images.vamtam-has-theme-widget-styles div.images .flex-control-thumbs li img,
+.single-product.woocommerce div.product .elementor-widget-woocommerce-product-images.vamtam-has-theme-widget-styles div.images .flex-control-thumbs li img.flex-active {
+    border: 2px solid var( --e-global-color-a0ebf33 );
+}
+
+/* checkout */
+.woocommerce-checkout .elementor-widget-woocommerce-checkout-page button.woocommerce-button.e-apply-coupon {
+    background-color: var( --e-global-color-a0ebf33 );
+}
+
+/* checkout */
+.woocommerce-cart .woocommerce-cart-form .coupon input[name="coupon_code"] {
+    color: var(--e-global-color-vamtam_accent_6);
+}
+
+.woocommerce-cart .woocommerce-cart-form .coupon input {
+    border-color: var(--e-global-color-a0ebf33);
+}
+
+.woocommerce-cart .woocommerce-cart-form .coupon input[type="text"] {
+    background-color: var(--e-global-color-vamtam_accent_5);
+}
+
+.woocommerce-cart .woocommerce-cart-form .coupon input[type="submit"]:hover {
+    background-color: var( --e-global-color-cc28745 );
+}
+
+/* cart menu sidebar */
+.elementor-menu-cart__main .widget_shopping_cart_content .quantity .vamtam-quantity input {
+    border-color: var(--e-global-color-a0ebf33);
+}
