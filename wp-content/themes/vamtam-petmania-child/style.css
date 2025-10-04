@@ -113,3 +113,39 @@
 .elementor-menu-cart__main .widget_shopping_cart_content .quantity .vamtam-quantity input {
     border-color: var(--e-global-color-a0ebf33);
 }
+
+body .elementor-87,
+body .elementor-location-header { margin: unset;}
+
+.elementor-87 .elementor-element.elementor-element-76d7e5d9 { padding: 0px!important}
+
+section.elementor-element-fd6f6bc {
+  position: relative;
+}
+
+.vamtam-header-mega-menuvamtam-header-mega-menu {
+  position: absolute !important;
+  top: 100%; 
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  max-height: 0;
+  overflow: hidden; 
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-30px);
+
+  transition: opacity 0.3s ease, 
+              transform 0.3s ease, 
+              max-height 0.4s ease-in-out; 
+}
+
+body .vamtam-header-mega-menuvamtam-header-mega-menu.hover-active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  max-height: 600px;
+  background: #F9F9F9;
+  top: 158px
+}
