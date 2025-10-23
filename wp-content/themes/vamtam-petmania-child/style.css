@@ -109,6 +109,19 @@
     background-color: var( --e-global-color-cc28745 );
 }
 
+#pwgc-redeem-gift-card-number {
+  border-color: var(--e-global-color-vamtam_accent_2);
+}
+
+.woocommerce-checkout form #pwgc-redeem-gift-card-form input[type="submit"]:hover {
+  background-color: var( --e-global-color-33ca1de );
+}
+
+.woocommerce-checkout #billing_country_field .woocommerce-input-wrapper{
+  border: 2px solid var( --e-global-color-vamtam_accent_2 );
+  padding: 12px 15px;
+  border-radius: 12px;
+}
 /* cart menu sidebar */
 .elementor-menu-cart__main .widget_shopping_cart_content .quantity .vamtam-quantity input {
     border-color: var(--e-global-color-a0ebf33);
@@ -123,29 +136,55 @@ section.elementor-element-fd6f6bc {
   position: relative;
 }
 
-.vamtam-header-mega-menuvamtam-header-mega-menu {
-  position: absolute !important;
-  top: 100%; 
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  max-height: 0;
-  overflow: hidden; 
-
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-30px);
-
-  transition: opacity 0.3s ease, 
-              transform 0.3s ease, 
-              max-height 0.4s ease-in-out; 
+@media only screen and (min-width: 1024px) {
+  .vamtam-header-mega-menuvamtam-header-mega-menu {
+    position: absolute !important;
+    top: 100%; 
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    max-height: 0;
+    overflow: hidden; 
+  
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-30px);
+    background: #F9F9F9;
+    transition: opacity 0.3s ease, 
+                transform 0.3s ease, 
+                max-height 0.4s ease-in-out; 
+  }
+  
+  body .vamtam-header-mega-menuvamtam-header-mega-menu.hover-active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    max-height: 600px;
+    top: 140px
+  }
 }
 
-body .vamtam-header-mega-menuvamtam-header-mega-menu.hover-active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  max-height: 600px;
-  background: #F9F9F9;
-  top: 158px
+body .elementor-nav-menu--main .elementor-nav-menu a, .elementor-nav-menu--main .elementor-nav-menu a.highlighted, .elementor-nav-menu--main .elementor-nav-menu a:focus, .elementor-nav-menu--main .elementor-nav-menu a:hover {
+  padding: 13px 0;
+}
+
+
+@media only screen and (max-width: 1023px) {
+  .elementor-menu-toggle + .elementor-nav-menu--dropdown.elementor-nav-menu__container {    
+    padding-left: 30px !important;
+    padding-right: 10px !important;
+    width: 102vw !important;
+
+    max-width: 102vw !important;
+    left: -86vw!important;
+  }
+
+  .elementor-section.elementor-top-section.elementor-element.elementor-section-content-top.vamtam-header-mega-menuvamtam-header-mega-menu.elementor-section-boxed.elementor-section-height-default.elementor-section-height-default {
+    display: none;
+  }
+    
+  /** tabs **/
+  .home .elementor-top-section .elementor-tabs .elementor-tabs-wrapper { 
+    justify-content: center!important;
+  }
 }
