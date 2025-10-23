@@ -33,3 +33,21 @@ function petmania_child_enqueue_assets() {
         true // Φόρτωση του script στο footer της σελίδας για καλύτερη απόδοση
     );
 }
+\add_filter( 'gettext', 'change_elementor_pro_coupon_text', 20, 3 );
+
+function change_elementor_pro_coupon_text( $translated_text, $text, $domain ) {
+    if ( 'elementor-pro' === $domain ) {
+        // Εδώ "πιάνουμε" τις φράσεις που θέλουμε και τις αλλάζουμε
+        switch ( $text ) {
+            case 'If you have a coupon code, please apply it below.':
+                $translated_text = 'Αν έχετε κάποιο κουπόνι, εισάγετε τον κωδικό παρακάτω.';
+                break;
+            
+            // Μπορείς να προσθέσεις κι άλλες φράσεις εδώ αν χρειαστεί
+            // case 'Another English Text':
+            //     $translated_text = 'Η Ελληνική Μετάφραση';
+            //     break;
+        }
+    }
+    return $translated_text;
+}
