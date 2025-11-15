@@ -200,11 +200,3 @@ body .elementor-nav-menu--main .elementor-nav-menu a, .elementor-nav-menu--main 
   top: 8px;
   background-color: #fff;
 }
-
-.elementor-widget-woocommerce-my-account.vamtam-has-theme-widget-styles .vamtam-tabbed .vamtam-tabs .vamtam-tab label {
-  border-color: var(--e-global-color-vamtam_accent_2) !important;
-}
-
-.elementor-9 .elementor-element.elementor-element-701eb3bf .e-my-account-tab:not(.e-my-account-tab__dashboard--custom) .woocommerce .login .button:hover {
-  background-color: var(--e-global-color-33ca1de)!important;
-}
