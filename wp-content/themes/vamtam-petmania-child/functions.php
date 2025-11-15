@@ -51,3 +51,39 @@ function change_elementor_pro_coupon_text( $translated_text, $text, $domain ) {
     }
     return $translated_text;
 }
+
+function petling_secure_logout_shortcode() {
+    if ( is_user_logged_in() ) {
+        $redirect_url = home_url(); 
+        $logout_url = wp_logout_url( $redirect_url );
+
+        $html = '<a href="' . esc_url( $logout_url ) . '" title="' . esc_attr__( 'Αποσύνδεση', 'woocommerce' ) . '" class="vamtam-logout-link">';
+        $html .= '<i aria-hidden="true" class="fas fa-sign-out-alt petling-logout-icon"></i>';
+        $html .= '</a>';
+        
+        return $html;
+    }
+    return ''; 
+}
+add_shortcode( 'petling_logout_icon', 'petling_secure_logout_shortcode' );
+
+
+// ---- Add responsive CSS ----
+function petling_logout_icon_css() {
+    ?>
+    <style>
+        .petling-logout-icon {
+            font-size: 28px;
+            color: var(--e-global-color-vamtam_accent_2);
+        }
+
+        /* Tablet (μέχρι 1024px) */
+        @media (max-width: 1024px) {
+            .petling-logout-icon {
+                font-size: 24px !important;
+            }
+        }
+    </style>
+    <?php
+}
+add_action( 'wp_head', 'petling_logout_icon_css' );

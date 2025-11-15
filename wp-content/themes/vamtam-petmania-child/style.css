@@ -77,7 +77,7 @@
   }
 
 
-  /* overide default theme */
+/******************************  overide default theme **************************/
 
 /* TODO: COMMIT 9ba214742f500f240d2db9b395cc16039b6b0e21 na perastoun oles oi allages css edw */
 
@@ -187,4 +187,24 @@ body .elementor-nav-menu--main .elementor-nav-menu a, .elementor-nav-menu--main 
   .home .elementor-top-section .elementor-tabs .elementor-tabs-wrapper { 
     justify-content: center!important;
   }
+}
+
+.woocommerce-MyAccount-content form input {
+  border-color: var( --e-global-color-vamtam_accent_2 )!important;
+} 
+
+#cookie-notice #cn-close-notice {
+  background: #c7b297;
+}
+#cookie-notice .cn-close-icon:before, .cn-close-icon:after {
+  top: 8px;
+  background-color: #fff;
+}
+
+.elementor-widget-woocommerce-my-account.vamtam-has-theme-widget-styles .vamtam-tabbed .vamtam-tabs .vamtam-tab label {
+  border-color: var(--e-global-color-vamtam_accent_2) !important;
+}
+
+.elementor-9 .elementor-element.elementor-element-701eb3bf .e-my-account-tab:not(.e-my-account-tab__dashboard--custom) .woocommerce .login .button:hover {
+  background-color: var(--e-global-color-33ca1de)!important;
 }
