@@ -6,9 +6,9 @@
  * Author: Georgiana
  */
 
- //TODO: να κάνουμε ένα νεο πεδίο όπως τον προηθευτή και να βάζουμε και εκεί τον τίτλο
+//TODO: να κάνουμε ένα νεο πεδίο όπως τον προηθευτή και να βάζουμε και εκεί τον τίτλο
  // και στο update να μην κάνουμε update οτον τίτλο του wordpress ούτε την περιγραφή
-if (!defined('ABSPATH')) {
+ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
@@ -68,8 +68,13 @@ function save_supplier_custom_field_value($post_id) {
 
 
 function _populate_wc_product_from_shopify_data(WC_Product $product, array $data) {
-    $product->set_name(sanitize_text_field($data['title'] ?? ''));
-    $product->set_description($data['description'] ?? '');
+    // Στην ενημέρωση (update) διατηρούμε τον τίτλο και την περιγραφή αν υπάρχουν
+    if (empty($product->get_name())) {
+        $product->set_name(sanitize_text_field($data['title'] ?? ''));
+    }
+    if (empty($product->get_description())) {
+        $product->set_description($data['description'] ?? '');
+    }
     
     // --- Τιμές ---
     $price = floatval($data['price'] ?? 0);
@@ -107,6 +112,11 @@ function _handle_product_images(int $product_id, string $sku, array $image_urls)
 
     $errors = [];
     $new_attachment_ids = [];
+    
+    // Περιορίζουμε τις εικόνες στην πρώτη (featured) αν τρέχει το cron
+    if (!defined('DOING_AJAX') || DOING_AJAX === false) {
+        $image_urls = array_slice($image_urls, 0, 1);
+    }
 
     foreach ($image_urls as $index => $image_url) {
         $image_url = esc_url_raw($image_url);
@@ -251,6 +261,53 @@ function shopify_process_update_batch($products) {
 
     return ['success' => true, 'updated' => $updated, 'errors' => $errors];
 }
+
+/**
+ * ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Εκτελεί τη μαζική ενημέρωση προϊόντων μέσω του WP-Cron.
+ */
+add_action('shopify_update_every_10_minutes_event', 'shopify_cron_update_products_task');
+function shopify_cron_update_products_task() {
+    if (!class_exists('WooCommerce')) return;
+
+    $page = 1;
+    $has_more = true;
+    $per_page = 50; 
+    $log_errors = [];
+
+    while ($has_more) {
+        $rest_url = get_site_url(null, '/wp-json/shopify/v1/products');
+        // Καλούμε το δικό μας REST API με context=update
+        $full_url = add_query_arg(['page' => $page, 'per_page' => $per_page, 'context' => 'update'], $rest_url);
+        
+        $response = wp_remote_get($full_url, ['timeout' => 60]);
+        
+        if (is_wp_error($response)) {
+            $log_errors[] = "CRON: Σφάλμα ανάκτησης δεδομένων από API (page: {$page}): " . $response->get_error_message();
+            $has_more = false; 
+            continue;
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        $products = $data['products'] ?? [];
+        $has_more = $data['has_more'] ?? false;
+
+        if (empty($products)) {
+            $has_more = false;
+            continue;
+        }
+
+        $result = shopify_process_update_batch($products);
+
+        if (!empty($result['errors'])) {
+            $log_errors = array_merge($log_errors, $result['errors']);
+        }
+        
+        $page++;
+    }
+}
+
 
 add_action('wp_ajax_shopify_import_batch', function() {
     check_ajax_referer('shopify_import_nonce', 'nonce');
