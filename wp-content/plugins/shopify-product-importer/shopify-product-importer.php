@@ -68,7 +68,7 @@ function save_supplier_custom_field_value($post_id) {
 
 
 function _populate_wc_product_from_shopify_data(WC_Product $product, array $data) {
-    // Στην ενημέρωση (update) διατηρούμε τον τίτλο και την περιγραφή αν υπάρχουν
+    // Ενημερώνουμε Τίτλο και Περιγραφή μόνο αν είναι κενά 
     if (empty($product->get_name())) {
         $product->set_name(sanitize_text_field($data['title'] ?? ''));
     }
@@ -94,7 +94,7 @@ function _populate_wc_product_from_shopify_data(WC_Product $product, array $data
     $product->set_stock_quantity($inventory);
     $product->set_stock_status($inventory > 0 ? 'instock' : 'outofstock');
 
-    // Αυτόματη συμπλήρωση του πεδίου "Προμηθευτής" ---
+    // Αυτόματη συμπλήρωση του πεδίου "Προμηθευτής"
     $supplier_name_to_set = 'Petmenu'; 
     $product->update_meta_data('_supplier_name', $supplier_name_to_set);
     
@@ -248,11 +248,16 @@ function shopify_process_update_batch($products) {
                 throw new Exception("Η αποθήκευση του προϊόντος απέτυχε.");
             }
 
-            $image_errors = _handle_product_images($product_id, $sku, $product_data['image_urls'] ?? []);
-            if (!empty($image_errors)) {
-                $errors = array_merge($errors, $image_errors);
+            // ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ: Εικόνες (Ενημέρωση μόνο αν δεν υπάρχουν)
+            $current_thumbnail_id = get_post_thumbnail_id($product_id);
+            
+            if (empty($current_thumbnail_id)) {
+                 $image_errors = _handle_product_images($product_id, $sku, $product_data['image_urls'] ?? []);
+                 if (!empty($image_errors)) {
+                     $errors = array_merge($errors, $image_errors);
+                 }
             }
-
+            
             $updated++;
         } catch (Exception $e) {
             $errors[] = "Σφάλμα ενημέρωσης για SKU '{$sku}': " . $e->getMessage();
@@ -262,9 +267,73 @@ function shopify_process_update_batch($products) {
     return ['success' => true, 'updated' => $updated, 'errors' => $errors];
 }
 
-/**
- * ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Εκτελεί τη μαζική ενημέρωση προϊόντων μέσω του WP-Cron.
- */
+// ΝΕΑ ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΕΙΣΑΓΩΓΗ ΠΡΟΪΟΝΤΩΝ ΜΕ CRON
+add_action('shopify_import_daily_event', 'shopify_cron_import_products_task');
+function shopify_cron_import_products_task() {
+    if (!class_exists('WooCommerce')) return;
+
+    $page = 1;
+    $has_more = true;
+    $per_page = 50; 
+    $log_errors = [];
+
+    // Δεν χρησιμοποιούμε updated_at_min για την εισαγωγή,
+    // καθώς θέλουμε να τραβήξουμε όλα τα προϊόντα του Shopify για να βρούμε τα νέα
+    $start_time = current_time('mysql', 1);
+
+    while ($has_more) {
+        $rest_url = get_site_url(null, '/wp-json/shopify/v1/products');
+        // ΣΗΜΑΝΤΙΚΟ: Χρησιμοποιούμε context=import
+        $full_url = add_query_arg(['page' => $page, 'per_page' => $per_page, 'context' => 'import', 'force_refresh' => 1], $rest_url);
+        
+        $response = wp_remote_get($full_url, ['timeout' => 60]);
+        
+        if (is_wp_error($response)) {
+            $log_errors[] = "CRON (IMPORT): Σφάλμα ανάκτησης δεδομένων από API (page: {$page}): " . $response->get_error_message();
+            $has_more = false; 
+            continue;
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        $products = $data['products'] ?? [];
+        $has_more = $data['has_more'] ?? false;
+
+        if (empty($products)) {
+            $has_more = false;
+            continue;
+        }
+
+        $result = shopify_process_import_batch($products);
+
+        if (!empty($result['errors'])) {
+            $log_errors = array_merge($log_errors, $result['errors']);
+        }
+        
+        $page++;
+    }
+}
+
+
+add_action('wp_ajax_shopify_import_batch', function() {
+    check_ajax_referer('shopify_import_nonce', 'nonce');
+    if (empty($_POST['products']) || !is_array($_POST['products'])) {
+        wp_send_json_error(['message' => 'Missing or invalid products data']);
+    }
+    $result = shopify_process_import_batch($_POST['products']);
+    wp_send_json_success(['imported' => $result['imported'], 'errors' => $result['errors']]);
+});
+
+add_action('wp_ajax_shopify_update_batch', function() {
+    check_ajax_referer('shopify_import_nonce', 'nonce');
+    if (empty($_POST['products']) || !is_array($_POST['products'])) {
+        wp_send_json_error(['message' => 'Missing or invalid products data']);
+    }
+    $result = shopify_process_update_batch($_POST['products']);
+    wp_send_json_success(['updated' => $result['updated'], 'errors' => $result['errors']]);
+});
+
 add_action('shopify_update_every_10_minutes_event', 'shopify_cron_update_products_task');
 function shopify_cron_update_products_task() {
     if (!class_exists('WooCommerce')) return;
@@ -274,9 +343,10 @@ function shopify_cron_update_products_task() {
     $per_page = 50; 
     $log_errors = [];
 
+    $start_time = current_time('mysql', 1);
+
     while ($has_more) {
         $rest_url = get_site_url(null, '/wp-json/shopify/v1/products');
-        // Καλούμε το δικό μας REST API με context=update
         $full_url = add_query_arg(['page' => $page, 'per_page' => $per_page, 'context' => 'update'], $rest_url);
         
         $response = wp_remote_get($full_url, ['timeout' => 60]);
@@ -306,26 +376,10 @@ function shopify_cron_update_products_task() {
         
         $page++;
     }
+
+    update_option('shopify_last_update_timestamp', $start_time);
 }
 
-
-add_action('wp_ajax_shopify_import_batch', function() {
-    check_ajax_referer('shopify_import_nonce', 'nonce');
-    if (empty($_POST['products']) || !is_array($_POST['products'])) {
-        wp_send_json_error(['message' => 'Missing or invalid products data']);
-    }
-    $result = shopify_process_import_batch($_POST['products']);
-    wp_send_json_success(['imported' => $result['imported'], 'errors' => $result['errors']]);
-});
-
-add_action('wp_ajax_shopify_update_batch', function() {
-    check_ajax_referer('shopify_import_nonce', 'nonce');
-    if (empty($_POST['products']) || !is_array($_POST['products'])) {
-        wp_send_json_error(['message' => 'Missing or invalid products data']);
-    }
-    $result = shopify_process_update_batch($_POST['products']);
-    wp_send_json_success(['updated' => $result['updated'], 'errors' => $result['errors']]);
-});
 
 add_filter('cron_schedules', function($schedules){
     $schedules['every_ten_minutes'] = [
@@ -348,37 +402,3 @@ register_deactivation_hook(__FILE__, function() {
     wp_clear_scheduled_hook('shopify_import_daily_event');
     wp_clear_scheduled_hook('shopify_update_every_10_minutes_event');
 });
-
-
-// --- ΠΡΟΣΩΡΙΝΟΣ ΔΙΑΓΝΩΣΤΙΚΟΣ ΚΩΔΙΚΑΣ ---
-// Αφαιρέστε αυτόν τον κώδικα μετά τον έλεγχο
-// add_action('admin_notices', function() {
-//     // Το προβληματικό SKU που θέλουμε να ελέγξουμε
-//     $sku_to_check = 'WE-0078';
-
-//     // Χρησιμοποιούμε την ίδια ακριβώς συνάρτηση που χρησιμοποιεί το script
-//     $product_id = wc_get_product_id_by_sku($sku_to_check);
-
-//     echo '<div class="notice notice-info is-dismissible"><p><b>--- DIAGNOSTIC CHECK ---</b><br>';
-
-//     if ($product_id) {
-//         $product = wc_get_product($product_id);
-//         if ($product) {
-//             $product_type = $product->get_type();
-//             echo "SKU: <b>{$sku_to_check}</b><br>";
-//             echo "Result: <b>Product Found!</b><br>";
-//             echo "Product ID: <b>{$product_id}</b><br>";
-//             echo "Product Type: <b>{$product_type}</b>";
-//         } else {
-//             echo "SKU: <b>{$sku_to_check}</b><br>";
-//             echo "Result: <b>Error!</b><br>";
-//             echo "Found Product ID {$product_id}, but could not load WC_Product object.";
-//         }
-//     } else {
-//         echo "SKU: <b>{$sku_to_check}</b><br>";
-//         echo "Result: <b>Product NOT Found</b> by wc_get_product_id_by_sku().";
-//     }
-
-//     echo '</p></div>';
-// });
-// --- ΤΕΛΟΣ ΠΡΟΣΩΡΙΝΟΥ ΚΩΔΙΚΑ ---

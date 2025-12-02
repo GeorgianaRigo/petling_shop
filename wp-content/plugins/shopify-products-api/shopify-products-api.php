@@ -22,7 +22,19 @@ function get_filtered_shopify_products_data($request) {
     $force_refresh = boolval($request->get_param('force_refresh') ?? false);
     $context = $request->get_param('context') ?? 'import';
 
+    // ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ: Ρυθμίσεις ώρας για φιλτράρισμα του Shopify API
+    $last_update_time = get_option('shopify_last_update_timestamp', null);
+    $updated_at_min_param = '';
+
+    // Εφαρμόζουμε το updated_at_min μόνο στο update context και αν δεν ζητηθεί force_refresh
+    if ($context === 'update' && !$force_refresh && $last_update_time) {
+        // Χρησιμοποιούμε την ώρα της τελευταίας επιτυχημένης εκτέλεσης του Cron
+        $updated_at_min_param = '&updated_at_min=' . urlencode($last_update_time);
+    }
+    
     // --- ΛΟΓΙΚΗ CACHING ΓΙΑ ΣΤΑΘΕΡΗ ΛΙΣΤΑ ΠΡΟΪΟΝΤΩΝ ---
+    // Χρησιμοποιούμε μοναδικό cache key, αλλά επειδή στο update χρησιμοποιούμε updated_at_min
+    // η λίστα θα είναι μικρή και φρέσκια.
     $cache_key = "shopify_product_list_cache_{$context}";
     $cached_products = get_transient($cache_key);
 
@@ -34,10 +46,9 @@ function get_filtered_shopify_products_data($request) {
     $filtered_products = [];
 
     if ($cached_products !== false) {
-        // Αν έχουμε αποθηκευμένη λίστα, τη φορτώνουμε.
         $filtered_products = $cached_products;
     } else {
-        // Αλλιώς, φτιάχνουμε τη λίστα από την αρχή (μόνο μία φορά).
+        // Αλλιώς, φτιάχνουμε τη λίστα από την αρχή
         $shopify_access_token = $_ENV['SHOPIFY_TOKEN'] ?? '';
         $shopify_store = $_ENV['SHOPIFY_STORE'] ?? '';
 
@@ -46,7 +57,8 @@ function get_filtered_shopify_products_data($request) {
         }
         
         $raw_products = [];
-        $url = "https://{$shopify_store}/admin/api/2024-07/products.json?limit=250&fields=id,title,body_html,status,variants,images";
+        // ΕΝΣΩΜΑΤΩΣΗ updated_at_min_param ΣΤΟ URL
+        $url = "https://{$shopify_store}/admin/api/2024-07/products.json?limit=250&fields=id,title,body_html,status,variants,images{$updated_at_min_param}";
         
         while ($url) {
             $response = wp_remote_get($url, ['headers' => ['X-Shopify-Access-Token' => $shopify_access_token], 'timeout' => 60]);
@@ -102,13 +114,14 @@ function get_filtered_shopify_products_data($request) {
             if (empty($lightweight_product['title'])) continue;
             if (floatval($lightweight_product['price']) <= 0) continue;
             if ($lightweight_product['status'] !== 'active') continue;
-            // if (intval($lightweight_product['inventory_quantity']) <= 0) continue; // Αφαιρέθηκε για να συγχρονίζει και τα out-of-stock
             
             $filtered_products[] = $lightweight_product;
         }
         
-        // Αποθηκεύουμε την τελική, φιλτραρισμένη λίστα στο cache για 15 λεπτά.
-        set_transient($cache_key, $filtered_products, 15 * MINUTE_IN_SECONDS);
+        // Αποθηκεύουμε την τελική, φιλτραρισμένη λίστα στο cache.
+        // ΒΕΛΤΙΣΤΟΠΟΙΗΣΗ: Για update, μειώνουμε το cache time για να παίρνουμε πιο φρέσκα δεδομένα
+        $cache_time = ($context === 'update') ? 5 * MINUTE_IN_SECONDS : 15 * MINUTE_IN_SECONDS;
+        set_transient($cache_key, $filtered_products, $cache_time);
     }
     
     // --- Η σελιδοποίηση γίνεται πάντα πάνω στη σταθερή λίστα ---
