@@ -249,7 +249,6 @@ body.archive.tax-product_cat .elementor-element.elementor-element-6a42c811.eleme
 		align-items: center!important;
 	}
 }
-
 body .elementor-widget-wp-widget-berocket_aapf_group.vamtam-has-theme-widget-styles.vamtam-input-fields input[type="checkbox"] + label:before {
   content: '';
   border: solid 1px var(--vamtam-accent-color-2);
@@ -286,17 +285,76 @@ body.elementor-widget-wp-widget-berocket_aapf_group.vamtam-has-theme-widget-styl
 /* Εμφανίζει μόνο Γάτα */
 .berocket_single_filter_widget_8786.bapf_wid_5502 #bapf_3_684,
 .berocket_single_filter_widget_8786.bapf_wid_5502 #bapf_3_684 + label {
-    display: inline-block !important;
+  display: inline-block !important;
 }
 
 /* Εμφανίζει μόνο Σκύλος */
 .berocket_single_filter_widget_8786.bapf_wid_5502 #bapf_3_679,
 .berocket_single_filter_widget_8786.bapf_wid_5502 #bapf_3_679 + label {
-    display: inline-block !important;
+  display: inline-block !important;
 }
 
 /* Προαιρετικά: κρύβει όλα τα sub-ul (παιδιά των categories) */
 .berocket_single_filter_widget_8786.bapf_wid_5502 .bapf_body ul ul {
-    display: none !important;
+  display: none !important;
 }
 
+.home-shop-3-columns .vamtam-theme-arrow-right1:before {
+color: var( --e-global-color-vamtam_accent_8 );
+}
+
+@media only screen and (min-width: 992px) {
+  .home-shop-by-food-type-4-columns .elementor-container.elementor-column-gap-no {
+    max-width: 75%;
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  /* Horizontal scroll: force flex layout */
+  .home-shop-by-food-type-4-columns .elementor-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-behavior: smooth;
+    gap: 20px;
+  }
+
+  /* Κάθε column να μπει στη σειρά 1-1 */
+  .home-shop-by-food-type-4-columns .elementor-column {
+    min-width: 250px !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Προσθήκη κάτω padding ώστε να μην ακουμπάει το scrollbar τα περιεχόμενα */
+  .home-shop-by-food-type-4-columns .elementor-container {
+    padding-bottom: 20px !important;
+  }
+
+  .home-shop-by-food-type-4-columns .elementor-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .home-shop-by-food-type-4-columns .elementor-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+}
+
+.home-shop-by-food-type-4-columns .vamtam-product-cat-thumb-wrap img{
+  border-radius: 10px;
+  border-radius: 100%;
+  width: 60%;
+}
+
+.home-shop-by-food-type-4-columns .vamtam-theme-splash-right:before {
+  content: "";
+}
+
+.home-shop-by-food-type-4-columns .vamtam-theme-splash-right:hover:before {
+  content: "\e923";
+  position: absolute;
+  right: 0;
+  font-size: 60px;
+  color: var( --e-global-color-vamtam_accent_1 )
+}
