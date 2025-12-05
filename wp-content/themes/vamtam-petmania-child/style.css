@@ -414,7 +414,6 @@ color: var( --e-global-color-vamtam_accent_8 );
   }
 
   body.filters-open .mobile-filter-overlay {
-    display: block;
   }
 
   /* Hide floating icon σε desktop */
