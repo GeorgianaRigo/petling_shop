@@ -369,7 +369,7 @@ color: var( --e-global-color-vamtam_accent_8 );
 
 @media only screen and (max-width: 992px) {
   /* Floating icon */
-  .mobile-filter-icon {
+  .archive.tax-product_cat  .mobile-filter-icon {
     position: fixed;
     left: 15px;
     top: 50%;
@@ -388,7 +388,7 @@ color: var( --e-global-color-vamtam_accent_8 );
   }
 
   /* Off-canvas panel */
-  .mobile-filter-wrapper {
+  .archive.tax-product_cat .mobile-filter-wrapper {
     position: fixed;
     top: 0;
     right: 0;
@@ -405,7 +405,7 @@ color: var( --e-global-color-vamtam_accent_8 );
   }
 
   /* Overlay */
-  .mobile-filter-overlay {
+  .archive.tax-product_cat .mobile-filter-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -417,18 +417,15 @@ color: var( --e-global-color-vamtam_accent_8 );
   }
 
   /* Όταν ανοίγει το panel */
-  body.filters-open .mobile-filter-wrapper {
+  body.archive.tax-product_cat.filters-open .mobile-filter-wrapper {
     transform: translateX(0);
-  }
-
-  body.filters-open .mobile-filter-overlay {
   }
 
   /* Hide floating icon σε desktop */
   @media(min-width: 1025px) {
-    .mobile-filter-icon,
-    .mobile-filter-wrapper,
-    .mobile-filter-overlay {
+    .archive.tax-product_cat .mobile-filter-icon,
+    .archive.tax-product_cat .mobile-filter-wrapper,
+    .archive.tax-product_cat .mobile-filter-overlay {
         display: none !important;
     }
   }

@@ -55,56 +55,7 @@ jQuery(document).ready(function($) {
         $('.mobile-filter-overlay').on('click', function() {
             $('body').removeClass('filters-open');
         });
-    }
-
-
-
-    /* ============================================
-     *   ELEMENTOR LOOP CAROUSEL – CENTER SLIDE LOGIC
-     *   (dynamic detection + class "center-slide")
-     * ============================================ */
-
-    function initCenterSlideEffect() {
-
-        const carousels = $('.elementor-widget-loop-carousel .swiper');
-
-        if (!carousels.length) return;
-
-        carousels.each(function() {
-
-            let swiper = this.swiper;
-
-            if (!swiper) return;
-
-            // Force centeredSlides to behave correctly
-            swiper.params.centeredSlides = true;
-            swiper.update();
-
-            function updateCenter() {
-
-                $(".swiper-slide", swiper.el).removeClass("center-slide");
-
-                let slidesPerView = swiper.params.slidesPerView || 1;
-
-                let centerIndex = swiper.activeIndex + Math.floor(slidesPerView / 2);
-
-                if (centerIndex >= swiper.slides.length)
-                    centerIndex = centerIndex % swiper.slides.length;
-
-                $(swiper.slides[centerIndex]).addClass("center-slide");
-            }
-
-            // initial run
-            updateCenter();
-
-            // on slide change
-            swiper.on("slideChange transitionEnd", updateCenter);
-
-        });
-    }
-
-    // Elementor / Swiper loads async → small delay
-    setTimeout(initCenterSlideEffect, 400);
+    }   
 
 });
     
