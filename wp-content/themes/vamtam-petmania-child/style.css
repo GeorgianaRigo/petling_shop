@@ -11,6 +11,14 @@
  Text Domain:  vamtam-petmania-child
 */
 
+@font-face {
+  font-family: 'theme-icons';
+  src: url('./fonts/theme-icons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 /* ubuntu-300 - greek_latin */
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
