@@ -55,7 +55,43 @@ jQuery(document).ready(function($) {
         $('.mobile-filter-overlay').on('click', function() {
             $('body').removeClass('filters-open');
         });
-    }   
+    }
 
-});
+    /* ============================================
+     *  GLOBAR LOADER
+     * ============================================ */
+    // Αν ο χρήστης είναι logged-in, σταματάμε εδώ.
+    if ($('body').hasClass('logged-in')) {
+        return;
+    }
     
+    // Δημιουργία του overlay loader αν δεν υπάρχει ήδη
+    if($('#global-loader').length === 0){
+        $('body').append('<div id="global-loader"></div>');
+    }
+    var loader = $('#global-loader');
+    
+    // Εμφάνιση loader
+    loader.show();
+    
+    $(window).on('load', function(){
+        loader.fadeOut(400);
+    });
+    
+    $(document).ajaxStart(function(){
+        loader.show();
+    }).ajaxStop(function(){
+        loader.fadeOut(200);
+    });
+    
+    $(document).on('bapf_before_update', function(){
+        loader.show();
+    });
+    $(document).on('bapf_after_update', function(){
+        loader.fadeOut(200);
+    });
+    
+    $(document).on('click', '.woocommerce-pagination a', function(){
+        loader.show();
+    });
+});

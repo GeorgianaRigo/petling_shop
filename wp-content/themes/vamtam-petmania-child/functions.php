@@ -198,3 +198,26 @@ function instock_brand_priority_sales( $clauses, $query ) {
 
     return $clauses;
 }
+
+add_filter( 'woocommerce_related_products', 'petling_related_instock_first', 20, 3 );
+function petling_related_instock_first( $related_posts, $product_id, $args ) {
+    $instock = [];
+    $outofstock = [];
+
+    foreach ( $related_posts as $rid ) {
+        $p = wc_get_product( $rid );
+        if ( $p && $p->is_in_stock() ) {
+            $instock[] = $rid;
+        } else {
+            $outofstock[] = $rid;
+        }
+    }
+
+    // Ενώνουμε πρώτα τα in-stock και μετά τα out-of-stock
+    $sorted = array_merge( $instock, $outofstock );
+
+    // Περιορίζουμε στο posts_per_page που θέλει το WooCommerce
+    $limit = !empty($args['posts_per_page']) ? intval($args['posts_per_page']) : 4;
+
+    return array_slice( $sorted, 0, $limit );
+}
