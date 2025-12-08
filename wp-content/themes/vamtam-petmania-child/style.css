@@ -382,7 +382,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    background: #fff;
+    background: #f6ede3;
     color: #8B6139;
     width: 50px;
     height: 50px;
@@ -460,7 +460,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   body.filters-open .mobile-filter-overlay {
     display: block;
   }
-  
+
   /* Όταν ανοίγει το panel */
   body.archive.tax-product_cat.filters-open .mobile-filter-wrapper {
     transform: translateX(0);
