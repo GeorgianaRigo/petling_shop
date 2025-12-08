@@ -220,7 +220,7 @@ background-color: #fff;
   padding: 5px 20px;
   font-size: 13px;
   border-radius: 6px;
-  z-index: 99;
+  z-index: 1;
   text-align: center;
   display: inline-block;
   pointer-events: none;
@@ -375,7 +375,6 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   text-decoration: none;
 }
 
-
 @media only screen and (max-width: 992px) {
   /* Floating icon */
   .archive.tax-product_cat  .mobile-filter-icon {
@@ -383,8 +382,8 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    background: var( --e-global-color-7bc0d5a );
-    color: #fff;
+    background: #fff;
+    color: #8B6139;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -397,15 +396,15 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   }
 
   /* Off-canvas panel */
-  .archive.tax-product_cat .mobile-filter-wrapper {
+  .mobile-filter-wrapper {
     position: fixed;
     top: 0;
     right: 0;
     width: 80%;
     max-width: 300px;
     height: 100%;
-    background: #fff;
-    z-index: 1002; /* πάνω από overlay */
+    background: #ffffff;
+    z-index: 1002;
     overflow-y: auto;
     box-shadow: -2px 0 8px rgba(0,0,0,0.3);
     padding: 20px;
@@ -425,6 +424,43 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
     z-index: 1001;
   }
 
+  /* Floating icon */
+  .archive.tax-product_cat .mobile-filter-icon {
+    position: fixed;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: #f6ede3;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1003;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-size: 24px;
+  }
+
+  /* Close button inside panel */
+  .archive.tax-product_cat .mobile-filter-close {
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: right;
+    margin-bottom: 10px;
+  }
+
+  /* Όταν ανοίγει το panel */
+  body.filters-open .mobile-filter-wrapper {
+    transform: translateX(0);
+  }
+
+  body.filters-open .mobile-filter-overlay {
+    display: block;
+  }
+  
   /* Όταν ανοίγει το panel */
   body.archive.tax-product_cat.filters-open .mobile-filter-wrapper {
     transform: translateX(0);
@@ -472,3 +508,33 @@ body:not(.logged-in) #global-loader {
     100% { transform: rotate(360deg); }
   }
   
+body .woocommerce-cart-form .shop_table .woocommerce-cart-form__cart-item.cart_item .product-name a {
+  color: var(--vamtam-accent-color-6)!important;
+} 
+
+body .woocommerce-cart-form .shop_table .woocommerce-cart-form__cart-item.cart_item .product-name a:hover {
+  color: #8B6139!important;
+} 
+
+button.e-apply-coupon:hover {
+  background-color: #8B6139!important;
+}
+
+.elementor-widget-wc-archive-products.vamtam-has-theme-widget-styles ul.products li.product:not(.product-category) .vamtam-product-content .woocommerce-loop-product__title:hover {
+  text-decoration: none;
+}
+
+/* Hide floating icon σε desktop */
+@media(min-width: 992px) {
+  .mobile-filter-icon,
+  .mobile-filter-wrapper,
+  .mobile-filter-overlay {
+      display: none !important;
+  }
+}
+
+/** proswrina ta krubw **/
+.elementor-element-de92c7c, .elementor-element-8c460f3, .elementor-element-f582ce3 {
+  display: none;
+}
+/** end proswrina ta krubw **/
