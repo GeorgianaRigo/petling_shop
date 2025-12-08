@@ -221,3 +221,44 @@ function petling_related_instock_first( $related_posts, $product_id, $args ) {
 
     return array_slice( $sorted, 0, $limit );
 }
+
+add_filter( 'gettext', 'petling_translate_cart_title', 20, 3 );
+
+function petling_translate_cart_title( $translated_text, $text, $domain ) {
+    // Μετάφραση του "Your Cart"
+    if ( $text === 'Your Cart' ) {
+        $translated_text = 'Το Καλάθι μου';
+    }
+    // Μετάφραση του σκέτου "Cart" αν χρειαστεί
+    if ( $text === 'Cart' && $domain === 'woocommerce' ) {
+         $translated_text = 'Καλάθι';
+    }
+    
+    return $translated_text;
+}
+
+/**
+ * Elementor Form: Απαγόρευση διπλής εγγραφής (Δυναμικός Έλεγχος)
+ * Ελέγχει αν το email υπάρχει ήδη στη βάση για τη συγκεκριμένη φόρμα.
+ */
+add_action( 'elementor_pro/forms/validation/email', function( $field, $record, $ajax_handler ) {
+    $value = $field['value'];
+    $field_id = $field['id'];
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'e_submissions_values';
+
+    $exists = $wpdb->get_var( $wpdb->prepare( 
+        "SELECT COUNT(*) FROM $table_name WHERE `value` = %s AND `key` = %s", 
+        $value, 
+        $field_id
+    ) );
+
+    if ( $exists > 0 ) {
+        $ajax_handler->add_error( 
+            $field['id'], 
+            'Το email αυτό είναι ήδη εγγεγραμμένο!' 
+        );
+    }
+
+}, 10, 3 );
