@@ -5,6 +5,7 @@ jQuery(document).ready(function($) {
     initMobileFilters();
     initGlobalLoader();
     initSortingFix();
+    initMobileAutoScroll();
 
 
     /* ==========================================================================
@@ -43,35 +44,56 @@ jQuery(document).ready(function($) {
         }
     }
 
-
     /* ==========================================================================
        2. MOBILE FILTER LOGIC (< 992px)
        Δημιουργεί και διαχειρίζεται τα φίλτρα σε κινητά
        ========================================================================== */
-    function initMobileFilters() {
-        // Τρέχει μόνο σε μικρές οθόνες
+ /* ==========================================================================
+       2. MOBILE FILTER LOGIC (< 992px)
+       ΜΟΝΟ ΣΕ ΣΕΛΙΔΕΣ ΚΑΤΗΓΟΡΙΩΝ / SHOP
+       ========================================================================== */
+       function initMobileFilters() {
+        // 1. Έλεγχος Οθόνης: Τρέχει μόνο σε κινητά/tablet
         if (window.innerWidth >= 992) {
             return;
         }
 
-        // 1. Δημιουργία HTML στοιχείων αν δεν υπάρχουν
+        // 2. Έλεγχος Σελίδας: Τρέχει ΜΟΝΟ αν είμαστε σε Κατηγορία ή στο Shop
+        // 'tax-product_cat' = Σελίδα Κατηγορίας
+        // 'post-type-archive-product' = Σελίδα Shop (όλα τα προϊόντα)
+        if ( !$('body').hasClass('tax-product_cat') && !$('body').hasClass('post-type-archive-product') ) {
+            return; // Αν δεν είναι κατηγορία, σταματάει εδώ.
+        }
+
+        // 3. Έλεγχος Περιεχομένου: Υπάρχουν όντως φίλτρα στη σελίδα;
+        // Αν η σελίδα είναι κατηγορία αλλά δεν έχει sidebar/φίλτρα, δεν κάνουμε τίποτα.
+        if ($('.vamtam-products-filter').length === 0) {
+            return;
+        }
+
+        // --- ΑΠΟ ΕΔΩ ΚΑΙ ΚΑΤΩ Ο ΚΩΔΙΚΑΣ ΕΚΤΕΛΕΙΤΑΙ ΜΟΝΟ ΣΤΙΣ ΣΩΣΤΕΣ ΣΕΛΙΔΕΣ ---
+
+        // Δημιουργία Wrapper
         if ($('.vamtam-products-filter').length && !$('.mobile-filter-wrapper').length) {
             $('.vamtam-products-filter').wrap('<div class="mobile-filter-wrapper"></div>');
         }
 
+        // Δημιουργία Overlay
         if (!$('body').find('.mobile-filter-overlay').length) {
             $('body').append('<div class="mobile-filter-overlay"></div>');
         }
 
+        // Δημιουργία Εικονιδίου (ΔΙΟΡΘΩΣΗ: Είχε λάθος selector πριν)
         if (!$('body').find('.mobile-filter-icon').length) {
             $('body').append('<div class="mobile-filter-icon">⚙️</div>');
         }
 
+        // Δημιουργία Κουμπιού Κλεισίματος
         if (!$('.mobile-filter-wrapper').find('.mobile-filter-close').length) {
             $('.mobile-filter-wrapper').prepend('<div class="mobile-filter-close">✕</div>');
         }
 
-        // 2. Συναρτήσεις ανοίγματος/κλεισίματος
+        // Συναρτήσεις λειτουργίας
         function openFilters() {
             $('body').addClass('filters-open');
             $('.mobile-filter-icon').text('✕');
@@ -82,8 +104,9 @@ jQuery(document).ready(function($) {
             $('.mobile-filter-icon').text('⚙️');
         }
 
-        // 3. Events
-        $('.mobile-filter-icon').on('click', function() {
+        // Events (Clicks)
+        // Χρησιμοποιούμε .off() για να μην μπαίνουν διπλά click events αν ξαναφορτώσει το JS
+        $('.mobile-filter-icon').off('click').on('click', function() {
             if ($('body').hasClass('filters-open')) {
                 closeFilters();
             } else {
@@ -91,7 +114,7 @@ jQuery(document).ready(function($) {
             }
         });
 
-        $('.mobile-filter-overlay, .mobile-filter-close').on('click', function() {
+        $('.mobile-filter-overlay, .mobile-filter-close').off('click').on('click', function() {
             closeFilters();
         });
     }
@@ -169,4 +192,61 @@ jQuery(document).ready(function($) {
             window.location.href = currentUrl.toString();
         });
     }
+
+    /* ============================================
+     * MOBILE AUTO-SCROLL CAROUSEL
+     * Για τα Info Boxes (BoxNow, Τηλέφωνο, κλπ)
+     * ============================================ */
+    function initMobileAutoScroll() {
+        if (window.innerWidth >= 768) return;
+
+        var $container = $('.elementor-element-e7532ed .elementor-widget-wrap');
+        if (!$container.length) return;
+
+        var currentIndex = 0;
+        var $items = $container.children('.elementor-widget-icon-box');
+        var totalSlides = $items.length;
+        var slideInterval;
+
+        setTimeout(function(){
+            $container.scrollLeft(0);
+        }, 100);
+
+        function startSlider() {
+            if (slideInterval) clearInterval(slideInterval);
+
+            slideInterval = setInterval(function() {
+                currentIndex++;
+
+                if (currentIndex >= totalSlides) {
+                    currentIndex = 0;
+                }
+
+                var containerWidth = $container.width(); // Υπολογισμός κάθε φορά για ακρίβεια
+                var scrollPos = currentIndex * containerWidth;
+
+                $container.stop().animate({
+                    scrollLeft: scrollPos
+                }, 500);
+
+            }, 3000); 
+        }
+
+        startSlider();
+
+        $container.on('touchstart', function() {
+            clearInterval(slideInterval);
+        });
+        
+        $container.on('touchend', function() {
+            setTimeout(startSlider, 5000);
+        });
+        
+        $(window).on('resize', function(){
+             if (window.innerWidth < 768) {
+                 $container.scrollLeft(currentIndex * $container.width());
+             }
+        });
+    }
+    
 });

@@ -240,12 +240,18 @@ body.archive.tax-product_cat .elementor-element.elementor-element-6a42c811.eleme
   margin-bottom: 10px;
 }
 
-body.archive.tax-product_cat .elementor-element.elementor-element-6a42c811.elementor-wc-products ul.products li.product span.onsale {
+li.product span.onsale {
   font-size: 14px;
 }
 
+/* Override για αφαίρεση της καμπύλης στα badges (Sale / New) */
+body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles :is(span.onsale, .vamtam-new) {
+  border-top-left-radius: 0 !important; /* Αφαιρεί την καμπύλη */
+  border-radius: 42px !important; /* Ασφάλεια: Αφαιρεί όλες τις καμπύλες αν υπάρχουν */
+}
+
 @media only screen and (max-width: 992px) {
-	body.archive.tax-product_cat .elementor-element.elementor-element-6a42c811.elementor-wc-products ul.products li.product span.onsale {
+	li.product span.onsale {
 		min-width: unset!important;
 		min-height: unset!important;
 		height: unset!important;
@@ -257,6 +263,7 @@ body.archive.tax-product_cat .elementor-element.elementor-element-6a42c811.eleme
 		align-items: center!important;
 	}
 }
+
 body .elementor-widget-wp-widget-berocket_aapf_group.vamtam-has-theme-widget-styles.vamtam-input-fields input[type="checkbox"] + label:before {
   content: '';
   border: solid 1px var(--vamtam-accent-color-2);
@@ -404,7 +411,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
     max-width: 300px;
     height: 100%;
     background: #ffffff;
-    z-index: 1002;
+    z-index: 9999;
     overflow-y: auto;
     box-shadow: -2px 0 8px rgba(0,0,0,0.3);
     padding: 20px;
@@ -438,7 +445,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 1003;
+    z-index: 9999;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     font-size: 24px;
   }
@@ -530,6 +537,190 @@ button.e-apply-coupon:hover {
   .mobile-filter-wrapper,
   .mobile-filter-overlay {
       display: none !important;
+  }
+}
+
+/* =======================================================
+   MOBILE CART LAYOUT - CENTERED REMOVE BUTTON
+   ======================================================= */
+   @media (max-width: 767px) {
+
+    /* 1. Reset Table */
+    .woocommerce-cart table.shop_table {
+        width: 100%;
+        margin: 0;
+        border: none;
+    }
+    .woocommerce-cart table.shop_table thead {
+        display: none;
+    }
+
+    /* 2. Κάρτα Προϊόντος (Grid 3 Στηλών) */
+    /* Στήλες: Εικόνα (80px) | Πληροφορίες (Αυτόματο) | Διαγραφή (30px) */
+    .woocommerce-cart table.shop_table tr.cart_item {
+        display: grid;
+        grid-template-columns: 80px 1fr 30px; 
+        grid-template-areas:
+            "image name remove"    /* Το remove μπαίνει δίπλα στο όνομα */
+            "image price price"
+            "image quantity quantity"
+            "image subtotal subtotal";
+        
+        gap: 8px 15px; /* Το 15px είναι το κενό οριζόντια (ανάμεσα σε εικόνα, κείμενο, Χ) */
+        
+        width: 100%;
+        box-sizing: border-box;
+        background: #fff;
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* 3. Κουμπί Διαγραφής (X) - ΚΕΝΤΡΑΡΙΣΜΕΝΟ */
+    .woocommerce-cart table.shop_table td.product-remove {
+        grid-area: remove;
+        position: static; /* Το βάζουμε πίσω στη ροή */
+        display: flex !important; /* Για να κεντράρουμε το εικονίδιο */
+        align-items: center; /* Κάθετο κεντράρισμα σε σχέση με τον τίτλο */
+        justify-content: center;
+        border: none !important;
+        padding: 0 !important;
+        margin-left: 5px; /* Λίγο έξτρα κενό αριστερά όπως ζήτησες */
+    }
+    /* Στυλ του εικονιδίου για να είναι καθαρό */
+    .woocommerce-cart table.shop_table td.product-remove a {
+        display: block;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        color: #999; /* Απαλό γκρι για να μην χτυπάει */
+    }
+
+    /* 4. Εικόνα */
+    .woocommerce-cart table.shop_table td.product-thumbnail {
+        grid-area: image;
+        display: block !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+    .woocommerce-cart table.shop_table td.product-thumbnail img {
+        width: 100%;
+        height: auto;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+
+    /* 5. Όνομα Προϊόντος */
+    .woocommerce-cart table.shop_table td.product-name {
+        grid-area: name;
+        display: flex;       /* Για σωστή στοίχιση κειμένου */
+        align-items: center; /* Αν το κουμπί remove είναι πιο ψηλό, κεντράρει και το κείμενο */
+        border: none !important;
+        padding: 0 !important;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    /* 6. Υπόλοιπα Στοιχεία */
+    .woocommerce-cart table.shop_table td.product-price {
+        grid-area: price;
+        display: block !important;
+        border: none !important;
+        padding: 0 !important;
+        font-size: 13px;
+        color: #777;
+    }
+
+    .woocommerce-cart table.shop_table td.product-quantity {
+        grid-area: quantity;
+        display: block !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-top: 5px;
+    }
+    .woocommerce-cart table.shop_table td.product-quantity .quantity {
+        margin: 0 !important;
+        transform: scale(0.9);
+        transform-origin: left;
+    }
+
+    .woocommerce-cart table.shop_table td.product-subtotal {
+        grid-area: subtotal;
+        display: block !important;
+        border: none !important;
+        border-top: 1px dashed #eee !important;
+        padding-top: 8px !important;
+        margin-top: 8px;
+        text-align: right;
+        font-weight: 700;
+        color: #E5aa70;
+        font-size: 16px;
+    }
+
+    /* Actions */
+    .woocommerce-cart table.shop_table tr:not(.cart_item) {
+        display: block;
+        border: none;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+    .woocommerce-cart table.shop_table td.actions {
+        padding: 10px 0 !important;
+        border: none !important;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .woocommerce-cart table.shop_table td:before {
+        content: none !important;
+    }
+}
+
+body .elementor-location-header .elementor-section.elementor-sticky--active {
+  z-index: 9999 ;
+}
+
+/* =========================================
+MOBILE CAROUSEL - HOME boxNow - phone - msg
+========================================= */
+@media (max-width: 767px) {
+  .elementor-element-e7532ed .elementor-widget-wrap {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      overflow-x: hidden; /* Το JS ελέγχει το scroll */
+      gap: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+  }
+  
+  .elementor-element-e7532ed .elementor-widget-icon-box {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 10px 0 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+  
+  .elementor-element-e7532ed .elementor-icon-box-content {
+      padding: 0 15px; 
+      text-align: center;
+  }
+
+  .elementor-icon-box-icon {
+    align-self: center ;
   }
 }
 
