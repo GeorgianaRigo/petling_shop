@@ -369,7 +369,7 @@ color: var( --e-global-color-vamtam_accent_8 );
 .home-shop-by-food-type-4-columns .vamtam-theme-splash-right:hover:before {
   content: "\e923";
   position: absolute;
-  right: 0;
+  right: -15px;
   font-size: 60px;
   color: var( --e-global-color-vamtam_accent_1 )
 }
@@ -724,8 +724,69 @@ MOBILE CAROUSEL - HOME boxNow - phone - msg
   }
 }
 
+/** footer boxNow & viva **/
+.elementor-element-7b01a6f7 img, 
+.elementor-element-7b80fcd3 img,
+.payment_method_vivacom_smart img /* auto einai sto checkout */ {
+  width: 100px;
+}
+
+.elementor-element-5f077a4 img {
+  transform: rotate(-12deg);
+}
+
+.elementor-element-95caf19 img {
+  transform: rotate(17deg);
+}
+
 /** proswrina ta krubw **/
-.elementor-element-de92c7c, .elementor-element-8c460f3, .elementor-element-f582ce3 {
+.elementor-element-de92c7c,      /* flash sale  */
+.elementor-element-8c460f3 {    /* services, grooming, vet .. */
   display: none;
 }
 /** end proswrina ta krubw **/
+
+@media (max-width: 768px) { 
+  .single-product .woocommerce-product-gallery {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: flex-start !important;
+  }
+
+  .single-product .woocommerce-product-gallery .flex-control-nav.flex-control-thumbs {
+      width: 15% !important;
+      order: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      margin-right: 15px !important;
+      max-width: 100px !important;
+  }
+
+  .single-product .woocommerce-product-gallery .woocommerce-product-gallery__wrapper {
+      width: 85% !important;
+      order: 2 !important;
+      margin: 0 !important;
+  }
+
+  .single-product .woocommerce-product-gallery .flex-control-thumbs li {
+      width: 100% !important;
+      float: none !important;
+      margin-bottom: 0 !important;
+  }
+  
+  .single-product .woocommerce-product-gallery .flex-control-thumbs li img {
+      width: 100%;
+      height: auto;
+      display: block;
+  }
+
+  .single-product .elementor-widget-woocommerce-product-images.vamtam-has-theme-widget-styles.elementor-element > .elementor-widget-container div.images { 
+    padding-bottom: 20px;
+  }
+}
+
+body .select2-container--default .select2-results__option--highlighted[data-selected], body .select2-container--default .select2-results__option--highlighted[aria-selected],
+body .select2-container--default .select2-results__option[data-selected=true], body .select2-container--default .select2-results__option[aria-selected=true] {
+  background-color: var(--vamtam-accent-color-2)!important;
+}
