@@ -4,7 +4,7 @@
  * Plugin URI:        https://33944474147.blog.com.gr/
  * Description:       Adds custom, repeatable fields for pet profiles in the WooCommerce My Account page.
  * Version:           1.4.1
- * Author:            [Το όνομά σου]
+ * Author:            Georgiana - Petling
  * Author URI:        https://33944474147.blog.com.gr/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
 
-    // Handles the "Add Pet" button and "Remove" button logic
+    // Logic για Προσθήκη/Αφαίρεση
     $('#add-pet-button').on('click', function() {
         let newPetBlock = $('#pet-block-template .pet-block').clone();
         let newIndex = $('#pet-repeater-container .pet-block').length;
@@ -17,39 +17,104 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Inject CSS for better styling and layout corrections.
+    // --- CSS ΓΙΑ 2 ΣΤΗΛΕΣ (100% INPUT) ---
     const customCSS = `
-        /* General styling rules... */
-        .pet-details-fieldset { margin-bottom: 20px; width: 100%; }
-        .pet-fieldset-description { font-size: 0.9em; color: #666; margin-bottom: 25px; }
-        .pet-block { border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 20px; border-radius: 8px; background-color: #f9f9f9; margin-top: 20px; }
-        .pet-block h4 { margin-top: 0; display: flex; justify-content: space-between; align-items: center; }
-        .pet-block .remove-pet-button { font-size: 12px; padding: 4px 8px; background: #e62121; color: white; border: none; cursor: pointer; border-radius: 4px; line-height: 1.5; }
-        #add-pet-button { margin-top: 10px; }
-        
-        /* --- THE ULTIMATE FIX FOR FONT-SIZE --- */
-        /* This rule is extremely specific to override theme styles */
-        body.woocommerce-account .woocommerce-MyAccount-content .pet-details-fieldset input.input-text,
-        body.woocommerce-account .woocommerce-MyAccount-content .pet-details-fieldset select,
-        body.woocommerce-account .woocommerce-MyAccount-content .pet-details-fieldset textarea {
-            font-size: 16px !important; /* Adjust if needed */
-            height: auto !important;
-            padding: 10px 15px !important;
-            line-height: 1.5 !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-            border-color: #C7B297;
+        .pet-block { 
+            border: 1px solid #ddd; 
+            padding: 25px; 
+            margin-bottom: 30px; 
+            background-color: #fff; 
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        /* Scrollbar for health issues */
-        .checkbox-wrapper { max-height: 160px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; background-color: #fff; border-radius: 4px; }
-        .checkbox-wrapper .checkbox-label { display: block; margin-bottom: 8px; font-weight: normal; }
-        .checkbox-wrapper .checkbox-label input { margin-right: 8px; }
+        .pet-block h4 { 
+            margin-top: 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .pet-block .remove-pet-button { 
+            font-size: 12px; 
+            background: #e62121; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
 
-        /* Media Query for mobile devices */
+        /* --- ΣΤΗΛΕΣ & INPUTS --- */
+        /* Ορίζουμε ρητά το πλάτος των στηλών για να είμαστε σίγουροι */
+        .pet-block .form-row-first {
+            width: 48% !important;
+            float: left !important;
+            margin-right: 4% !important;
+            clear: both; /* Καθαρίζει την προηγούμενη γραμμή */
+        }
+        .pet-block .form-row-last {
+            width: 48% !important;
+            float: right !important;
+            margin-right: 0 !important;
+        }
+        .pet-block .form-row-wide {
+            width: 100% !important;
+            clear: both;
+            float: none;
+        }
+        
+        /* ΤΟ ΣΗΜΑΝΤΙΚΟ: Τα κουτιά (inputs) πιάνουν το 100% της στήλης τους */
+        .pet-block input[type="text"],
+        .pet-block input[type="date"],
+        .pet-block input[type="number"],
+        .pet-block select,
+        .pet-block textarea {
+            width: 100% !important; /* Γεμίζει το 48% του γονέα του */
+            border: 1px solid #C7B297 !important;
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            min-height: 45px;
+            background-color: #fff;
+            box-sizing: border-box !important; /* Για να μην βγαίνει έξω το padding */
+        }
+
+        /* Scroll Box Υγείας */
+        .checkbox-wrapper { 
+            max-height: 180px; 
+            overflow-y: auto; 
+            border: 1px solid #C7B297; 
+            padding: 15px; 
+            background-color: #fcfcfc; 
+            border-radius: 5px; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .checkbox-wrapper .checkbox-label { 
+            display: flex; 
+            align-items: center;
+            margin-bottom: 8px; 
+            width: 100%;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto !important;
+            min-height: auto;
+        }
+
+        #add-pet-button {
+            width: 100%;
+            padding: 15px;
+            background-color: #C7B297;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Κινητό: Μία στήλη */
         @media (max-width: 767px) {
-            .pet-details-fieldset .form-row-first,
-            .pet-details-fieldset .form-row-last {
+            .pet-block .form-row-first,
+            .pet-block .form-row-last {
                 width: 100% !important;
                 float: none !important;
                 margin-right: 0 !important;
