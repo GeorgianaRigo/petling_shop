@@ -262,3 +262,88 @@ add_action( 'elementor_pro/forms/validation/email', function( $field, $record, $
     }
 
 }, 10, 3 );
+
+
+
+// ==============================================================================
+// 1. PRELOAD HERO IMAGE (ΣΩΣΤΟ & ΣΥΓΧΡΟΝΙΣΜΕΝΟ)
+// ==============================================================================
+add_action( 'wp_head', function () {
+    if ( is_front_page() ) {
+        echo '<link rel="preload" as="image" 
+              href="https://petling.gr/wp-content/uploads/2025/12/heroGirlsIrisDarcy-2.jpg" 
+              imagesrcset="https://petling.gr/wp-content/uploads/2025/12/heroGirlsIrisDarcy-2.jpg 800w, https://petling.gr/wp-content/uploads/2025/12/heroGirlsIrisDarcy-2-300x264.jpg 300w, https://petling.gr/wp-content/uploads/2025/12/heroGirlsIrisDarcy-2-768x675.jpg 768w, https://petling.gr/wp-content/uploads/2025/12/heroGirlsIrisDarcy-2-640x562.jpg 640w" 
+              imagesizes="(max-width: 800px) 100vw, 800px">';
+    }
+}, 1 );
+
+// ==============================================================================
+// 2. LCP IMAGE PRIORITY
+// ==============================================================================
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr ) {
+    if ( isset( $attr['src'] ) && strpos( $attr['src'], 'heroGirlsIrisDarcy-2' ) !== false ) {
+        $attr['fetchpriority'] = 'high';
+        $attr['decoding']      = 'sync';
+        unset( $attr['loading'] );
+    }
+    return $attr;
+}, 20 );
+
+// ==============================================================================
+// 3. CSS "ΑΣΠΙΔΑ": ΑΠΑΓΟΡΕΥΣΗ BACKGROUND ΣΕ ΚΡΥΦΑ SECTIONS
+// ==============================================================================
+add_action( 'wp_head', function () {
+    if ( is_front_page() ) {
+        ?>
+        <style>
+        /* Αυτός ο κανόνας ισχύει ΠΑΝΤΑ */
+        @media (max-width: 767px) {
+            
+            /* 1. ΣΤΟΧΕΥΜΕΝΗ ΕΠΙΘΕΣΗ στο beef101 (Αν υπάρχει ακόμα) */
+            .elementor-element-beef101,
+            [data-id="beef101"] {
+                background-image: none !important;
+                display: none !important;
+            }
+
+            /* 2. ΓΕΝΙΚΗ ΕΠΙΘΕΣΗ: Οποιοδήποτε section είναι "Hidden Mobile" */
+            .elementor-hidden-mobile,
+            .elementor-hidden-phone {
+                background-image: none !important;
+                display: none !important;
+            }
+
+            /* 3. MOBILE HERO FIXES (531bc53) */
+            section[data-id="531bc53"] {
+                contain: layout paint style;
+                min-height: 250px;
+            }
+            
+            /* Kill Animations */
+            .elementor-motion-effects-layer,
+            .elementor-motion-effects-element,
+            [data-settings*="motion_fx"] {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+            }
+        }
+
+        /* Elementor Fix */
+        .elementor-invisible { 
+            visibility: visible !important; 
+            opacity: 1 !important; 
+            animation: none !important; 
+        }
+        </style>
+        <?php
+    }
+}, 1 );
+
+// ==============================================================================
+// 4. FONTS
+// ==============================================================================
+add_filter( 'style_loader_tag', function ( $html ) {
+    if ( is_admin() ) return $html;
+    return str_replace( 'googleapis.com/css', 'googleapis.com/css?display=swap', $html );
+}, 10 );
