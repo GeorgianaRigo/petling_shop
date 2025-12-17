@@ -237,6 +237,25 @@ function petling_translate_cart_title( $translated_text, $text, $domain ) {
     return $translated_text;
 }
 
+add_filter( 'gettext', 'change_specific_text_strings', 10, 3 );
+add_filter( 'ngettext', 'change_specific_text_strings', 10, 3 );
+
+function change_specific_text_strings( $translated_text, $text, $domain ) {
+    
+    // Εδώ ορίζεις τι θες να αλλάξεις. 
+    // Αριστερά το Αγγλικό (ακριβώς όπως φαίνεται), Δεξιά το Ελληνικό.
+    $replacements = array(
+        'Create Account' => 'Δημιουργία Λογαριασμού',
+        'Create account' => 'Δημιουργία Λογαριασμού', // Για σιγουριά αν είναι με μικρά
+    );
+
+    if ( array_key_exists( $text, $replacements ) ) {
+        return $replacements[ $text ];
+    }
+
+    return $translated_text;
+}
+
 /**
  * Elementor Form: Απαγόρευση διπλής εγγραφής (Δυναμικός Έλεγχος)
  * Ελέγχει αν το email υπάρχει ήδη στη βάση για τη συγκεκριμένη φόρμα.
