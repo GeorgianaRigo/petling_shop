@@ -366,3 +366,87 @@ add_filter( 'style_loader_tag', function ( $html ) {
     if ( is_admin() ) return $html;
     return str_replace( 'googleapis.com/css', 'googleapis.com/css?display=swap', $html );
 }, 10 );
+
+
+add_filter( 'woocommerce_thankyou_order_received_text', 'force_viva_success_message', 20, 2 );
+
+function force_viva_success_message( $text, $order ) {
+    if ( ! $order ) return $text;
+
+    // Αν η μέθοδος είναι Viva Wallet
+    if ( strpos( $order->get_payment_method(), 'viva' ) !== false ) {
+        // Επιστρέφουμε ΠΑΝΤΑ το μήνυμα επιτυχίας, αγνοώντας το UI του WooCommerce
+        return 'Σας ευχαριστούμε! Η παραγγελία σας ελήφθη επιτυχώς και η πληρωμή έχει δρομολογηθεί.';
+    }
+    return $text;
+}
+
+// ---------------------------------------------------------
+// CSS: Κρύβει τα κουμπιά Πληρωμή/Ακύρωση στη Thank You Page
+// ---------------------------------------------------------
+add_action('wp_head', 'vamtam_hide_thankyou_buttons_css');
+
+function vamtam_hide_thankyou_buttons_css() {
+    // Ελέγχουμε αν είμαστε στη σελίδα "Order Received" (Thank You page)
+    if ( is_checkout() && !empty( is_wc_endpoint_url('order-received') ) ) {
+        ?>
+        <style type="text/css">
+            /* Εξαφάνιση κουμπιών και μηνυμάτων λάθους */
+            .woocommerce-checkout.woocommerce-order-received .order-again,
+            .woocommerce-checkout.woocommerce-order-received .pay,
+            .woocommerce-checkout.woocommerce-order-received .cancel,
+            .woocommerce-checkout.woocommerce-order-received .woocommerce-error,
+            .woocommerce-checkout.woocommerce-order-received .woocommerce-info {
+                display: none !important;
+            }
+        </style>
+        <?php
+    }
+}
+
+add_filter( 'gettext', 'force_translate_thank_you', 999, 3 );
+
+function force_translate_thank_you( $translated_text, $text, $domain ) {
+    // Ελέγχουμε και τις δύο πιθανές γραφές (μικρά/κεφαλαία)
+    if ( $text === 'Thank you. Your order has been received.' || $text === 'Thank You. Your order has been received.' ) {
+        return 'Σας ευχαριστούμε. Η παραγγελία σας ελήφθη.';
+    }
+    return $translated_text;
+}
+
+add_filter( 'gettext', 'fix_pending_payment_message_greek', 9999, 3 );
+
+function fix_pending_payment_message_greek( $translated_text, $text, $domain ) {
+    
+    // Η φράση που θέλουμε να πιάσουμε (ακριβώς όπως εμφανίζεται)
+    $target_phrase = 'Η παραγγελία βρίσκεται σε αναμονή πληρωμής. Μετά την επιτυχή πληρωμή, θα σας στείλουμε ένα email επιβεβαίωσης.';
+
+    // Έλεγχος αν το κείμενο ταιριάζει (ακριβής αντιστοιχία ή αν περιέχεται)
+    if ( $translated_text === $target_phrase || strpos($translated_text, 'Η παραγγελία βρίσκεται σε αναμονή πληρωμής') !== false ) {
+        
+        // Επιστρέφουμε το νέο μήνυμα που θέλουμε να βλέπει ο πελάτης
+        return 'Η πληρωμή σας ολοκληρώθηκε επιτυχώς και η παραγγελία σας ετοιμάζεται!';
+        
+        // ΣΗΜΕΙΩΣΗ: Αν θες να μην φαίνεται ΤΙΠΟΤΑ, βάλε απλά: return '';
+    }
+
+    return $translated_text;
+}
+
+// ---------------------------------------------------------
+// CUSTOM FAVICON LINKING (Root Directory)
+// Συνδέει τα εικονίδια που ανέβηκαν μέσω FTP στο root
+// ---------------------------------------------------------
+add_action( 'wp_head', 'petling_favicons_root' );
+add_action( 'login_head', 'petling_favicons_root' );
+add_action( 'admin_head', 'petling_favicons_root' );
+
+function petling_favicons_root() {
+    ?>
+    <link rel="icon" type="image/png" href="https://petling.gr/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="https://petling.gr/favicon.svg" />
+    <link rel="shortcut icon" href="https://petling.gr/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://petling.gr/apple-touch-icon.png" />
+    <link rel="manifest" href="https://petling.gr/site.webmanifest" />
+    <?php
+}
