@@ -434,24 +434,20 @@ function fix_pending_payment_message_greek( $translated_text, $text, $domain ) {
 }
 
 // ---------------------------------------------------------
-// CUSTOM FAVICON (Με Versioning για να ξεκολλήσει η Cache)
+// GOOGLE-FRIENDLY FAVICON (KEEP IT SIMPLE)
 // ---------------------------------------------------------
-add_action( 'wp_head', 'petling_favicons_root' );
-add_action( 'login_head', 'petling_favicons_root' );
-add_action( 'admin_head', 'petling_favicons_root' );
+add_action( 'wp_head', 'petling_favicon_google' );
+add_action( 'login_head', 'petling_favicon_google' );
+add_action( 'admin_head', 'petling_favicon_google' );
 
-function petling_favicons_root() {
+function petling_favicon_google() {
     ?>
-    <link rel="icon" type="image/svg+xml" href="https://petling.gr/favicon.svg">
-
+    <!-- Favicon for Google Search & browsers -->
     <link rel="icon" href="https://petling.gr/favicon.ico" sizes="any">
 
-    <link rel="icon" type="image/png" sizes="96x96" href="https://petling.gr/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="https://petling.gr/web-app-manifest-192x192.png">
-
+    <!-- Apple Touch Icon (optional) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://petling.gr/apple-touch-icon.png">
 
-    <link rel="manifest" href="https://petling.gr/site.webmanifest">
     <meta name="theme-color" content="#ffffff">
     <?php
 }
