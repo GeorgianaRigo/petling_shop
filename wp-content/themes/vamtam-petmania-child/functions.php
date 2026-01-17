@@ -451,3 +451,38 @@ function petling_favicon_google() {
     <meta name="theme-color" content="#ffffff">
     <?php
 }
+
+// ==============================================================================
+// ΜΕΡΟΣ 1: Καθαρισμός URL για το Facebook (Fix 410 Error)
+// ==============================================================================
+add_action( 'template_redirect', 'petling_clean_search_url_redirect', 1 );
+
+function petling_clean_search_url_redirect() {
+    // Αν υπάρχει το post_type=product στο URL, κάνουμε ανακατεύθυνση στο καθαρό
+    if ( is_search() && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'product' ) {
+        
+        $search_query = get_search_query();
+        $clean_url = home_url( '/' ) . '?s=' . urlencode( $search_query );
+        
+        wp_redirect( $clean_url, 301 );
+        exit;
+    }
+}
+
+// ==============================================================================
+// ΜΕΡΟΣ 2: Διόρθωση Template (Fix Εμφάνισης)
+// Λέμε στο WordPress να δείχνει ΠΑΝΤΑ προϊόντα στην αναζήτηση
+// ==============================================================================
+add_action( 'pre_get_posts', 'petling_force_product_layout_in_search' );
+
+function petling_force_product_layout_in_search( $query ) {
+    // Τρέχουμε μόνο στην κεντρική αναζήτηση (όχι στο admin, όχι σε μενού)
+    if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+        
+        // Αναγκάζουμε το αποτέλεσμα να είναι ΠΡΟΪΟΝΤΑ (Product Grid)
+        $query->set( 'post_type', 'product' );
+        
+        // (Προαιρετικά) Ορίζουμε πόσα προϊόντα να δείχνει ανά σελίδα
+        // $query->set( 'posts_per_page', 12 ); 
+    }
+}
