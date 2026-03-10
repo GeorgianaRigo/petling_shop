@@ -434,7 +434,7 @@ function fix_pending_payment_message_greek( $translated_text, $text, $domain ) {
 }
 
 // ---------------------------------------------------------
-// GOOGLE-FRIENDLY FAVICON (KEEP IT SIMPLE)
+// GOOGLE-FRIENDLY FAVICON (UPDATED WITH SVG)
 // ---------------------------------------------------------
 add_action( 'wp_head', 'petling_favicon_google' );
 add_action( 'login_head', 'petling_favicon_google' );
@@ -442,16 +442,16 @@ add_action( 'admin_head', 'petling_favicon_google' );
 
 function petling_favicon_google() {
     ?>
-    <!-- Favicon for Google Search & browsers -->
+    <link rel="icon" href="https://petling.gr/logo.svg" type="image/svg+xml">
+
     <link rel="icon" href="https://petling.gr/favicon.ico" sizes="any">
 
-    <!-- Apple Touch Icon (optional) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://petling.gr/apple-touch-icon.png">
 
     <meta name="theme-color" content="#ffffff">
     <?php
 }
-
+    
 // ==============================================================================
 // ΜΕΡΟΣ 1: Καθαρισμός URL για το Facebook (Fix 410 Error)
 // ==============================================================================

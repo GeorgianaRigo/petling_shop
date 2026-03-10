@@ -384,7 +384,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
 
 @media only screen and (max-width: 992px) {
   /* Floating icon */
-  .archive.tax-product_cat  .mobile-filter-icon {
+  .archive.tax-product_cat .mobile-filter-icon, .search-results .mobile-filter-icon {
     position: fixed;
     left: 15px;
     top: 50%;
@@ -420,7 +420,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   }
 
   /* Overlay */
-  .archive.tax-product_cat .mobile-filter-overlay {
+  .archive.tax-product_cat .mobile-filter-overlay, .search-results .mobile-filter-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -432,7 +432,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   }
 
   /* Floating icon */
-  .archive.tax-product_cat .mobile-filter-icon {
+  .archive.tax-product_cat .mobile-filter-icon, .search-results .mobile-filter-icon {
     position: fixed;
     right: 15px;
     top: 50%;
@@ -451,7 +451,7 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   }
 
   /* Close button inside panel */
-  .archive.tax-product_cat .mobile-filter-close {
+  .archive.tax-product_cat .mobile-filter-close, .search-results .mobile-filter-close {
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
@@ -469,15 +469,15 @@ body .elementor-widget-woocommerce-products.vamtam-has-theme-widget-styles ul.pr
   }
 
   /* Όταν ανοίγει το panel */
-  body.archive.tax-product_cat.filters-open .mobile-filter-wrapper {
+  body.archive.tax-product_cat.filters-open .mobile-filter-wrapper, body.search-results.filters-open .mobile-filter-wrapper {
     transform: translateX(0);
   }
 
   /* Hide floating icon σε desktop */
   @media(min-width: 1025px) {
-    .archive.tax-product_cat .mobile-filter-icon,
-    .archive.tax-product_cat .mobile-filter-wrapper,
-    .archive.tax-product_cat .mobile-filter-overlay {
+    .archive.tax-product_cat .mobile-filter-icon, .search-results .mobile-filter-icon,
+    .archive.tax-product_cat .mobile-filter-wrapper, .search-results .mobile-filter-wrapper,
+    .archive.tax-product_cat .mobile-filter-overlay, .search-results .mobile-filter-overlay {
         display: none !important;
     }
   }
@@ -739,8 +739,7 @@ MOBILE CAROUSEL - HOME boxNow - phone - msg
   transform: rotate(17deg);
 }
 
-/** proswrina ta krubw **/
-.elementor-element-de92c7c,      /* flash sale  */
+/** proswrina ta krubw **/    /* flash sale  */
 .elementor-element-8c460f3 {    /* services, grooming, vet .. */
   display: none;
 }

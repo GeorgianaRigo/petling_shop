@@ -6,6 +6,7 @@ jQuery(document).ready(function($) {
     initGlobalLoader();
     initSortingFix();
     initMobileAutoScroll();
+    initMobileMenuUX();
 
 
     /* ==========================================================================
@@ -61,7 +62,7 @@ jQuery(document).ready(function($) {
         // 2. Έλεγχος Σελίδας: Τρέχει ΜΟΝΟ αν είμαστε σε Κατηγορία ή στο Shop
         // 'tax-product_cat' = Σελίδα Κατηγορίας
         // 'post-type-archive-product' = Σελίδα Shop (όλα τα προϊόντα)
-        if ( !$('body').hasClass('tax-product_cat') && !$('body').hasClass('post-type-archive-product') ) {
+        if ( !$('body').hasClass('tax-product_cat') && !$('body').hasClass('post-type-archive-product') && !$('body').hasClass('search') && !$('body').hasClass('search-results') ) {
             return; // Αν δεν είναι κατηγορία, σταματάει εδώ.
         }
 
@@ -249,4 +250,30 @@ jQuery(document).ready(function($) {
         });
     }
     
+   /* ==========================================================================
+       6. MOBILE MENU UX FIX (UPDATED)
+       Όταν το .elementor-menu-toggle πάρει την class .elementor-active -> Κρύβουμε το icon
+       ========================================================================== */
+       function initMobileMenuUX() {
+        $(document).on('click', '.elementor-menu-toggle', function() {
+            var $this = $(this);
+            var $filterIcon = $('.mobile-filter-icon');
+            var $filterCloseBtn = $('.mobile-filter-close');
+
+            setTimeout(function() {
+                if ( $this.hasClass('elementor-active') ) {
+                    $filterIcon.fadeOut(200);
+                    if ($('body').hasClass('filters-open')) {
+                        if($filterCloseBtn.length) {
+                            $filterCloseBtn.click();
+                        } else {
+                            $('body').removeClass('filters-open');
+                        }
+                    }
+                } else {
+                    $filterIcon.fadeIn(200);
+                }
+            }, 100);
+        });
+    }
 });

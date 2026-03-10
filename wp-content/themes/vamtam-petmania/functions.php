@@ -62,3 +62,20 @@ function vamtam_woocommerce_paypal_payments_single_product_renderer_hook( $hook 
 	return 'woocommerce_after_add_to_cart_form';
 }
 add_filter( 'woocommerce_paypal_payments_single_product_renderer_hook', 'vamtam_woocommerce_paypal_payments_single_product_renderer_hook' );
+
+
+// ==============================================================================
+// FIX: Εμφάνιση Φίλτρων (Group 5502) στην Αναζήτηση ΧΩΡΙΣ Sidebar
+// Τα τοποθετεί ακριβώς πάνω από τη λίστα των προϊόντων
+// ==============================================================================
+add_action( 'woocommerce_before_shop_loop', 'petling_inject_filters_on_search', 1 );
+
+function petling_inject_filters_on_search() {
+    // Τρέχει μόνο στην Αναζήτηση
+    if ( is_search() ) {
+        echo '<div class="petling-search-filters" style="margin-bottom: 20px;">';
+        // Βάζουμε το shortcode του Group που είδαμε στις εικόνες σου (5502)
+        echo do_shortcode('[br_filters_group group_id=5502]');
+        echo '</div>';
+    }
+}
