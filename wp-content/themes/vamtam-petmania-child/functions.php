@@ -451,7 +451,7 @@ function petling_favicon_google() {
     <meta name="theme-color" content="#ffffff">
     <?php
 }
-    
+
 // ==============================================================================
 // ΜΕΡΟΣ 1: Καθαρισμός URL για το Facebook (Fix 410 Error)
 // ==============================================================================
@@ -484,5 +484,47 @@ function petling_force_product_layout_in_search( $query ) {
         
         // (Προαιρετικά) Ορίζουμε πόσα προϊόντα να δείχνει ανά σελίδα
         // $query->set( 'posts_per_page', 12 ); 
+    }
+}
+
+// ==============================================================================
+// ΕΙΔΟΠΟΙΗΣΗ ΞΕΧΩΡΙΣΤΩΝ ΑΠΟΣΤΟΛΩΝ ΣΤΟ CHECKOUT (DROPSHIPPING)
+// ==============================================================================
+add_action( 'woocommerce_checkout_before_order_review', 'petling_split_shipping_notice' );
+
+function petling_split_shipping_notice() {
+    // Σιγουρευόμαστε ότι υπάρχει καλάθι και δεν είναι άδειο
+    if ( ! WC()->cart || WC()->cart->is_empty() ) {
+        return;
+    }
+
+    $suppliers = array();
+
+    // Διατρέχουμε τα προϊόντα του καλαθιού
+    foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+        $product_id = $cart_item['product_id'];
+        
+        // Παίρνουμε το όνομα του προμηθευτή από το custom field που είχαμε φτιάξει
+        $supplier_name = get_post_meta( $product_id, '_supplier_name', true );
+        
+        // Αν ένα προϊόν δεν έχει συμπληρωμένο προμηθευτή, θεωρούμε ότι είναι του petling
+        if ( empty( $supplier_name ) ) {
+            $supplier_name = 'petling'; 
+        }
+
+        // Προσθέτουμε τον προμηθευτή στη λίστα μας
+        $suppliers[ $supplier_name ] = true;
+    }
+
+    // Αν βρούμε περισσότερους από 1 διαφορετικούς προμηθευτές στο καλάθι...
+    if ( count( $suppliers ) > 1 ) {
+        
+        // Custom εμφάνιση χωρίς το εικονίδιο του WooCommerce
+        echo '<div style="border-top: 3px solid #C7B297; background-color: #fcfbf9; padding: 15px 20px; margin-bottom: 2em; border-radius: 4px; color: #515151; font-size: 0.95em; line-height: 1.5;">';
+        
+        // Το τελικό λεκτικό
+        echo '📦 <strong>Ενημέρωση Αποστολής:</strong> Η παραγγελία σας περιλαμβάνει προϊόντα από διαφορετικές αποθήκες και θα αποσταλεί σε <strong>ξεχωριστά δέματα</strong>. Δεν προκύπτει καμία πρόσθετη οικονομική επιβάρυνση.';
+        
+        echo '</div>';
     }
 }
