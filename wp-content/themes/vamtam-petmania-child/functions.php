@@ -527,4 +527,4 @@ function petling_split_shipping_notice() {
         
         echo '</div>';
     }
-}
+}   
