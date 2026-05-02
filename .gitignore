@@ -13,6 +13,8 @@ wp-content/plugins/*
 !wp-content/plugins/shopify-products-api
 !wp-content/plugins/supplier-shipping-rules
 !wp-content/plugins/petling-user-pets
+!wp-content/plugins/petling-admin-table-views-customizer
+!wp-content/plugins/yoggies-importer
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
 !wp-content/plugins/elementor-pro/
