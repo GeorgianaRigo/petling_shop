@@ -528,3 +528,44 @@ function petling_split_shipping_notice() {
         echo '</div>';
     }
 }   
+
+// ==============================================================================
+// ΕΜΦΑΝΙΣΗ BADGE "VET" (ΙΔΙΟ ΜΕ ΤΗΣ ΕΚΠΤΩΣΗΣ) ΓΙΑ ΠΡΟΪΟΝΤΑ ΜΕ ΕΤΙΚΕΤΑ 'vet'
+// ==============================================================================
+
+// 1. Εμφάνιση στο Grid (Σελίδα Καταστήματος / Κατηγοριών)
+add_action( 'woocommerce_before_shop_loop_item_title', 'petling_show_vet_badge_like_sale', 10 );
+
+// 2. Εμφάνιση μέσα στη σελίδα του ίδιου του προϊόντος
+add_action( 'woocommerce_before_single_product_summary', 'petling_show_vet_badge_like_sale', 10 );
+
+function petling_show_vet_badge_like_sale() {
+    global $product;
+
+    // Ελέγχουμε αν το προϊόν έχει την "κρυφή" ετικέτα 'vet' στο διαχειριστικό
+    if ( $product && has_term( 'vet', 'product_tag', $product->get_id() ) ) {
+        
+        // Χρησιμοποιούμε την κλάση "onsale" του θέματός σου για να πάρει το ίδιο σχήμα/στυλ.
+        // Προσθέτουμε και την κλάση "vet-badge" για να του αλλάξουμε απλά το χρώμα και τη θέση.
+        echo '<span class="onsale vet-badge">VET</span>';
+    }
+}
+
+// 3. CSS για να του δώσουμε ιατρικό χρώμα και να μην πέφτει πάνω στην έκπτωση
+add_action( 'wp_head', 'petling_vet_badge_css_fix' );
+function petling_vet_badge_css_fix() {
+    ?>
+    <style>
+        /* Κληρονομεί όλο το στυλ από το .onsale του θέματός σου, αλλά του αλλάζουμε χρώμα και θέση */
+        span.onsale.vet-badge {
+            background-color: #4a7c59 !important; /* Ένα premium ιατρικό πράσινο */
+            color: #ffffff !important;
+            
+            /* Το μετακινούμε αριστερά, ώστε αν το προϊόν έχει ΚΑΙ έκπτωση, 
+               να φαίνονται και τα 2 σηματάκια (ένα δεξιά, ένα αριστερά) */
+            right: auto !important;
+            left: 10px !important; 
+        }
+    </style>
+    <?php
+}

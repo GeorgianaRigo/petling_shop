@@ -1,14 +1,15 @@
 <?php
 /**
- * Plugin Name: Yoggies XML Importer (Import & Update Split)
- * Description: Διαχωρισμός Εισαγωγής και Ενημέρωσης προϊόντων Yoggies (Batches & Cron).
- * Version: 5.3
+ * Plugin Name: Yoggies XML Importer (v5.10 - Description Update Enabled)
+ * Description: Συγχρονισμός βάσει της νέας δομής (image_link, price, sales_price, html_description). Τώρα ενημερώνει ΚΑΙ τις περιγραφές στο Update.
+ * Version: 5.10
  * Author: Georgiana
  */
 
 if (!defined('ABSPATH')) exit;
 
-const YOGGIES_XML_URL = 'https://yoggies.gr/wp-content/uploads/woo-feed/skroutz/xml/georgiana.xml';
+// ΤΟ ΝΕΟ LINK
+const YOGGIES_XML_URL = 'https://yoggies.gr/wp-content/uploads/woo-feed/custom/xml/georgianav2.xml';
 const YOGGIES_SUPPLIER = 'Yoggies';
 
 // ============================================================================
@@ -21,13 +22,13 @@ add_action('admin_menu', function () {
 function yoggies_render_admin_page() {
     ?>
     <div class="wrap">
-        <h1>📦 Yoggies XML Importer</h1>
+        <h1>📦 Yoggies XML Importer (v5.10)</h1>
         
         <div style="background: #fff; border-left: 4px solid #00a0d2; padding: 12px; margin-bottom: 20px; margin-top: 15px;">
-            <p style="margin: 0;"><strong>🔗 Πηγή:</strong> <code><?php echo esc_html(YOGGIES_XML_URL); ?></code></p>
+            <p style="margin: 0;"><strong>🔗 Πηγή XML:</strong> <code><?php echo esc_html(YOGGIES_XML_URL); ?></code></p>
         </div>
 
-        <p>Επιλέξτε τη δουλειά που θέλετε να κάνετε:</p>
+        <p>Λειτουργία: <b>New Structure Sync</b> (Ενημερώνει Τιμές, URL, Απόθεμα & <b>Περιγραφές</b>).</p>
         
         <button id="yg-btn-import" class="button button-primary">Εισαγωγή Νέων (Draft)</button>
         <button id="yg-btn-update" class="button" style="margin-left:10px;">Ενημέρωση Υπαρχόντων</button>
@@ -50,37 +51,51 @@ function yoggies_render_admin_page() {
 }
 
 // ============================================================================
+// HELPERS
+// ============================================================================
+function yoggies_parse_price($price_string) {
+    $clean = str_replace([' EUR', ','], ['', '.'], (string)$price_string);
+    return is_numeric($clean) ? (float)$clean : 0;
+}
+
+function yoggies_get_slug_from_link($link) {
+    $url_path = parse_url((string)$link, PHP_URL_PATH);
+    return sanitize_title(basename(rtrim($url_path, '/')));
+}
+
+// ============================================================================
 // AJAX LOGIC
 // ============================================================================
 add_action('wp_ajax_yg_init_xml', function() {
     check_ajax_referer('yg_xml_nonce', 'nonce');
     $response = wp_remote_get(YOGGIES_XML_URL, ['timeout' => 60]);
-    if (is_wp_error($response)) wp_send_json_error(['message' => 'Αποτυχία λήψης XML.']);
+    if (is_wp_error($response)) wp_send_json_error(['message' => 'Αποτυχία λήψης: ' . $response->get_error_message()]);
 
     $xml = simplexml_load_string(wp_remote_retrieve_body($response));
     if (!$xml) wp_send_json_error(['message' => 'Μη έγκυρο XML.']);
 
+    $items = $xml->xpath('//product');
+    if (empty($items)) wp_send_json_error(['message' => 'Δεν βρέθηκαν προϊόντα στο XML. Ελέγξτε τη δομή.']);
+
     $products_data = [];
-    foreach ($xml->products->product as $item) {
-        $sku = trim((string)$item->mpn) ?: trim((string)$item->ean);
+    foreach ($items as $item) {
+        $sku = trim((string)$item->sku) ?: trim((string)$item->part_number);
         if (!$sku) continue;
 
-        $manufacturer = trim((string)$item->manufacturer);
-        if (!$manufacturer) {
-            $name_lower = strtolower((string)$item->name);
-            if (strpos($name_lower, 'bailu') !== false) $manufacturer = 'Bailu';
-            elseif (strpos($name_lower, 'sodapup') !== false) $manufacturer = 'SodaPup';
-            else $manufacturer = 'Yoggies';
-        }
+        $regular_price = yoggies_parse_price($item->price);
+        $sale_price = yoggies_parse_price($item->sales_price);
 
         $products_data[] = [
-            'sku'   => $sku,
-            'name'  => (string)$item->name,
-            'price' => (float)str_replace(',', '.', (string)$item->price_with_vat),
-            'stock' => ((string)$item->instock === 'Y'),
-            'img'   => (string)$item->image,
-            'desc'  => (string)$item->description,
-            'brand' => $manufacturer
+            'sku'        => $sku,
+            'name'       => (string)$item->name,
+            'slug'       => yoggies_get_slug_from_link($item->link),
+            'reg_price'  => $regular_price,
+            'sale_price' => ($sale_price > 0 && $sale_price < $regular_price) ? $sale_price : '',
+            'stock'      => (trim((string)$item->availability) === 'in stock'),
+            'img'        => (string)$item->image_link,
+            'desc'       => (string)$item->html_description, 
+            'short_desc' => (string)$item->short_description,
+            'brand'      => trim((string)$item->manufacturer) ?: 'Yoggies'
         ];
     }
     set_transient('yg_pending_import', $products_data, 1 * HOUR_IN_SECONDS);
@@ -90,7 +105,7 @@ add_action('wp_ajax_yg_init_xml', function() {
 add_action('wp_ajax_yg_process_batch', function() {
     check_ajax_referer('yg_xml_nonce', 'nonce');
     $offset = intval($_POST['offset']);
-    $mode = $_POST['mode']; // 'import' ή 'update'
+    $mode = $_POST['mode'];
     $limit = 5; 
     
     $all_products = get_transient('yg_pending_import');
@@ -107,32 +122,43 @@ add_action('wp_ajax_yg_process_batch', function() {
             if ($mode === 'update') {
                 if ($product_id) {
                     $product = wc_get_product($product_id);
-                    $product->set_regular_price($data['price']);
+                    $product->set_regular_price($data['reg_price']);
+                    $product->set_sale_price($data['sale_price']);
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
+                    
+                    // NEW: Ενημερώνουμε πλέον ΚΑΙ τις περιγραφές στο Update
+                    $product->set_description($data['desc']);
+                    $product->set_short_description($data['short_desc']);
+
+                    if (!empty($data['slug']) && $product->get_slug() !== $data['slug']) {
+                        $product->set_slug($data['slug']);
+                    }
+
                     $product->save();
-                    if ($data['brand'] && taxonomy_exists('berocket_brand')) wp_set_object_terms($product_id, $data['brand'], 'berocket_brand', false);
+                    if (taxonomy_exists('berocket_brand')) wp_set_object_terms($product_id, $data['brand'], 'berocket_brand', false);
                     $res['updated']++;
-                } else {
-                    $res['skipped']++;
-                }
-            } else { // Mode: Import
+                } else { $res['skipped']++; }
+            } else { // Import Mode
                 if (!$product_id) {
                     $product = new WC_Product_Simple();
                     $product->set_name($data['name']);
                     $product->set_status('draft');
                     $product->set_sku($sku);
-                    $product->set_regular_price($data['price']);
+                    if (!empty($data['slug'])) $product->set_slug($data['slug']);
+                    
+                    $product->set_regular_price($data['reg_price']);
+                    $product->set_sale_price($data['sale_price']);
+                    
                     $product->set_description($data['desc']);
+                    $product->set_short_description($data['short_desc']);
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
                     $product->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
                     $new_id = $product->save();
 
                     if ($data['img']) yoggies_upload_image_from_url($new_id, $data['img'], $sku);
-                    if ($data['brand'] && taxonomy_exists('berocket_brand')) wp_set_object_terms($new_id, $data['brand'], 'berocket_brand', false);
+                    if (taxonomy_exists('berocket_brand')) wp_set_object_terms($new_id, $data['brand'], 'berocket_brand', false);
                     $res['created']++;
-                } else {
-                    $res['skipped']++;
-                }
+                } else { $res['skipped']++; }
             }
         } catch (Exception $e) { $res['errors'][] = "SKU {$sku}: " . $e->getMessage(); }
     }
@@ -150,28 +176,70 @@ function yoggies_upload_image_from_url($product_id, $url, $sku) {
     if (!is_wp_error($id)) set_post_thumbnail($product_id, $id);
 }
 
-// (Το Cron παραμένει το ίδιο για να κάνει αυτόματο update/import στο παρασκήνιο)
+// ============================================================================
+// CRON: ΑΥΤΟΜΑΤΟ UPDATE & IMPORT (ΚΑΘΕ 10 ΛΕΠΤΑ)
+// ============================================================================
+add_filter('cron_schedules', function($schedules){
+    $schedules['every_ten_minutes'] = ['interval' => 10 * 60, 'display'  => 'Κάθε 10 Λεπτά (Yoggies)'];
+    return $schedules;
+});
+
+register_activation_hook(__FILE__, function() {
+    if (!wp_next_scheduled('yoggies_xml_cron_sync_event')) wp_schedule_event(time(), 'every_ten_minutes', 'yoggies_xml_cron_sync_event');
+});
+
 add_action('yoggies_xml_cron_sync_event', 'yoggies_xml_run_automated_sync');
+
 function yoggies_xml_run_automated_sync() {
+    if (!class_exists('WooCommerce')) return;
+
     $response = wp_remote_get(YOGGIES_XML_URL);
     if (is_wp_error($response)) return;
     $xml = simplexml_load_string(wp_remote_retrieve_body($response));
     if (!$xml) return;
-    foreach ($xml->products->product as $item) {
-        $sku = trim((string)$item->mpn) ?: trim((string)$item->ean);
+    
+    $items = $xml->xpath('//product');
+    foreach ($items as $item) {
+        $sku = trim((string)$item->sku) ?: trim((string)$item->part_number);
+        if (!$sku) continue;
+        
         $product_id = wc_get_product_id_by_sku($sku);
-        $price = (float)str_replace(',', '.', (string)$item->price_with_vat);
-        $instock = ((string)$item->instock === 'Y');
+        
+        $reg = yoggies_parse_price($item->price);
+        $sale = yoggies_parse_price($item->sales_price);
+        $slug = yoggies_get_slug_from_link($item->link);
+        $desc = (string)$item->html_description;
+        $short_desc = (string)$item->short_description;
+
         if ($product_id) {
+            // Update
             $p = wc_get_product($product_id);
-            $p->set_regular_price($price);
-            $p->set_stock_status($instock ? 'instock' : 'outofstock');
+            $p->set_regular_price($reg);
+            $p->set_sale_price(($sale > 0 && $sale < $reg) ? $sale : '');
+            $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
+            
+            // Ενημερώνουμε και εδώ τις περιγραφές στο Cron
+            $p->set_description($desc);
+            $p->set_short_description($short_desc);
+
+            if (!empty($slug) && $p->get_slug() !== $slug) $p->set_slug($slug);
             $p->save();
         } else {
+            // Import (Draft)
             $p = new WC_Product_Simple();
-            $p->set_name((string)$item->name); $p->set_status('draft'); $p->set_sku($sku);
-            $p->set_regular_price($price); $p->set_stock_status($instock ? 'instock' : 'outofstock');
-            $p->update_meta_data('_supplier_name', YOGGIES_SUPPLIER); $p->save();
+            $p->set_name((string)$item->name);
+            $p->set_status('draft');
+            $p->set_sku($sku);
+            if (!empty($slug)) $p->set_slug($slug);
+            $p->set_regular_price($reg);
+            $p->set_sale_price(($sale > 0 && $sale < $reg) ? $sale : '');
+            
+            $p->set_description($desc);
+            $p->set_short_description($short_desc);
+
+            $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
+            $p->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
+            $p->save();
         }
     }
 }

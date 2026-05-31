@@ -789,3 +789,57 @@ body .select2-container--default .select2-results__option--highlighted[data-sele
 body .select2-container--default .select2-results__option[data-selected=true], body .select2-container--default .select2-results__option[aria-selected=true] {
   background-color: var(--vamtam-accent-color-2)!important;
 }
+
+/** blog pager **/
+/* --- Ενοποίηση στυλ Pagination (Άρθρα & Κατάστημα) --- */
+.elementor-pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.elementor-pagination .page-numbers {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px; /* Σταθερό πλάτος για να είναι τετράγωνα */
+  height: 40px; /* Σταθερό ύψος */
+  margin: 0 4px;
+  background-color: transparent;
+  color: #333333;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0; /* Τετράγωνες γωνίες όπως στο e-shop */
+  transition: all 0.3s ease;
+  border: none !important; /* Αφαίρεση τυχόν γραμμών */
+}
+
+/* Hover state για όταν περνάει το ποντίκι */
+.elementor-pagination a.page-numbers:hover {
+  background-color: var(--e-global-color-vamtam_accent_8);
+  color: #000000;
+}
+
+/* Το Ενεργό (Τρέχον) Νούμερο Σελίδας */
+.elementor-pagination .page-numbers.current,
+.elementor-pagination span.page-numbers.current {
+  background-color:  var(--e-global-color-vamtam_accent_2);
+  color: #ffffff !important;
+}
+
+/* Βελάκια (Επόμενο / Προηγούμενο) */
+.elementor-pagination .page-numbers.next,
+.elementor-pagination .page-numbers.prev {
+  width: auto;
+  padding: 0 15px;
+  background-color: transparent;
+}
+
+/**
+* arthro
+*/
+
+article.single-post-wrapper h1 {
+  font-size: var( --e-global-typography-vamtam_h3-font-size );
+  font-weight: var( --e-global-typography-vamtam_h3-font-weight );
+}
