@@ -569,3 +569,63 @@ function petling_vet_badge_css_fix() {
     </style>
     <?php
 }
+
+// ==============================================================================
+// 1. Δημιουργία των πεδίων στο διαχειριστικό (ΜΕ HTML EDITOR - WYSIWYG)
+// ==============================================================================
+add_action( 'woocommerce_product_options_general_product_data', 'petling_add_custom_product_fields_with_editor' );
+function petling_add_custom_product_fields_with_editor() {
+    global $post;
+    
+    echo '<div class="options_group" style="padding: 10px 20px;">';
+    
+    // Ρυθμίσεις για τον Editor
+    $editor_settings = array(
+        'media_buttons' => false, 
+        'textarea_rows' => 5,
+        'tinymce'       => true,
+        'quicktags'     => true
+    );
+
+    // --- ΠΕΔΙΟ 1: Σύνθεση ---
+    echo '<p class="form-field _petling_composition_field">';
+    echo '<label for="_petling_composition" style="display:block; float:none; width:100%; font-weight:bold; margin-bottom:5px;">Σύνθεση (Συστατικά)</label>';
+    $composition_val = get_post_meta( $post->ID, '_petling_composition', true );
+    $editor_settings['textarea_name'] = '_petling_composition';
+    wp_editor( $composition_val, '_petling_composition_editor', $editor_settings );
+    echo '</p>';
+
+    // --- ΠΕΔΙΟ 2: Δοσολογία ---
+    echo '<p class="form-field _petling_dosage_field" style="margin-top: 20px;">';
+    echo '<label for="_petling_dosage" style="display:block; float:none; width:100%; font-weight:bold; margin-bottom:5px;">Δοσολογία</label>';
+    $dosage_val = get_post_meta( $post->ID, '_petling_dosage', true );
+    $editor_settings['textarea_name'] = '_petling_dosage';
+    wp_editor( $dosage_val, '_petling_dosage_editor', $editor_settings );
+    echo '</p>';
+
+    // --- ΠΕΔΙΟ 3: Αποθήκευση ---
+    echo '<p class="form-field _petling_storage_field" style="margin-top: 20px;">';
+    echo '<label for="_petling_storage" style="display:block; float:none; width:100%; font-weight:bold; margin-bottom:5px;">Αποθήκευση Τροφής</label>';
+    $storage_val = get_post_meta( $post->ID, '_petling_storage', true );
+    $editor_settings['textarea_name'] = '_petling_storage';
+    wp_editor( $storage_val, '_petling_storage_editor', $editor_settings );
+    echo '</p>';
+    
+    echo '</div>';
+}
+
+// ==============================================================================
+// 2. Αποθήκευση των δεδομένων
+// ==============================================================================
+add_action( 'woocommerce_process_product_meta', 'petling_save_custom_product_fields_editor' );
+function petling_save_custom_product_fields_editor( $post_id ) {
+    if ( isset( $_POST['_petling_composition'] ) ) {
+        update_post_meta( $post_id, '_petling_composition', wp_kses_post( wp_unslash( $_POST['_petling_composition'] ) ) );
+    }
+    if ( isset( $_POST['_petling_dosage'] ) ) {
+        update_post_meta( $post_id, '_petling_dosage', wp_kses_post( wp_unslash( $_POST['_petling_dosage'] ) ) );
+    }
+    if ( isset( $_POST['_petling_storage'] ) ) {
+        update_post_meta( $post_id, '_petling_storage', wp_kses_post( wp_unslash( $_POST['_petling_storage'] ) ) );
+    }
+}

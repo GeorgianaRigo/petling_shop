@@ -843,3 +843,7 @@ article.single-post-wrapper h1 {
   font-size: var( --e-global-typography-vamtam_h3-font-size );
   font-weight: var( --e-global-typography-vamtam_h3-font-weight );
 }
+/** product accordion yoggies **/
+.vamtam-has-theme-widget-styles h2.yoggies-product-description-title1 {
+  font-size: 16px;
+}

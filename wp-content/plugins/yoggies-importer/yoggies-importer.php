@@ -1,14 +1,13 @@
 <?php
 /**
- * Plugin Name: Yoggies XML Importer (v5.10 - Description Update Enabled)
- * Description: Συγχρονισμός βάσει της νέας δομής (image_link, price, sales_price, html_description). Τώρα ενημερώνει ΚΑΙ τις περιγραφές στο Update.
- * Version: 5.10
+ * Plugin Name: Yoggies XML Importer (v5.13 - Fixed JSON Decoding for Tabs)
+ * Description: Διορθωμένη αναγνώριση ελληνικών χαρακτήρων στο JSON για να διαβάζει 100% τα πεδία Σύνθεση, Δοσολογία και Αποθήκευση.
+ * Version: 5.13
  * Author: Georgiana
  */
 
 if (!defined('ABSPATH')) exit;
 
-// ΤΟ ΝΕΟ LINK
 const YOGGIES_XML_URL = 'https://yoggies.gr/wp-content/uploads/woo-feed/custom/xml/georgianav2.xml';
 const YOGGIES_SUPPLIER = 'Yoggies';
 
@@ -22,13 +21,13 @@ add_action('admin_menu', function () {
 function yoggies_render_admin_page() {
     ?>
     <div class="wrap">
-        <h1>📦 Yoggies XML Importer (v5.10)</h1>
+        <h1>📦 Yoggies XML Importer (v5.13)</h1>
         
         <div style="background: #fff; border-left: 4px solid #00a0d2; padding: 12px; margin-bottom: 20px; margin-top: 15px;">
             <p style="margin: 0;"><strong>🔗 Πηγή XML:</strong> <code><?php echo esc_html(YOGGIES_XML_URL); ?></code></p>
         </div>
 
-        <p>Λειτουργία: <b>New Structure Sync</b> (Ενημερώνει Τιμές, URL, Απόθεμα & <b>Περιγραφές</b>).</p>
+        <p>Λειτουργία: <b>Full Sync</b> (Διορθωμένη ανάγνωση Custom Tabs JSON).</p>
         
         <button id="yg-btn-import" class="button button-primary">Εισαγωγή Νέων (Draft)</button>
         <button id="yg-btn-update" class="button" style="margin-left:10px;">Ενημέρωση Υπαρχόντων</button>
@@ -63,6 +62,31 @@ function yoggies_get_slug_from_link($link) {
     return sanitize_title(basename(rtrim($url_path, '/')));
 }
 
+// Διορθωμένος Βοηθός: Διαβάζει το <custom_tabs>
+function yoggies_extract_custom_tabs($json_string) {
+    $result = ['composition' => '', 'dosage' => '', 'storage' => ''];
+    if (empty($json_string)) return $result;
+
+    $tabs = json_decode((string)$json_string, true);
+    if (!is_array($tabs)) return $result;
+
+    foreach ($tabs as $tab) {
+        // Χρησιμοποιούμε τη συνάρτηση της PHP για case-insensitive search 
+        // κατευθείαν στην αρχική λέξη χωρίς να την πειράξουμε
+        $title = isset($tab['title']) ? $tab['title'] : '';
+        $content = wp_kses_post($tab['content']);
+
+        if (mb_stripos($title, 'Συστατικά', 0, 'UTF-8') !== false || mb_stripos($title, 'Σύνθεση', 0, 'UTF-8') !== false) {
+            $result['composition'] = $content;
+        } elseif (mb_stripos($title, 'Δοσολογία', 0, 'UTF-8') !== false) {
+            $result['dosage'] = $content;
+        } elseif (mb_stripos($title, 'Αποθήκευση', 0, 'UTF-8') !== false) {
+            $result['storage'] = $content;
+        }
+    }
+    return $result;
+}
+
 // ============================================================================
 // AJAX LOGIC
 // ============================================================================
@@ -85,6 +109,8 @@ add_action('wp_ajax_yg_init_xml', function() {
         $regular_price = yoggies_parse_price($item->price);
         $sale_price = yoggies_parse_price($item->sales_price);
 
+        $extracted_tabs = yoggies_extract_custom_tabs((string)$item->custom_tabs);
+
         $products_data[] = [
             'sku'        => $sku,
             'name'       => (string)$item->name,
@@ -95,7 +121,10 @@ add_action('wp_ajax_yg_init_xml', function() {
             'img'        => (string)$item->image_link,
             'desc'       => (string)$item->html_description, 
             'short_desc' => (string)$item->short_description,
-            'brand'      => trim((string)$item->manufacturer) ?: 'Yoggies'
+            'brand'      => trim((string)$item->manufacturer) ?: 'Yoggies',
+            'composition'=> $extracted_tabs['composition'], 
+            'dosage'     => $extracted_tabs['dosage'],
+            'storage'    => $extracted_tabs['storage'] 
         ];
     }
     set_transient('yg_pending_import', $products_data, 1 * HOUR_IN_SECONDS);
@@ -126,13 +155,17 @@ add_action('wp_ajax_yg_process_batch', function() {
                     $product->set_sale_price($data['sale_price']);
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
                     
-                    // NEW: Ενημερώνουμε πλέον ΚΑΙ τις περιγραφές στο Update
                     $product->set_description($data['desc']);
                     $product->set_short_description($data['short_desc']);
 
                     if (!empty($data['slug']) && $product->get_slug() !== $data['slug']) {
                         $product->set_slug($data['slug']);
                     }
+
+                    // Ενημέρωση Custom Tabs
+                    update_post_meta($product_id, '_petling_composition', $data['composition']);
+                    update_post_meta($product_id, '_petling_dosage', $data['dosage']);
+                    update_post_meta($product_id, '_petling_storage', $data['storage']);
 
                     $product->save();
                     if (taxonomy_exists('berocket_brand')) wp_set_object_terms($product_id, $data['brand'], 'berocket_brand', false);
@@ -154,6 +187,11 @@ add_action('wp_ajax_yg_process_batch', function() {
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
                     $product->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
                     $new_id = $product->save();
+
+                    // Εισαγωγή Custom Tabs
+                    update_post_meta($new_id, '_petling_composition', $data['composition']);
+                    update_post_meta($new_id, '_petling_dosage', $data['dosage']);
+                    update_post_meta($new_id, '_petling_storage', $data['storage']);
 
                     if ($data['img']) yoggies_upload_image_from_url($new_id, $data['img'], $sku);
                     if (taxonomy_exists('berocket_brand')) wp_set_object_terms($new_id, $data['brand'], 'berocket_brand', false);
@@ -210,22 +248,26 @@ function yoggies_xml_run_automated_sync() {
         $slug = yoggies_get_slug_from_link($item->link);
         $desc = (string)$item->html_description;
         $short_desc = (string)$item->short_description;
+        
+        $extracted_tabs = yoggies_extract_custom_tabs((string)$item->custom_tabs);
 
         if ($product_id) {
-            // Update
             $p = wc_get_product($product_id);
             $p->set_regular_price($reg);
             $p->set_sale_price(($sale > 0 && $sale < $reg) ? $sale : '');
             $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
             
-            // Ενημερώνουμε και εδώ τις περιγραφές στο Cron
             $p->set_description($desc);
             $p->set_short_description($short_desc);
 
             if (!empty($slug) && $p->get_slug() !== $slug) $p->set_slug($slug);
+            
+            update_post_meta($product_id, '_petling_composition', $extracted_tabs['composition']);
+            update_post_meta($product_id, '_petling_dosage', $extracted_tabs['dosage']);
+            update_post_meta($product_id, '_petling_storage', $extracted_tabs['storage']);
+
             $p->save();
         } else {
-            // Import (Draft)
             $p = new WC_Product_Simple();
             $p->set_name((string)$item->name);
             $p->set_status('draft');
@@ -239,7 +281,11 @@ function yoggies_xml_run_automated_sync() {
 
             $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
             $p->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
-            $p->save();
+            $new_id = $p->save();
+
+            update_post_meta($new_id, '_petling_composition', $extracted_tabs['composition']);
+            update_post_meta($new_id, '_petling_dosage', $extracted_tabs['dosage']);
+            update_post_meta($new_id, '_petling_storage', $extracted_tabs['storage']);
         }
     }
 }
