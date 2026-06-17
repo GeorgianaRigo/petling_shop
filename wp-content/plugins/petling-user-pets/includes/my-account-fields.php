@@ -16,7 +16,6 @@ function petling_add_multi_pet_profile_fields() {
     $today = date('Y-m-d');
     $min_date = date('Y-m-d', strtotime('-30 years'));
 
-    // Λίστες Επιλογών 
     $energy_levels = [ 'low' => 'Χαμηλή', 'medium' => 'Μέτρια', 'high' => 'Υψηλή' ];
     $breeds = [
         'amstaff' => 'American Staffordshire Terrier (Amstaff)', 'beagle' => 'Beagle', 'boxer' => 'Boxer', 'chihuahua' => 'Chihuahua', 'cocker_spaniel' => 'Cocker Spaniel', 'dachshund' => 'Dachshund (Λουκάνικο)', 'doberman' => 'Doberman', 'french_bulldog' => 'French Bulldog', 'german_shepherd' => 'German Shepherd (Γερμανικός Ποιμενικός)', 'golden_retriever' => 'Golden Retriever', 'griffon' => 'Griffon', 'jack_russell' => 'Jack Russell Terrier', 'kane_korso' => 'Cane Corso', 'labrador_retriever' => 'Labrador Retriever', 'maltese' => 'Maltese', 'poodle' => 'Poodle (Κανίς)', 'pomeranian' => 'Pomeranian', 'pug' => 'Pug', 'rottweiler' => 'Rottweiler', 'setter' => 'Setter', 'shih_tzu' => 'Shih Tzu', 'siberian_husky' => 'Siberian Husky', 'westie' => 'West Highland White Terrier (Westie)', 'yorkshire_terrier' => 'Yorkshire Terrier', 'greek_harehound' => 'Ελληνικός Ιχνηλάτης', 'greek_shepherd' => 'Ελληνικός Ποιμενικός', 'kokoni' => 'Κοκόνι', 'imichano_dog' => 'Ημίαιμο (Σκύλος)',
@@ -153,10 +152,14 @@ function petling_show_pets_column_content( $val, $column_name, $user_id ) {
         if ( ! empty( $pets ) && is_array( $pets ) ) {
             $total_pets = count( $pets );
             
-            // Μετάφραση των types
-            $type_mapping = [
-                'dog' => 'Σκύλος',
-                'cat' => 'Γάτα'
+            $type_mapping = ['dog' => 'Σκύλος', 'cat' => 'Γάτα'];
+            
+            // Μετάφραση προβλημάτων υγείας
+            $health_mapping = [
+                'allergies' => 'Αλλεργίες', 'gastrointestinal'=> 'Γαστρεντερικά', 'dysplasia' => 'Δυσπλασία', 
+                'arthritis' => 'Αρθρίτιδα', 'leishmaniasis' => 'Καλαζάρ', 'urinary' => 'Ουρολογικά', 
+                'kidney' => 'Νεφρικά', 'dental' => 'Οδοντικά', 'heart' => 'Καρδιολογικά', 
+                'obesity' => 'Παχυσαρκία', 'thyroid' => 'Θυρεοειδής', 'ear_infections'  => 'Ωτίτιδες',
             ];
 
             $output = '<div style="margin-bottom: 5px;"><strong>Σύνολο: ' . $total_pets . '</strong></div>';
@@ -167,13 +170,26 @@ function petling_show_pets_column_content( $val, $column_name, $user_id ) {
                 $type = isset($type_mapping[$raw_type]) ? $type_mapping[$raw_type] : (!empty($raw_type) ? esc_html($raw_type) : 'Άγνωστο');
                 $name = ! empty($pet['name']) ? esc_html($pet['name']) : 'Χωρίς όνομα';
                 
-                // Έλεγχος για Στείρωση
                 $neutered_text = '';
                 if ( isset($pet['neutered']) && $pet['neutered'] === 'yes' ) {
                     $neutered_text = ' <span style="color: #2ea2cc; font-size: 0.9em;">(Στειρωμένο ✂️)</span>';
                 }
 
-                $output .= '<li style="margin-bottom:2px;"><strong>' . $name . '</strong> - ' . $type . $neutered_text . '</li>';
+                // Χτίσιμο κειμένου Προβλημάτων Υγείας
+                $health_text = '';
+                if ( ! empty( $pet['health'] ) && is_array( $pet['health'] ) ) {
+                    $health_labels = [];
+                    foreach ( $pet['health'] as $h_key ) {
+                        if ( isset( $health_mapping[$h_key] ) ) {
+                            $health_labels[] = $health_mapping[$h_key];
+                        }
+                    }
+                    if ( ! empty( $health_labels ) ) {
+                        $health_text = '<br><span style="color: #d63638; font-size: 0.85em; display: inline-block; margin-top: 2px;">⚠️ Υγεία: ' . esc_html( implode(', ', $health_labels) ) . '</span>';
+                    }
+                }
+
+                $output .= '<li style="margin-bottom:8px; line-height: 1.3;"><strong>' . $name . '</strong> - ' . $type . $neutered_text . $health_text . '</li>';
             }
             $output .= '</ul>';
             return $output;
