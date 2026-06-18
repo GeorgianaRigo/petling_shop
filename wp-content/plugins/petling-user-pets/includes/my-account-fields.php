@@ -12,6 +12,9 @@ function petling_add_multi_pet_profile_fields() {
     $user_id = get_current_user_id();
     $pets = get_user_meta( $user_id, 'petling_pets', true );
     if ( ! is_array( $pets ) ) { $pets = []; }
+    
+    // Η γενική επιλογή συναίνεσης (Global Consent)
+    $global_consent = get_user_meta( $user_id, 'petling_global_food_consent', true );
 
     $today = date('Y-m-d');
     $min_date = date('Y-m-d', strtotime('-30 years'));
@@ -24,12 +27,21 @@ function petling_add_multi_pet_profile_fields() {
     ];
     asort($breeds);
     $health_issues = [
-        'allergies' => 'Αλλεργίες (Δερματικές/Τροφικές)', 'gastrointestinal'=> 'Γαστρεντερικές Ευαισθησίες', 'dysplasia' => 'Δυσπλασία Ισχίου/Αγκώνα', 'arthritis' => 'Αρθρίτιδα / Οστεοαρθρίτιδα', 'leishmaniasis' => 'Λεϊσμανίαση (Καλαζάρ)', 'urinary' => 'Ουρολογικά Προβλήματα (FLUTD)', 'kidney' => 'Χρόνια Νεφρική Ανεπάρκεια', 'dental' => 'Οδοντικά Προβλήματα', 'heart' => 'Καρδιολογικά Προβλήματα', 'obesity' => 'Τάση για Παχυσαρκία', 'thyroid' => 'Θυρεοειδής', 'ear_infections'  => 'Συχνές Ωτίτιδες',
+        'allergies' => 'Αλλεργίες (Δερματικές/Τροφικές)', 'gastrointestinal'=> 'Γαστρεντερικές Ευαισθησίες', 'dysplasia' => 'Δυσπλασία Ισχίου/Αγκώνα', 'arthritis' => 'Αρθρίτιδα / Οστεοαρθρίτιδα', 'leishmaniasis' => 'Λεϊσμανίαση (Καλαζάρ)', 'urinary' => 'Ουρολογικά Προβλήματα (FLUTD)', 'kidney' => 'Χρόνια Νεφρική Ανεπάρκεια', 'dental' => 'Οδοντικά Προβλήματα', 'heart' => 'Καρδιολογικά Προβλήματα', 'obesity' => 'Παχυσαρκία', 'thyroid' => 'Θυρεοειδής', 'ear_infections'  => 'Συχνές Ωτίτιδες',
     ];
     ?>
     <fieldset class="pet-details-fieldset">
         <legend><?php esc_html_e( 'Τα Κατοικίδιά μου 🐾', 'woocommerce' ); ?></legend>
-        <p class="pet-fieldset-description">Συμπληρώστε τα γενέθλια του φίλου σας για να του στέλνουμε δωράκια!</p>
+        <p class="pet-fieldset-description">Συμπληρώστε τα στοιχεία των φίλων σας για να σας εξυπηρετούμε καλύτερα!</p>
+        
+        <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+            <label class="checkbox-label" style="display: inline-flex; align-items: center; font-size: 1.2em; font-weight: bold; cursor: pointer; color: #333;">
+                <input type="hidden" name="petling_global_food_consent" value="no">
+                <input type="checkbox" name="petling_global_food_consent" value="yes" <?php checked( $global_consent, 'yes' ); ?> style="width: 25px; height: 25px; margin-right: 15px; cursor: pointer;">
+                🔔 Ναι, θέλω έξυπνες ειδοποιήσεις όταν κοντεύει να τελειώσει η τροφή τους!
+            </label>
+            <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #555;">(Το σύστημα θα υπολογίζει αυτόματα πότε πρέπει να παραγγείλετε ξανά, βάσει των γραμμαρίων που καταναλώνουν)</p>
+        </div>
         
         <div id="pet-repeater-container">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : ?>
@@ -59,7 +71,23 @@ function petling_add_multi_pet_profile_fields() {
                     </p>
                     <div class="clear"></div>
 
-                    <p class="form-row form-row-wide" style="background: #fbfbfb; padding: 15px; border-radius: 5px; border: 1px solid #e5e5e5; margin-bottom: 20px; margin-top: 10px;">
+                    <div class="form-row form-row-wide" style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <label style="font-weight: bold; color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια) 🍲</label>
+                        <span style="display: block; font-size: 0.85em; color: #666; margin-bottom: 12px;">Συμπληρώστε τη δόση σύμφωνα με τη συσκευασία της τροφής ή βάσει οδηγίας του κτηνιάτρου σας (π.χ. για διαχείριση βάρους).</span>
+                        
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px;">
+                            <input type="number" class="input-text" name="pet_daily_food[]" placeholder="π.χ. 250" value="<?php echo esc_attr( $pet['daily_food'] ?? '' ); ?>" style="width: 120px;">
+                            
+                            <label class="checkbox-label" style="display: inline-flex; align-items: center; font-size: 0.95em; cursor: pointer; margin: 0;">
+                                <input type="hidden" name="pet_calc_food[<?php echo $index; ?>]" value="no">
+                                <input type="checkbox" name="pet_calc_food[<?php echo $index; ?>]" value="yes" <?php checked( isset($pet['calc_food']) && $pet['calc_food'] === 'yes' ); ?> style="margin-right: 8px; width: auto; min-height: auto;">
+                                🛒 Αγοράζω την τροφή του από το Petling (Να συμπεριλαμβάνεται στους υπολογισμούς)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+
+                    <p class="form-row form-row-wide" style="background: #fbfbfb; padding: 15px; border-radius: 5px; border: 1px solid #e5e5e5; margin-bottom: 20px;">
                         <label class="checkbox-label" style="display: flex; align-items: center; font-size: 1.05em; font-weight: bold; margin: 0; cursor: pointer;">
                             <input type="hidden" name="pet_neutered[<?php echo $index; ?>]" value="no">
                             <input type="checkbox" name="pet_neutered[<?php echo $index; ?>]" value="yes" <?php checked( isset($pet['neutered']) && $pet['neutered'] === 'yes' ); ?> style="width: 22px; height: 22px; margin-right: 12px; margin-top: 0; cursor: pointer; flex-shrink: 0;"> 
@@ -86,6 +114,7 @@ function petling_add_multi_pet_profile_fields() {
         </div>
         <button type="button" id="add-pet-button" class="button">＋ Προσθήκη Κατοικιδίου</button>
     </fieldset>
+    
     <div id="pet-block-template" style="display:none;">
         <div class="pet-block">
             <h4>Νέο Κατοικίδιο <button type="button" class="button remove-pet-button">Αφαίρεση</button></h4>
@@ -94,10 +123,25 @@ function petling_add_multi_pet_profile_fields() {
             <p class="form-row form-row-first"><label>Ημερομηνία Γέννησης 🎉</label><input type="date" class="input-text" name="pet_birthday[]" max="<?php echo $today; ?>"></p>
             <p class="form-row form-row-last"><label>Επίπεδο Ενέργειας</label><select name="pet_energy[]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></p><div class="clear"></div>
             <p class="form-row form-row-first"><label>Φυλή</label><select name="pet_breed[]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></p>
-            <p class="form-row form-row-last"><label>Βάρος (κιλά)</label><input type="text" class="input-text" name="pet_weight[]"></p>
+            <p class="form-row form-row-last"><label>Βάρος (κιλά)</label><input type="text" class="input-text" name="pet_weight[]"></p><div class="clear"></div>
+
+            <div class="form-row form-row-wide" style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <label style="font-weight: bold; color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια) 🍲</label>
+                <span style="display: block; font-size: 0.85em; color: #666; margin-bottom: 12px;">Συμπληρώστε τη δόση σύμφωνα με τη συσκευασία ή βάσει οδηγίας του κτηνιάτρου σας.</span>
+                
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <input type="number" class="input-text" name="pet_daily_food[]" placeholder="π.χ. 250" style="width: 120px;">
+                    
+                    <label class="checkbox-label" style="display: inline-flex; align-items: center; font-size: 0.95em; cursor: pointer; margin: 0;">
+                        <input type="hidden" name="pet_calc_food[__INDEX__]" value="no">
+                        <input type="checkbox" name="pet_calc_food[__INDEX__]" value="yes" style="margin-right: 8px; width: auto; min-height: auto;">
+                        🛒 Αγοράζω την τροφή του από το Petling (Να συμπεριλαμβάνεται στους υπολογισμούς)
+                    </label>
+                </div>
+            </div>
             <div class="clear"></div>
             
-            <p class="form-row form-row-wide" style="background: #fbfbfb; padding: 15px; border-radius: 5px; border: 1px solid #e5e5e5; margin-bottom: 20px; margin-top: 10px;">
+            <p class="form-row form-row-wide" style="background: #fbfbfb; padding: 15px; border-radius: 5px; border: 1px solid #e5e5e5; margin-bottom: 20px;">
                 <label class="checkbox-label" style="display: flex; align-items: center; font-size: 1.05em; font-weight: bold; margin: 0; cursor: pointer;">
                     <input type="hidden" name="pet_neutered[__INDEX__]" value="no">
                     <input type="checkbox" name="pet_neutered[__INDEX__]" value="yes" style="width: 22px; height: 22px; margin-right: 12px; margin-top: 0; cursor: pointer; flex-shrink: 0;"> 
@@ -112,9 +156,15 @@ function petling_add_multi_pet_profile_fields() {
     <?php
 }
 
+/**
+ * 2. Αποθήκευση των δεδομένων των κατοικιδίων.
+ */
 add_action( 'woocommerce_save_account_details', 'petling_save_multi_pet_profile_fields' );
 function petling_save_multi_pet_profile_fields( $user_id ) {
     if ( ! current_user_can( 'edit_user', $user_id ) ) return false;
+
+    // Αποθήκευση της Γενικής Συναίνεσης Ειδοποιήσεων
+    update_user_meta( $user_id, 'petling_global_food_consent', sanitize_text_field( $_POST['petling_global_food_consent'] ?? 'no' ) );
 
     $pets_data = [];
     if ( ! empty( $_POST['pet_name'] ) && is_array( $_POST['pet_name'] ) ) {
@@ -127,6 +177,8 @@ function petling_save_multi_pet_profile_fields( $user_id ) {
                 'energy'       => sanitize_text_field( $_POST['pet_energy'][ $index ] ?? '' ),
                 'breed'        => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ),
                 'weight'       => sanitize_text_field( $_POST['pet_weight'][ $index ] ?? '' ),
+                'daily_food'   => sanitize_text_field( $_POST['pet_daily_food'][ $index ] ?? '' ),
+                'calc_food'    => sanitize_text_field( $_POST['pet_calc_food'][ $index ] ?? 'no' ),
                 'neutered'     => sanitize_text_field( $_POST['pet_neutered'][ $index ] ?? 'no' ), 
                 'health'       => isset( $_POST['pet_health'][ $index ] ) ? array_map( 'sanitize_text_field', (array) $_POST['pet_health'][ $index ] ) : [],
                 'health_notes' => sanitize_textarea_field( $_POST['pet_health_notes'][ $index ] ?? '' ),
@@ -136,14 +188,15 @@ function petling_save_multi_pet_profile_fields( $user_id ) {
     update_user_meta( $user_id, 'petling_pets', $pets_data );
 }
 
-// 1. Προσθήκη στήλης 'Κατοικίδια' στη λίστα χρηστών του WordPress
+/**
+ * 3. Προσθήκη στήλης 'Κατοικίδια' στη λίστα χρηστών του WordPress Admin Dashboard.
+ */
 add_filter( 'manage_users_columns', 'petling_add_pets_column' );
 function petling_add_pets_column( $columns ) {
     $columns['petling_pets'] = 'Κατοικίδια';
     return $columns;
 }
 
-// 2. Εμφάνιση των δεδομένων και καταμέτρηση στη νέα στήλη
 add_filter( 'manage_users_custom_column', 'petling_show_pets_column_content', 10, 3 );
 function petling_show_pets_column_content( $val, $column_name, $user_id ) {
     if ( 'petling_pets' === $column_name ) {
@@ -151,10 +204,8 @@ function petling_show_pets_column_content( $val, $column_name, $user_id ) {
         
         if ( ! empty( $pets ) && is_array( $pets ) ) {
             $total_pets = count( $pets );
-            
             $type_mapping = ['dog' => 'Σκύλος', 'cat' => 'Γάτα'];
             
-            // Μετάφραση προβλημάτων υγείας
             $health_mapping = [
                 'allergies' => 'Αλλεργίες', 'gastrointestinal'=> 'Γαστρεντερικά', 'dysplasia' => 'Δυσπλασία', 
                 'arthritis' => 'Αρθρίτιδα', 'leishmaniasis' => 'Καλαζάρ', 'urinary' => 'Ουρολογικά', 
@@ -175,7 +226,6 @@ function petling_show_pets_column_content( $val, $column_name, $user_id ) {
                     $neutered_text = ' <span style="color: #2ea2cc; font-size: 0.9em;">(Στειρωμένο ✂️)</span>';
                 }
 
-                // Χτίσιμο κειμένου Προβλημάτων Υγείας
                 $health_text = '';
                 if ( ! empty( $pet['health'] ) && is_array( $pet['health'] ) ) {
                     $health_labels = [];
