@@ -247,6 +247,11 @@ function change_specific_text_strings( $translated_text, $text, $domain ) {
     $replacements = array(
         'Create Account' => 'Δημιουργία Λογαριασμού',
         'Create account' => 'Δημιουργία Λογαριασμού', // Για σιγουριά αν είναι με μικρά
+        
+        // --- ΠΡΟΣΘΗΚΕΣ ΓΙΑ ΤΟ ΚΟΥΠΟΝΙ ---
+        'Coupon code'    => 'Κωδικός κουπονιού',
+        'Apply coupon'   => 'Εφαρμογή',
+        'Apply'          => 'Εφαρμογή',
     );
 
     if ( array_key_exists( $text, $replacements ) ) {

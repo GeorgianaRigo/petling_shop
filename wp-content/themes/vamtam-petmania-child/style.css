@@ -96,11 +96,14 @@
 }
 
 /* checkout */
+.woocommerce-checkout #page .elementor-widget-woocommerce-checkout-page .e-coupon-anchor button.woocommerce-button.e-apply-coupon {
+  background-color: #C7B297;
+}
+
 .woocommerce-checkout .elementor-widget-woocommerce-checkout-page button.woocommerce-button.e-apply-coupon {
   background-color: var( --e-global-color-a0ebf33 );
 }
 
-/* checkout */
 .woocommerce-cart .woocommerce-cart-form .coupon input[name="coupon_code"] {
   color: var(--e-global-color-vamtam_accent_6);
 }
