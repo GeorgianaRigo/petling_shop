@@ -1,12 +1,50 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// Helper συνάρτηση για τη δημιουργία Google Calendar Link
-function petling_crm_get_gcal_link( $title, $date, $details = '' ) {
+// 1. ΜΗΧΑΝΙΣΜΟΣ ΔΗΜΙΟΥΡΓΙΑΣ .ICS (ΓΙΑ IPHONE, ANDROID, OUTLOOK)
+add_action( 'template_redirect', 'petling_crm_generate_ics' );
+function petling_crm_generate_ics() {
+    if ( isset( $_GET['petling_ics'] ) && $_GET['petling_ics'] == '1' ) {
+        $title = isset($_GET['title']) ? sanitize_text_field(stripslashes(urldecode($_GET['title']))) : 'Ραντεβού Petling';
+        $date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : '';
+        $desc = isset($_GET['desc']) ? sanitize_text_field(stripslashes(urldecode($_GET['desc']))) : '';
+
+        if ( empty($date) ) return;
+
+        $start = date('Ymd', strtotime($date));
+        $end = date('Ymd', strtotime($date . ' +1 day')); // Ολοήμερο γεγονός
+        $stamp = date('Ymd\THis\Z');
+
+        $ics_content = "BEGIN:VCALENDAR\r\n";
+        $ics_content .= "VERSION:2.0\r\n";
+        $ics_content .= "PRODID:-//Petling CRM//NONSGML v1.0//EN\r\n";
+        $ics_content .= "CALSCALE:GREGORIAN\r\n";
+        $ics_content .= "BEGIN:VEVENT\r\n";
+        $ics_content .= "UID:" . uniqid() . "@petling.gr\r\n";
+        $ics_content .= "DTSTAMP:" . $stamp . "\r\n";
+        $ics_content .= "DTSTART;VALUE=DATE:" . $start . "\r\n";
+        $ics_content .= "DTEND;VALUE=DATE:" . $end . "\r\n";
+        $ics_content .= "SUMMARY:" . $title . "\r\n";
+        $ics_content .= "DESCRIPTION:" . $desc . "\r\n";
+        $ics_content .= "END:VEVENT\r\n";
+        $ics_content .= "END:VCALENDAR\r\n";
+
+        header('Content-Type: text/calendar; charset=utf-8');
+        header('Content-Disposition: attachment; filename="petling-reminder.ics"');
+        echo $ics_content;
+        exit;
+    }
+}
+
+// Helper για να φτιάχνουμε το URL του ICS
+function petling_crm_get_ics_link( $title, $date, $details = '' ) {
     if ( empty( $date ) || $date === '0000-00-00' || strtotime($date) <= 0 ) return '';
-    $start = date( 'Ymd', strtotime( $date ) );
-    $end = date( 'Ymd', strtotime( $date . ' +1 day' ) ); // All-day event
-    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' . urlencode( $title ) . '&dates=' . $start . '/' . $end . '&details=' . urlencode( $details ) . '&sf=true&output=xml';
+    return add_query_arg( [
+        'petling_ics' => '1',
+        'title' => urlencode($title),
+        'date' => $date,
+        'desc' => urlencode($details)
+    ], site_url() );
 }
 
 add_action( 'template_redirect', 'petling_crm_save_pets' );
@@ -126,6 +164,7 @@ function petling_crm_handle_vet_notes() {
         exit;
     }
 
+    // Διαγραφή Προσχεδίου Εξέτασης
     if ( isset( $_GET['action'] ) && $_GET['action'] === 'del_note' && isset( $_GET['note_id'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'del_note_' . $_GET['note_id'] ) ) {
         $wpdb->delete( $wpdb->prefix . 'petling_vet_notes', array( 'id' => intval( $_GET['note_id'] ), 'status' => 'draft' ) );
         wp_safe_redirect( remove_query_arg( array( 'action', 'note_id', '_wpnonce' ) ) );
@@ -421,12 +460,12 @@ function petling_crm_render_medical_history( $pet ) {
             echo '<td style="padding:10px;">' . esc_html($vac->vaccine_name) . '</td>';
             echo '<td style="padding:10px;">' . esc_html(date('d/m/Y', strtotime($vac->date_administered))) . '</td>';
             
-            // ΚΟΥΜΠΙ CALENDAR ΓΙΑ ΕΜΒΟΛΙΑ (Με έλεγχο εγκυρότητας ημερομηνίας)
+            // ΚΟΥΜΠΙ ICS CALENDAR ΓΙΑ ΕΜΒΟΛΙΑ
             echo '<td style="padding:10px; font-weight:bold; color:#8B6139;">';
             if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' && strtotime($vac->next_vaccine_date) > 0 ) {
                 echo esc_html(date('d/m/Y', strtotime($vac->next_vaccine_date)));
-                $gcal_url = petling_crm_get_gcal_link( '💉 Εμβολιασμός: ' . $vac->vaccine_name . ' (' . $pet['name'] . ')', $vac->next_vaccine_date, 'Υπενθύμιση από το Petling CRM για το επόμενο εμβόλιο του κατοικιδίου σας.' );
-                echo '<br><a href="' . esc_url($gcal_url) . '" target="_blank" style="font-size:11px; color:#5b9a68; text-decoration:none; font-weight:normal; display:inline-block; margin-top:4px;">📅 Προσθήκη στο Google Calendar</a>';
+                $ics_url = petling_crm_get_ics_link( '💉 Εμβολιασμός: ' . $vac->vaccine_name . ' (' . $pet['name'] . ')', $vac->next_vaccine_date, 'Υπενθύμιση από το Petling CRM για το επόμενο εμβόλιο του κατοικιδίου σας.' );
+                echo '<br><a href="' . esc_url($ics_url) . '" style="font-size:11px; color:#5b9a68; text-decoration:none; font-weight:normal; display:inline-block; margin-top:4px;">📅 Προσθήκη στο Ημερολόγιο</a>';
             } else {
                 echo '-';
             }
@@ -489,11 +528,11 @@ function petling_crm_render_medical_history( $pet ) {
             echo '</div>';
             echo '<p style="margin:0; font-size:1.05em; color:#333;">' . nl2br(esc_html($note->vet_comment)) . '</p>';
             
-            // ΚΟΥΜΠΙ CALENDAR ΓΙΑ ΕΠΑΝΕΞΕΤΑΣΗ
+            // ΚΟΥΜΠΙ ICS CALENDAR ΓΙΑ ΕΠΑΝΕΞΕΤΑΣΗ
             if ( !empty($note->next_exam_date) && $note->next_exam_date !== '0000-00-00' && strtotime($note->next_exam_date) > 0 ) {
                 echo '<p style="margin:10px 0 0 0; font-size:0.95em; color:#d63638; font-weight:bold;">📅 Επανεξέταση: ' . date('d/m/Y', strtotime($note->next_exam_date));
-                $gcal_url = petling_crm_get_gcal_link( '🩺 Κτηνιατρική Επανεξέταση: ' . $pet['name'], $note->next_exam_date, 'Υπενθύμιση από το Petling CRM για την προγραμματισμένη επανεξέταση στην κλινική.' );
-                echo ' <a href="' . esc_url($gcal_url) . '" target="_blank" style="font-size:12px; color:#5b9a68; text-decoration:none; font-weight:normal; margin-left:10px; display:inline-block; border: 1px solid #5b9a68; padding: 2px 6px; border-radius: 4px; background: #fff;">🗓️ Προσθήκη στο Ημερολόγιο</a></p>';
+                $ics_url = petling_crm_get_ics_link( '🩺 Κτηνιατρική Επανεξέταση: ' . $pet['name'], $note->next_exam_date, 'Υπενθύμιση από το Petling CRM για την προγραμματισμένη επανεξέταση στην κλινική.' );
+                echo ' <a href="' . esc_url($ics_url) . '" style="font-size:12px; color:#5b9a68; text-decoration:none; font-weight:normal; margin-left:10px; display:inline-block; border: 1px solid #5b9a68; padding: 2px 6px; border-radius: 4px; background: #fff;">🗓️ Προσθήκη στο Ημερολόγιο</a></p>';
             }
             
             echo '</div>';
