@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Petling CRM - Digital Vet Pass
  * Plugin URI:        https://petling.gr/
- * Description:       Το ολοκληρωμένο Ψηφιακό Βιβλιάριο: Προφίλ κατοικιδίων, έξυπνες υπενθυμίσεις τροφής βάσει ημερών, εμβόλια WSAVA και Vet Pass.
- * Version:           2.3.0
+ * Description:       Το ολοκληρωμένο Ψηφιακό Βιβλιάριο: Προφίλ κατοικιδίων, έξυπνες υπενθυμίσεις τροφής, εμβόλια WSAVA, Vet Pass και VIP πρόσβαση.
+ * Version:           2.5.0
  * Author:            Georgiana
  * Text Domain:       petling-crm
  */
@@ -63,15 +63,185 @@ function petling_crm_deactivate() {
 }
 register_deactivation_hook( __FILE__, 'petling_crm_deactivate' );
 
+
 /**
- * 2. ΔΗΜΙΟΥΡΓΙΑ TAB ΣΤΟ MY ACCOUNT
+ * 2. ADMIN PANEL - ΡΥΘΜΙΣΕΙΣ & ΠΕΡΙΟΡΙΣΜΟΣ ΠΡΟΣΒΑΣΗΣ
+ */
+add_action( 'admin_menu', 'petling_crm_admin_menu' );
+function petling_crm_admin_menu() {
+    add_menu_page( 'Petling CRM', '🐾 Petling CRM', 'manage_options', 'petling-crm-settings', 'petling_crm_settings_page', 'dashicons-pets', 56 );
+}
+
+function petling_crm_settings_page() {
+    // 1. Επεξεργασία Φόρμας
+    if ( isset( $_POST['petling_admin_nonce'] ) && wp_verify_nonce( $_POST['petling_admin_nonce'], 'petling_save_settings' ) ) {
+        
+        $restrict = isset($_POST['restrict_access']) ? 'yes' : 'no';
+        update_option('petling_crm_restrict_access', $restrict);
+
+        if ( !empty($_POST['new_user_emails']) ) {
+            $emails = sanitize_textarea_field($_POST['new_user_emails']);
+            $email_array = array_map('trim', explode(',', $emails));
+            $allowed = get_option('petling_allowed_users', []);
+            $revoked = get_option('petling_revoked_users', []);
+
+            $added_count = 0;
+            foreach ($email_array as $email) {
+                if ( empty($email) || !is_email($email) ) continue;
+                $user = get_user_by('email', $email);
+                if ( $user ) {
+                    if ( !in_array($user->ID, $allowed) ) {
+                        $allowed[] = $user->ID;
+                        $added_count++;
+                    }
+                    if ( ($key = array_search($user->ID, $revoked)) !== false ) {
+                        unset($revoked[$key]);
+                    }
+                }
+            }
+            update_option('petling_allowed_users', array_values($allowed));
+            update_option('petling_revoked_users', array_values($revoked));
+            
+            if ($added_count > 0) {
+                echo '<div class="notice notice-success is-dismissible"><p>Προστέθηκαν ' . $added_count . ' νέοι χρήστες επιτυχώς!</p></div>';
+            }
+        }
+        echo '<div class="notice notice-success is-dismissible"><p>Οι ρυθμίσεις αποθηκεύτηκαν.</p></div>';
+    }
+
+    // 2. Επεξεργασία Διαγραφής / Καθαρισμού Ιστορικού
+    if ( isset( $_GET['petling_action'] ) && isset( $_GET['_wpnonce'] ) ) {
+        if ( $_GET['petling_action'] === 'remove' && wp_verify_nonce( $_GET['_wpnonce'], 'remove_user_' . $_GET['uid'] ) ) {
+            $uid = intval($_GET['uid']);
+            $allowed = get_option('petling_allowed_users', []);
+            $revoked = get_option('petling_revoked_users', []);
+
+            if ( ($key = array_search($uid, $allowed)) !== false ) {
+                unset($allowed[$key]);
+                if ( !in_array($uid, $revoked) ) { $revoked[] = $uid; }
+                update_option('petling_allowed_users', array_values($allowed));
+                update_option('petling_revoked_users', array_values($revoked));
+                wp_redirect( admin_url('admin.php?page=petling-crm-settings') ); exit;
+            }
+        }
+        if ( $_GET['petling_action'] === 'clear_history' && wp_verify_nonce( $_GET['_wpnonce'], 'clear_history' ) ) {
+            update_option('petling_revoked_users', []);
+            wp_redirect( admin_url('admin.php?page=petling-crm-settings') ); exit;
+        }
+    }
+
+    // Default είναι ΠΑΝΤΑ "yes" (Κλειδωμένο) αν δεν έχει αποθηκευτεί άλλη επιλογή
+    $is_restricted = get_option('petling_crm_restrict_access', 'yes');
+    $allowed_users = get_option('petling_allowed_users', []);
+    $revoked_users = get_option('petling_revoked_users', []);
+    ?>
+    <div class="wrap" style="max-width: 900px;">
+        <h1 style="display:flex; align-items:center; gap:10px;"><span style="font-size:30px;">🐾</span> Petling CRM - Έλεγχος Πρόσβασης</h1>
+        <p>Διαχειριστείτε ποιοι πελάτες μπορούν να δουν το Ψηφιακό Βιβλιάριο (VIP Testing).</p>
+
+        <form method="post" action="" style="background:#fff; padding:20px; border:1px solid #ccd0d4; box-shadow:0 1px 1px rgba(0,0,0,.04); margin-bottom:20px;">
+            <?php wp_nonce_field( 'petling_save_settings', 'petling_admin_nonce' ); ?>
+            
+            <h2 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Γενικός Διακόπτης</h2>
+            <label style="font-size: 15px; font-weight: 600; cursor:pointer;">
+                <input type="checkbox" name="restrict_access" value="yes" <?php checked($is_restricted, 'yes'); ?>>
+                Ενεργοποίηση Περιορισμένης Πρόσβασης (Προεπιλογή)
+            </label>
+            <p class="description">Όσο αυτό είναι τσεκαρισμένο, το βιβλιάριο το βλέπουν <strong>ΜΟΝΟ οι Διαχειριστές</strong> και τα email που θα προσθέσετε παρακάτω.</p>
+
+            <h2 style="margin-top:30px; border-bottom:1px solid #eee; padding-bottom:10px;">Προσθήκη Χρηστών (VIPs)</h2>
+            <label><strong>Email Πελατών (Χωρισμένα με κόμμα):</strong></label><br>
+            <textarea name="new_user_emails" rows="3" style="width:100%; max-width:600px; margin-top:10px;" placeholder="π.χ. maria@gmail.com, kwstas@yahoo.com"></textarea>
+            <p class="description">Τα email πρέπει να ανήκουν σε ήδη εγγεγραμμένους χρήστες του e-shop.</p>
+            
+            <p><button type="submit" class="button button-primary button-large">Αποθήκευση & Προσθήκη</button></p>
+        </form>
+
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:300px; background:#fff; padding:20px; border:1px solid #5b9a68; border-top:4px solid #5b9a68; box-shadow:0 1px 1px rgba(0,0,0,.04);">
+                <h3 style="margin-top:0;">✅ Ενεργοί Χρήστες (Έχουν πρόσβαση)</h3>
+                <?php if (empty($allowed_users)): ?>
+                    <p style="color:#666; font-style:italic;">Δεν υπάρχουν χρήστες στη λίστα.</p>
+                <?php else: ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead><tr><th>Email</th><th>Ενέργεια</th></tr></thead>
+                        <tbody>
+                        <?php foreach ($allowed_users as $uid): 
+                            $u = get_userdata($uid); 
+                            if(!$u) continue;
+                            $del_url = wp_nonce_url( admin_url("admin.php?page=petling-crm-settings&petling_action=remove&uid={$uid}"), "remove_user_{$uid}" );
+                        ?>
+                            <tr>
+                                <td><strong><?php echo esc_html($u->user_email); ?></strong></td>
+                                <td><a href="<?php echo esc_url($del_url); ?>" style="color:#d63638;" onclick="return confirm('Να αφαιρεθεί η πρόσβαση;');">❌ Αφαίρεση</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+
+            <div style="flex:1; min-width:300px; background:#fff; padding:20px; border:1px solid #ccd0d4; border-top:4px solid #d63638; box-shadow:0 1px 1px rgba(0,0,0,.04);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin-top:0;">📜 Ιστορικό (Αφαιρέθηκαν)</h3>
+                    <?php if (!empty($revoked_users)): ?>
+                        <a href="<?php echo esc_url(wp_nonce_url(admin_url("admin.php?page=petling-crm-settings&petling_action=clear_history"), "clear_history")); ?>" class="button button-small" onclick="return confirm('Οριστική διαγραφή ιστορικού;');">Καθαρισμός</a>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if (empty($revoked_users)): ?>
+                    <p style="color:#666; font-style:italic;">Το ιστορικό είναι άδειο.</p>
+                <?php else: ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead><tr><th>Email (Πρώην VIPs)</th></tr></thead>
+                        <tbody>
+                        <?php foreach ($revoked_users as $uid): 
+                            $u = get_userdata($uid); 
+                            if(!$u) continue;
+                        ?>
+                            <tr><td style="color:#666;"><?php echo esc_html($u->user_email); ?></td></tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+/**
+ * 3. ΠΕΡΙΟΡΙΣΜΟΣ ΣΤΟ MY ACCOUNT MENU & ENDPOINT
  */
 add_filter( 'woocommerce_account_menu_items', 'petling_crm_add_tab' );
 function petling_crm_add_tab( $items ) {
+    $is_restricted = get_option('petling_crm_restrict_access', 'yes'); // Default είναι yes
+    $current_user = get_current_user_id();
+    $allowed = get_option('petling_allowed_users', []);
+
+    // Αν είναι ενεργός ο περιορισμός ΚΑΙ ο χρήστης ΔΕΝ είναι admin ΚΑΙ ΔΕΝ είναι στη λίστα
+    if ( $is_restricted === 'yes' && !current_user_can('manage_options') && !in_array($current_user, $allowed) ) {
+        return $items; // Κρύβει το tab
+    }
+
     $logout = array_pop($items);
     $items['pet-crm'] = '🐾 Ψηφιακό Βιβλιάριο';
     $items['logout'] = $logout;
     return $items;
+}
+
+add_action( 'template_redirect', 'petling_crm_restrict_endpoint_access' );
+function petling_crm_restrict_endpoint_access() {
+    if ( is_account_page() && isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/pet-crm') !== false ) {
+        $is_restricted = get_option('petling_crm_restrict_access', 'yes'); // Default είναι yes
+        $current_user = get_current_user_id();
+        $allowed = get_option('petling_allowed_users', []);
+
+        if ( $is_restricted === 'yes' && !current_user_can('manage_options') && !in_array($current_user, $allowed) ) {
+            wp_redirect( wc_get_page_permalink( 'myaccount' ) ); // Τον πετάει έξω αν γράψει το URL με το χέρι
+            exit;
+        }
+    }
 }
 
 add_action( 'init', 'petling_crm_register_endpoint' );
@@ -80,19 +250,19 @@ function petling_crm_register_endpoint() {
 }
 
 /**
- * 3. ΦΟΡΤΩΣΗ SCRIPTS
+ * 4. ΦΟΡΤΩΣΗ SCRIPTS & UI
  */
 require_once PETLING_CRM_PATH . 'includes/crm-ui.php';
 
 add_action( 'wp_enqueue_scripts', 'petling_crm_scripts' );
 function petling_crm_scripts() {
     if ( is_account_page() ) {
-        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'js/crm-scripts.js', ['jquery'], '2.3', true );
+        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'js/crm-scripts.js', ['jquery'], '2.5', true );
     }
 }
 
 /**
- * 4. VET PASS INTERCEPTOR (/vet-pass/)
+ * 5. VET PASS INTERCEPTOR (/vet-pass/)
  */
 add_action( 'template_redirect', 'petling_crm_vet_pass_interceptor' );
 function petling_crm_vet_pass_interceptor() {
@@ -103,7 +273,7 @@ function petling_crm_vet_pass_interceptor() {
 }
 
 /**
- * 5. ΜΗΧΑΝΙΣΜΟΣ ΥΠΕΝΘΥΜΙΣΕΩΝ (CRON JOB)
+ * 6. ΜΗΧΑΝΙΣΜΟΣ ΥΠΕΝΘΥΜΙΣΕΩΝ (CRON JOB)
  */
 add_action( 'petling_daily_order_check', 'petling_process_order_reminders' );
 function petling_process_order_reminders() {
@@ -118,7 +288,6 @@ function petling_process_order_reminders() {
         
         $interval_seconds = intval($interval_days) * DAY_IN_SECONDS;
 
-        // Ονόματα κατοικιδίων για το προσωποποιημένο email
         $pets = get_user_meta( $user_id, 'petling_pets', true );
         $pet_names = array();
         if ( is_array( $pets ) ) {
