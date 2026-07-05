@@ -1,129 +1,12 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-// =========================================================================
-// 1. ΕΠΙΒΟΛΗ GLOBAL & MOBILE CSS ΜΕ ΜΕΓΙΣΤΗ ΠΡΟΤΕΡΑΙΟΤΗΤΑ (ΣΤΟ <HEAD>)
-// =========================================================================
-add_action( 'wp_head', 'petling_crm_force_mobile_css', 999 );
-function petling_crm_force_mobile_css() {
-    if ( ! is_account_page() ) return;
-    ?>
-    <style>
-        /* Bασικά Στοιχεία Φόρμας */
-        .petling-crm-form { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 100%; overflow-x: hidden; }
-        .petling-crm-form * { box-sizing: border-box !important; }
-        .petling-crm-form label { font-size: 13px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-        
-        .petling-crm-form input[type="text"], 
-        .petling-crm-form input[type="date"], 
-        .petling-crm-form input[type="number"], 
-        .petling-crm-form select, 
-        .petling-crm-form textarea { 
-            -webkit-appearance: none !important; appearance: none !important;
-            width: 100% !important; max-width: 100% !important;
-            padding: 10px !important; border: 1px solid #ccc !important; 
-            border-radius: 6px !important; font-size: 15px !important; height: 42px !important; background-color: #fff !important; 
-        }
-        
-        /* Error States for Validation */
-        .petling-crm-form input:invalid, .petling-crm-form select:invalid { border-color: #e62121 !important; box-shadow: 0 0 3px rgba(230,33,33,0.3); }
-        .petling-crm-form input:focus:invalid { outline: none; }
-        
-        .petling-crm-form textarea { height: auto !important; min-height: 80px !important; }
-        
-        /* Grids & Blocks */
-        .petling-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; width: 100%; max-width: 100%; }
-        .petling-grid-full { grid-column: span 1; }
-        .pet-block { border: 2px solid #C7B297 !important; padding: 20px !important; margin-bottom: 30px !important; border-radius: 10px !important; background: #fffaf1 !important; display: none; width: 100%; max-width: 100%; box-sizing: border-box !important; }
-        .pet-block-header { border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .pet-block-title { font-size: 1.2em; color: #43282F; font-weight: bold; margin: 0; }
-        
-        /* ΣΥΣΤΗΜΑ TABS ΓΙΑ ΤΑ ΚΑΤΟΙΚΙΔΙΑ */
-        .pet-tabs-nav { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; gap: 8px !important; margin: 20px 0 !important; padding-bottom: 8px !important; border-bottom: 2px solid #C7B297 !important; -webkit-overflow-scrolling: touch; scrollbar-width: none; max-width: 100%; box-sizing: border-box !important; }
-        .pet-tabs-nav::-webkit-scrollbar { display: none; }
-        .pet-tab-btn { padding: 10px 18px !important; background: #fff !important; border: 2px solid #C7B297 !important; border-radius: 12px 12px 0 0 !important; color: #43282F !important; font-weight: bold !important; cursor: pointer !important; white-space: nowrap !important; font-size: 14px !important; transition: all 0.2s !important; border-bottom: none !important; position: relative; top: 2px; flex-shrink: 0; }
-        .pet-tab-btn.is-active { background: #43282F !important; color: #fff !important; border-color: #43282F !important; }
+/* =========================================================================
+   ΕΝΟΤΗΤΑ 1: DATA HANDLING & FUNCTIONS (PHP Λογική)
+   Εδώ βρίσκονται όλες οι συναρτήσεις αποθήκευσης, διαγραφής και δημιουργίας.
+   ========================================================================= */
 
-        /* Checkboxes */
-        .health-issues-container { display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 280px; overflow-y: auto; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; }
-        .health-issue-item { display: flex !important; align-items: center !important; font-weight: normal; font-size: 14px; margin: 0; cursor: pointer; }
-        .health-issue-item input[type="checkbox"] { width: 20px !important; height: 20px !important; margin-right: 12px !important; flex-shrink: 0; }
-        .custom-checkbox-wrapper { background: #fbfbfb; padding: 15px; border-radius: 6px; border: 1px solid #e5e5e5; display: flex; align-items: center; margin-bottom: 20px; }
-        .custom-checkbox-wrapper label { margin: 0; display: flex; align-items: center; cursor: pointer; width: 100%; font-weight:normal; }
-        .custom-checkbox-wrapper input[type="checkbox"] { width: 22px !important; height: 22px !important; margin-right: 12px !important; }
-
-        /* Buttons */
-        .btn-petling { padding: 10px 20px !important; border-radius: 6px !important; font-weight: bold !important; cursor: pointer !important; border: none !important; display: inline-flex !important; justify-content: center !important; align-items: center !important; text-decoration: none !important; text-align: center !important; max-width: 100%; }
-        .btn-red { background: #e62121 !important; color: white !important; }
-        .btn-green { background: #5b9a68 !important; color: white !important; }
-        .btn-brown { background: #C7B297 !important; color: #43282F !important; }
-        .btn-dark { background: #43282F !important; color: #fff !important; }
-        .petling-medical-btn-wrapper { text-align: center !important; width: 100%; }
-        
-        /* ACCORDIONS ΓΙΑ TO MEDICAL HISTORY */
-        details.petling-accordion { background: #fff; border: 1px solid #C7B297 !important; border-radius: 10px; margin-bottom: 20px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04); max-width: 100%; }
-        details.petling-accordion summary { background: #fdfaf5; padding: 18px 20px; font-size: 17px; font-weight: bold; color: #43282F; cursor: pointer; user-select: none; display: flex !important; align-items: center; justify-content: space-between; list-style: none; outline: none; margin: 0; }
-        details.petling-accordion summary::-webkit-details-marker { display: none; }
-        details.petling-accordion summary::after { content: '▼'; font-size: 14px; color: #C7B297; font-weight: normal; }
-        details.petling-accordion[open] summary::after { content: '▲'; }
-        details.petling-accordion .accordion-content { padding: 20px; border-top: 1px solid #e2d4c0; }
-        
-        /* ΙΣΤΟΡΙΚΟ ΒΑΡΟΥΣ */
-        .weight-compact-list { list-style: none !important; padding: 0 !important; margin: 0 0 20px 0 !important; max-height: 220px; overflow-y: auto; border: 1px solid #e5e5e5; border-radius: 8px; scrollbar-width: thin; }
-        .weight-compact-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #e5e5e5; }
-        .weight-compact-item:last-child { border-bottom: none; }
-        .weight-compact-item:nth-child(even) { background: #fafafa; }
-        .w-date { color: #666; font-size: 14px; flex: 0 0 90px; }
-        .w-val { font-weight: bold; color: #43282F; font-size: 16px; flex: 1; text-align: right; padding-right: 15px; }
-        .w-del { color: #999; font-size: 24px; text-decoration: none !important; font-weight: bold; line-height: 1; padding: 0 5px; cursor: pointer; transition: color 0.2s; }
-        .w-del:hover { color: #e62121; }
-
-        .petling-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px; max-width: 100%; }
-        .petling-table th { background: #C7B297; color: #43282F; padding: 12px 10px; text-align: left; }
-        .petling-table td { padding: 12px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        
-        /* ========================================================
-           ΚΙΝΗΤΑ (SMARTPHONES) - ΕΠΙΘΕΤΙΚΟ OVERRIDE
-           ======================================================== */
-        @media (max-width: 767px) {
-            body.woocommerce-account .woocommerce-MyAccount-navigation { width: 100% !important; margin: 0 0 20px 0 !important; padding: 0 !important; float: none !important; background: transparent !important; border: none !important; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; gap: 10px !important; padding: 0 0 10px 0 !important; margin: 0 !important; border: none !important; width: 100% !important; box-sizing: border-box !important; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul::-webkit-scrollbar { height: 4px; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul::-webkit-scrollbar-thumb { background: #dcdcdc; border-radius: 4px; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul li { flex: 0 0 auto !important; width: auto !important; border: none !important; padding: 0 !important; margin: 0 !important; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul li a { display: block !important; padding: 10px 15px !important; background: #fff !important; border: 2px solid #C7B297 !important; border-radius: 25px !important; color: #43282F !important; font-size: 13px !important; font-weight: 600 !important; white-space: nowrap !important; line-height: 1 !important; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul li.is-active a { background: #43282F !important; color: #fff !important; border-color: #43282F !important; }
-            
-            .petling-table thead, .petling-table th { display: none !important; }
-            .petling-table, .petling-table tbody, .petling-table tr, .petling-table td { display: block !important; width: 100% !important; box-sizing: border-box !important; }
-            .petling-table tr { margin-bottom: 20px !important; border: 2px solid #e5e5e5 !important; border-radius: 10px !important; padding: 15px !important; background: #fafafa !important; }
-            .petling-table td { text-align: right !important; padding: 10px 0 !important; border-bottom: 1px dashed #e5e5e5 !important; position: relative !important; padding-left: 50% !important; min-height: 40px !important; }
-            .petling-table td:last-child { border-bottom: none !important; }
-            .petling-table td::before { content: attr(data-label); position: absolute !important; left: 0 !important; width: 45% !important; text-align: left !important; font-weight: bold !important; color: #666 !important; }
-            .petling-table td[data-label="Ενέργεια"] { text-align: right !important; padding-top: 15px !important; }
-            
-            .weight-form { flex-wrap: wrap !important; }
-            .weight-form > div { width: 100% !important; }
-            .weight-form button { width: 100% !important; max-width: 100% !important; margin-top: 10px !important; }
-            details.petling-accordion summary { font-size: 16px; padding: 15px; }
-            
-            .qr-flex-container { display: flex; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; }
-            .qr-flex-container > div:first-child { flex: 1; min-width: 0; padding-right: 10px; }
-        }
-        
-        /* TABLETS & DESKTOPS */
-        @media (min-width: 768px) {
-            .petling-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
-            .health-issues-container { grid-template-columns: 1fr 1fr; }
-            .pet-block { padding: 30px !important; }
-            .petling-medical-btn-wrapper { text-align: right !important; }
-            .weight-form { flex-wrap: nowrap !important; }
-        }
-    </style>
-    <?php
-}
-
-// 2. ΜΗΧΑΝΙΣΜΟΣ ΔΗΜΙΟΥΡΓΙΑΣ .ICS 
+// 1A. Δημιουργία .ICS Υπενθυμίσεων
 add_action( 'template_redirect', 'petling_crm_generate_ics' );
 function petling_crm_generate_ics() {
     if ( isset( $_GET['petling_ics'] ) && $_GET['petling_ics'] == '1' ) {
@@ -141,11 +24,13 @@ function petling_crm_generate_ics() {
         exit;
     }
 }
+
 function petling_crm_get_ics_link( $title, $date, $details = '' ) {
     if ( empty( $date ) || $date === '0000-00-00' || strtotime($date) <= 0 ) return '';
     return add_query_arg( [ 'petling_ics' => '1', 'title' => urlencode($title), 'date' => $date, 'desc' => urlencode($details) ], site_url() );
 }
 
+// 1B. Αποθήκευση Βασικών Στοιχείων Κατοικιδίων
 add_action( 'template_redirect', 'petling_crm_save_pets' );
 function petling_crm_save_pets() {
     if ( isset( $_POST['petling_crm_nonce'] ) && wp_verify_nonce( $_POST['petling_crm_nonce'], 'petling_save_pets' ) ) {
@@ -191,6 +76,7 @@ function petling_crm_save_pets() {
     }
 }
 
+// 1C. Αποθήκευση/Διαγραφή Εμβολίων & Παρασίτων
 add_action( 'template_redirect', 'petling_crm_handle_vaccines' );
 function petling_crm_handle_vaccines() {
     global $wpdb;
@@ -198,16 +84,11 @@ function petling_crm_handle_vaccines() {
         $pet_id = sanitize_text_field($_POST['pet_unique_id']);
         $v_name = sanitize_text_field($_POST['vaccine_name']);
         
-        $parasite_options = array(
-            'Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)',
-            'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)',
-            'Combo (Εσωτερικά & Εξωτερικά)'
-        );
+        $parasite_options = array('Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)', 'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)', 'Combo (Εσωτερικά & Εξωτερικά)');
 
-        // Αν είναι παράσιτο, ΔΙΑΓΡΑΦΟΥΜΕ το παλιό του ΙΔΙΟΥ τύπου για το ίδιο ζώο
         if (in_array($v_name, $parasite_options)) {
             $wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s AND vaccine_name = %s", $pet_id, $v_name) );
-            $d_admin = date('Y-m-d'); // Auto-fill current date
+            $d_admin = date('Y-m-d'); 
         } else {
             $d_admin = sanitize_text_field($_POST['date_administered']);
         }
@@ -231,6 +112,7 @@ function petling_crm_handle_vaccines() {
     }
 }
 
+// 1D. Αποθήκευση/Διαγραφή Σημειώσεων & Βάρους
 add_action( 'template_redirect', 'petling_crm_handle_vet_notes' );
 function petling_crm_handle_vet_notes() {
     global $wpdb;
@@ -262,12 +144,19 @@ function petling_crm_handle_vet_notes() {
     }
 }
 
+
+/* =========================================================================
+   ΕΝΟΤΗΤΑ 2: USER INTERFACE (HTML Φόρμες)
+   Εδώ βρίσκονται οι φόρμες που βλέπει ο χρήστης στο My Account.
+   ========================================================================= */
+
 add_action( 'woocommerce_account_pet-crm_endpoint', 'petling_crm_endpoint_content' );
 function petling_crm_endpoint_content() {
     $user_id = get_current_user_id();
     $pets = get_user_meta( $user_id, 'petling_pets', true );
     if ( ! is_array( $pets ) ) { $pets = []; }
 
+    // Έλεγχος για το ποια προβολή πρέπει να φορτώσει
     if ( isset( $_GET['view'] ) && $_GET['view'] === 'medical' && ! empty( $_GET['pet_id'] ) ) {
         $target_pet_id = sanitize_text_field( $_GET['pet_id'] );
         foreach ( $pets as $pet ) {
@@ -280,7 +169,6 @@ function petling_crm_endpoint_content() {
     $min_date = date('Y-m-d', strtotime('-30 years'));
     
     $energy_levels = [ 'low' => 'Χαμηλή', 'medium' => 'Μέτρια', 'high' => 'Υψηλή' ];
-    
     $health_issues = [ 
         'allergies'        => ['label' => 'Αλλεργίες (Δερματικές/Τροφικές)', 'target' => 'both'],
         'gastrointestinal' => ['label' => 'Γαστρεντερικές Ευαισθησίες', 'target' => 'both'],
@@ -306,7 +194,7 @@ function petling_crm_endpoint_content() {
         <?php wp_nonce_field( 'petling_save_pets', 'petling_crm_nonce' ); ?>
         
         <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
-            <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾: Κάντε τις αγορές σας παιχνίδι!</label>
+            <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾</label>
             <p style="font-size: 0.95em; color: #555; margin-bottom: 15px;">Επιλέξτε κάθε πότε θέλετε να σας θυμίζουμε να ανανεώσετε τα αποθέματα σας:</p>
             <select name="petling_order_reminder_interval" id="petling_reminder_dropdown" style="max-width: 300px; margin: 0 auto; display: block;">
                 <option value="no" <?php selected($reminder_interval, 'no'); ?>>Όχι, ευχαριστώ</option>
@@ -351,6 +239,7 @@ function petling_crm_endpoint_content() {
                 $p_neut    = $pet['neutered'] ?? 'no';
                 $p_health  = (isset($pet['health']) && is_array($pet['health'])) ? $pet['health'] : [];
                 $p_notes   = $pet['health_notes'] ?? '';
+                $p_breed   = $pet['breed'] ?? '';
                 
                 $display_style = ($index === 0) ? 'block' : 'none';
             ?>
@@ -361,6 +250,7 @@ function petling_crm_endpoint_content() {
                     </div>
                     
                     <input type="hidden" name="pet_id[]" value="<?php echo esc_attr( $p_id ); ?>">
+                    <input type="hidden" name="pet_breed[]" value="<?php echo esc_attr( $p_breed ); ?>">
                     
                     <div class="petling-grid">
                         <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" value="<?php echo esc_attr( $p_name ); ?>" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
@@ -418,6 +308,7 @@ function petling_crm_endpoint_content() {
     
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[]" value="">
+        <input type="hidden" name="pet_breed[]" value="">
         
         <div class="petling-grid">
             <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" placeholder="Όνομα ζώου" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
@@ -458,93 +349,6 @@ function petling_crm_endpoint_content() {
             <textarea name="pet_health_notes[]" rows="2"></textarea>
         </div>
     </div>
-
-    <script>
-    jQuery(document).ready(function($) {
-        let formIsDirty = false;
-        $('#petling-main-form').on('input change', 'input, select, textarea', function() {
-            formIsDirty = true;
-            if ($(this).attr('name') === 'petling_order_reminder_interval') {
-                $('#reminder-save-warning').slideDown(200);
-            }
-        });
-        $(window).on('beforeunload', function() {
-            if (formIsDirty) { return "Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε;"; }
-        });
-        $('#petling-main-form').on('submit', function() { formIsDirty = false; });
-
-        function filterPetData($block) {
-            let type = $block.find('.pet-type-select').val(); 
-            $block.find('.health-issue-item').each(function() {
-                let animal = $(this).data('animal');
-                if (animal === 'both' || animal === type) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                    $(this).find('input[type="checkbox"]').prop('checked', false);
-                }
-            });
-        }
-        $('.pet-block').each(function() { filterPetData($(this)); });
-        $(document).on('change', '.pet-type-select', function() { filterPetData($(this).closest('.pet-block')); });
-
-        $(document).on('click', '.pet-tab-btn', function() {
-            $('.pet-tab-btn').removeClass('is-active');
-            $(this).addClass('is-active');
-            $('.pet-block').hide();
-            $('#pet-block-' + $(this).data('tab')).show();
-        });
-
-        $('#add-pet-button').on('click', function(e) {
-            e.preventDefault();
-            const nextIndex = $('.pet-block').length; 
-            let templateHTML = $('#pet-block-template').html();
-            templateHTML = templateHTML.replace(/__INDEX__/g, nextIndex);
-            const $newBlock = $('<div class="pet-block" id="pet-block-' + nextIndex + '"></div>');
-            const $header = $('<div class="pet-block-header"><h4 class="pet-block-title">Νέο Ζώο 🐾</h4><button type="button" class="btn-petling btn-red remove-pet-button" formnovalidate>Αφαίρεση</button></div>');
-            $newBlock.append($header).append(templateHTML);
-            $('#pet-repeater-container').append($newBlock);
-            filterPetData($newBlock);
-            const $newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextIndex + '">🐾 Νέο Ζώο</button>');
-            $('.pet-tabs-nav').append($newTab);
-            $newTab.click();
-            $('#pet-block-' + nextIndex + ' .pet-name-input').on('input', function() {
-                let name = $(this).val().trim();
-                let type = $('#pet-block-' + nextIndex + ' .pet-type-select').val();
-                let emoji = (type === 'cat') ? '🐱' : '🐶';
-                if(name === '') name = 'Νέο Ζώο';
-                $newTab.html(emoji + ' ' + name);
-                $('#pet-block-' + nextIndex + ' .pet-block-title').text('Κατοικίδιο: ' + name);
-            });
-        });
-
-        $(document).on('change', '.pet-type-select', function() {
-            const $block = $(this).closest('.pet-block');
-            const id = $block.attr('id');
-            if (id) {
-                const index = id.replace('pet-block-', '');
-                const nameInput = $block.find('.pet-name-input').val().trim();
-                const name = nameInput === '' ? 'Νέο Ζώο' : nameInput;
-                const emoji = ($(this).val() === 'cat') ? '🐱' : '🐶';
-                $('.pet-tab-btn[data-tab="' + index + '"]').html(emoji + ' ' + name);
-            }
-        });
-
-        $(document).on('click', '.remove-pet-button', function() {
-            if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
-                const $block = $(this).closest('.pet-block');
-                const id = $block.attr('id');
-                if (id) {
-                    const index = id.replace('pet-block-', '');
-                    $('.pet-tab-btn[data-tab="' + index + '"]').remove();
-                }
-                $block.remove();
-                $('.pet-tab-btn').first().click();
-                formIsDirty = true; 
-            }
-        });
-    });
-    </script>
     <?php
 }
 
@@ -563,7 +367,7 @@ function petling_crm_render_medical_history( $pet ) {
         'Combo (Εσωτερικά & Εξωτερικά)'
     );
 
-    // ΑΥΤΟΜΑΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΠΑΛΙΩΝ ΑΠΟΠΑΡΑΣΙΤΩΣΕΩΝ (> 1 ΕΤΟΣ) ΠΡΙΝ ΤΗΝ ΠΡΟΒΟΛΗ
+    // ΑΥΤΟΜΑΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΠΑΛΙΩΝ ΑΠΟΠΑΡΑΣΙΤΩΣΕΩΝ (> 1 ΕΤΟΣ)
     $one_year_ago = date('Y-m-d', strtotime('-1 year'));
     foreach ($parasite_options as $p_opt) {
         $wpdb->query( $wpdb->prepare(
@@ -573,7 +377,6 @@ function petling_crm_render_medical_history( $pet ) {
         ) );
     }
 
-    // Ανάκτηση των δεδομένων αφού έχει γίνει ο καθαρισμός
     $all_records = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s ORDER BY date_administered DESC", $pet_id ) );
     $vet_notes = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}petling_vet_notes WHERE pet_unique_id = %s ORDER BY created_at DESC", $pet_id ) );
 
@@ -632,20 +435,52 @@ function petling_crm_render_medical_history( $pet ) {
             <div class="accordion-content">
                 <?php
                 $weight_history = [];
+                // Ομαδοποίηση ανά έτος
                 foreach ($vet_notes as $n) {
-                    if (!empty($n->weight)) { $weight_history[] = array('id' => $n->id, 'date' => $n->created_at, 'weight' => $n->weight); }
-                }
-                if (!empty($weight_history)) {
-                    echo '<ul class="weight-compact-list">';
-                    foreach($weight_history as $wh) {
-                        $delete_weight_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_weight', 'weight_id' => $wh['id'] ) ), 'del_weight_' . $wh['id'] );
-                        echo '<li class="weight-compact-item">';
-                        echo '<span class="w-date">' . date('d/m/Y', strtotime($wh['date'])) . '</span>';
-                        echo '<span class="w-val">' . esc_html($wh['weight']) . ' <span style="font-size:13px; font-weight:normal;">kg</span></span>';
-                        echo '<a href="' . esc_url($delete_weight_url) . '" class="w-del" onclick="return confirm(\'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή τη ζύγιση;\');" title="Διαγραφή Ζύγισης">&times;</a>';
-                        echo '</li>';
+                    if (!empty($n->weight)) { 
+                        $year = date('Y', strtotime($n->created_at));
+                        if(!isset($weight_history[$year])) $weight_history[$year] = [];
+                        $weight_history[$year][] = array('id' => $n->id, 'date' => $n->created_at, 'weight' => $n->weight); 
                     }
-                    echo '</ul>';
+                }
+                
+                $total_weights = 0;
+                foreach($weight_history as $year => $weights) { $total_weights += count($weights); }
+
+                if ($total_weights > 0) {
+                    echo '<div class="weight-history-wrapper">';
+                    $global_index = 0;
+                    
+                    foreach($weight_history as $year => $weights) {
+                        $year_display = ($global_index >= 5) ? 'display:none;' : '';
+                        echo '<div class="weight-year-group" data-year="'.$year.'" style="'.$year_display.'">';
+                        echo '<h5>📅 '.$year.'</h5>';
+                        echo '<ul class="weight-compact-list">';
+                        
+                        foreach($weights as $wh) {
+                            $item_display = ($global_index >= 5) ? 'display:none;' : '';
+                            $delete_weight_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_weight', 'weight_id' => $wh['id'] ) ), 'del_weight_' . $wh['id'] );
+                            
+                            echo '<li class="weight-compact-item weight-item-row" style="'.$item_display.'">';
+                            echo '<span class="w-date">' . date('d/m/Y', strtotime($wh['date'])) . '</span>';
+                            echo '<span class="w-val">' . esc_html($wh['weight']) . ' <span style="font-size:13px; font-weight:normal;">kg</span></span>';
+                            echo '<a href="' . esc_url($delete_weight_url) . '" class="w-del" onclick="return confirm(\'Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή τη ζύγιση;\');" title="Διαγραφή Ζύγισης">&times;</a>';
+                            echo '</li>';
+                            $global_index++;
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                    
+                    // Κουμπί Load More
+                    if ($total_weights > 5) {
+                        $hidden_count = $total_weights - 5;
+                        echo '<div style="text-align:center; padding:12px; border-top:1px solid #e5e5e5; background:#fafafa;">';
+                        echo '<button type="button" class="btn-show-older-weights">👁️ Εμφάνιση παλαιότερων ('.$hidden_count.')</button>';
+                        echo '</div>';
+                    }
+                    
+                    echo '</div>';
                 } else {
                     echo '<p style="font-style:italic; color:#666; margin-bottom:15px; font-size:14px;">Δεν υπάρχουν ακόμα καταγραφές βάρους.</p>';
                 }
@@ -703,7 +538,7 @@ function petling_crm_render_medical_history( $pet ) {
                 <form method="post" action="" style="background:#fffaf1; padding:20px; border-radius:8px; border:1px dashed #C7B297; margin-top:15px;">
                     <?php wp_nonce_field( 'petling_add_vaccine', 'petling_vaccine_nonce' ); ?>
                     <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
-                    <h4 style="margin:0 0 15px 0; color:#43282F;">➕ Προετοιμασία Εγγραφής <span style="display:block; font-size:12px; color:#666; font-weight:normal; margin-top:5px;">(Προετοιμάστε τα στοιχεία για γρήγορη επιβεβαίωση από τον ιατρό)</span></h4>
+                    <h4 style="margin:0 0 15px 0; color:#43282F;">➕ Προετοιμασία Εγγραφής</h4>
                     <div class="petling-grid">
                         <div><label>Επιλογή Εμβολίου *</label>
                             <select name="vaccine_name" required>
@@ -829,22 +664,167 @@ function petling_crm_render_medical_history( $pet ) {
             </div>
         </details>
     </div>
+    <?php
+}
 
+/* =========================================================================
+   ΕΝΟΤΗΤΑ 3: STYLES (CSS)
+   ========================================================================= */
+add_action( 'wp_head', 'petling_crm_custom_styles', 1000 );
+function petling_crm_custom_styles() {
+    if ( ! is_account_page() ) return;
+    ?>
+    <style>
+        /* Κουμπί Εμφάνισης Παλαιότερων Ζυγίσεων (Mobile Fixes Included) */
+        .btn-show-older-weights { 
+            background-color: #ffffff !important; 
+            border: 2px dashed #5b9a68 !important; 
+            color: #5b9a68 !important; 
+            font-weight: bold !important; 
+            cursor: pointer !important; 
+            font-size: 15px !important; 
+            padding: 12px 20px !important; 
+            border-radius: 8px !important; 
+            width: 100% !important; 
+            display: block !important;
+            text-align: center !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+            margin-top: 5px !important;
+            transition: all 0.2s;
+            -webkit-appearance: none !important; /* Πολύ σημαντικό για iPhone/Safari */
+        }
+        .btn-show-older-weights:hover, 
+        .btn-show-older-weights:active { 
+            background-color: #eef7ee !important; 
+        }
+    </style>
+    <?php
+}
+
+/* =========================================================================
+   ΕΝΟΤΗΤΑ 4: SCRIPTS (JAVASCRIPT)
+   Εδώ βρίσκονται όλα τα δυναμικά φίλτρα, τα accordions και τα tabs.
+   Φορτώνονται στο footer για βέλτιστη απόδοση.
+   ========================================================================= */
+add_action( 'wp_footer', 'petling_crm_inline_scripts', 99 );
+function petling_crm_inline_scripts() {
+    if ( ! is_account_page() ) return;
+    ?>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const accordions = document.querySelectorAll('.petling-accordion');
-            accordions.forEach(acc => {
-                acc.addEventListener('click', function(e) {
-                    if (!this.hasAttribute('open')) {
-                        accordions.forEach(otherAcc => {
-                            if (otherAcc !== this) {
-                                otherAcc.removeAttribute('open');
-                            }
-                        });
-                    }
-                });
+    jQuery(document).ready(function($) {
+        
+        // --- 1. UNSAVED CHANGES WARNING ---
+        let formIsDirty = false;
+        $('#petling-main-form').on('input change', 'input, select, textarea', function() {
+            formIsDirty = true;
+            if ($(this).attr('name') === 'petling_order_reminder_interval') {
+                $('#reminder-save-warning').slideDown(200);
+            }
+        });
+        $(window).on('beforeunload', function() {
+            if (formIsDirty) { return "Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε;"; }
+        });
+        $('#petling-main-form').on('submit', function() { formIsDirty = false; });
+
+        // --- 2. SMART FORM FILTERING (DOG/CAT) ---
+        function filterPetData($block) {
+            let type = $block.find('.pet-type-select').val(); 
+            $block.find('.health-issue-item').each(function() {
+                let animal = $(this).data('animal');
+                if (animal === 'both' || animal === type) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+        $('.pet-block').each(function() { filterPetData($(this)); });
+        $(document).on('change', '.pet-type-select', function() { filterPetData($(this).closest('.pet-block')); });
+
+        // --- 3. TABS LOGIC ---
+        $(document).on('click', '.pet-tab-btn', function() {
+            $('.pet-tab-btn').removeClass('is-active');
+            $(this).addClass('is-active');
+            $('.pet-block').hide();
+            $('#pet-block-' + $(this).data('tab')).show();
+        });
+
+        // --- 4. ΠΡΟΣΘΗΚΗ ΝΕΟΥ ΖΩΟΥ ---
+        $('#add-pet-button').on('click', function(e) {
+            e.preventDefault();
+            const nextIndex = $('.pet-block').length; 
+            let templateHTML = $('#pet-block-template').html();
+            templateHTML = templateHTML.replace(/__INDEX__/g, nextIndex);
+            const $newBlock = $('<div class="pet-block" id="pet-block-' + nextIndex + '"></div>');
+            const $header = $('<div class="pet-block-header"><h4 class="pet-block-title">Νέο Ζώο 🐾</h4><button type="button" class="btn-petling btn-red remove-pet-button" formnovalidate>Αφαίρεση</button></div>');
+            $newBlock.append($header).append(templateHTML);
+            $('#pet-repeater-container').append($newBlock);
+            filterPetData($newBlock);
+            const $newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextIndex + '">🐾 Νέο Ζώο</button>');
+            $('.pet-tabs-nav').append($newTab);
+            $newTab.click();
+            $('#pet-block-' + nextIndex + ' .pet-name-input').on('input', function() {
+                let name = $(this).val().trim();
+                let type = $('#pet-block-' + nextIndex + ' .pet-type-select').val();
+                let emoji = (type === 'cat') ? '🐱' : '🐶';
+                if(name === '') name = 'Νέο Ζώο';
+                $newTab.html(emoji + ' ' + name);
+                $('#pet-block-' + nextIndex + ' .pet-block-title').text('Κατοικίδιο: ' + name);
             });
         });
+
+        // --- 5. ΑΛΛΑΓΗ TAB EMOJI ΟΤΑΝ ΑΛΛΑΖΕΙ Ο ΤΥΠΟΣ ---
+        $(document).on('change', '.pet-type-select', function() {
+            const $block = $(this).closest('.pet-block');
+            const id = $block.attr('id');
+            if (id) {
+                const index = id.replace('pet-block-', '');
+                const nameInput = $block.find('.pet-name-input').val().trim();
+                const name = nameInput === '' ? 'Νέο Ζώο' : nameInput;
+                const emoji = ($(this).val() === 'cat') ? '🐱' : '🐶';
+                $('.pet-tab-btn[data-tab="' + index + '"]').html(emoji + ' ' + name);
+            }
+        });
+
+        // --- 6. ΑΦΑΙΡΕΣΗ ΖΩΟΥ ---
+        $(document).on('click', '.remove-pet-button', function() {
+            if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
+                const $block = $(this).closest('.pet-block');
+                const id = $block.attr('id');
+                if (id) {
+                    const index = id.replace('pet-block-', '');
+                    $('.pet-tab-btn[data-tab="' + index + '"]').remove();
+                }
+                $block.remove();
+                $('.pet-tab-btn').first().click();
+                formIsDirty = true; 
+            }
+        });
+
+        // --- 7. ACCORDIONS AUTO-CLOSE ---
+        const accordions = document.querySelectorAll('.petling-accordion');
+        accordions.forEach(acc => {
+            acc.addEventListener('click', function(e) {
+                if (!this.hasAttribute('open')) {
+                    accordions.forEach(otherAcc => {
+                        if (otherAcc !== this) {
+                            otherAcc.removeAttribute('open');
+                        }
+                    });
+                }
+            });
+        });
+
+        // --- 8. SHOW OLDER WEIGHTS BUTTON ---
+        $(document).on('click', '.btn-show-older-weights', function() {
+            var wrapper = $(this).closest('.weight-history-wrapper');
+            wrapper.find('.weight-year-group').slideDown(300);
+            wrapper.find('.weight-item-row').slideDown(300);
+            $(this).parent().slideUp(300);
+        });
+
+    });
     </script>
     <?php
 }
