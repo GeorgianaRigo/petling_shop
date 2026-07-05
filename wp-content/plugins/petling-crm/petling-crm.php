@@ -73,7 +73,6 @@ function petling_crm_admin_menu() {
 }
 
 function petling_crm_settings_page() {
-    // 1. Επεξεργασία Φόρμας
     if ( isset( $_POST['petling_admin_nonce'] ) && wp_verify_nonce( $_POST['petling_admin_nonce'], 'petling_save_settings' ) ) {
         
         $restrict = isset($_POST['restrict_access']) ? 'yes' : 'no';
@@ -109,7 +108,6 @@ function petling_crm_settings_page() {
         echo '<div class="notice notice-success is-dismissible"><p>Οι ρυθμίσεις αποθηκεύτηκαν.</p></div>';
     }
 
-    // 2. Επεξεργασία Διαγραφής / Καθαρισμού Ιστορικού
     if ( isset( $_GET['petling_action'] ) && isset( $_GET['_wpnonce'] ) ) {
         if ( $_GET['petling_action'] === 'remove' && wp_verify_nonce( $_GET['_wpnonce'], 'remove_user_' . $_GET['uid'] ) ) {
             $uid = intval($_GET['uid']);
@@ -130,7 +128,6 @@ function petling_crm_settings_page() {
         }
     }
 
-    // Default είναι ΠΑΝΤΑ "yes" (Κλειδωμένο) αν δεν έχει αποθηκευτεί άλλη επιλογή
     $is_restricted = get_option('petling_crm_restrict_access', 'yes');
     $allowed_users = get_option('petling_allowed_users', []);
     $revoked_users = get_option('petling_revoked_users', []);
@@ -215,13 +212,12 @@ function petling_crm_settings_page() {
  */
 add_filter( 'woocommerce_account_menu_items', 'petling_crm_add_tab' );
 function petling_crm_add_tab( $items ) {
-    $is_restricted = get_option('petling_crm_restrict_access', 'yes'); // Default είναι yes
+    $is_restricted = get_option('petling_crm_restrict_access', 'yes');
     $current_user = get_current_user_id();
     $allowed = get_option('petling_allowed_users', []);
 
-    // Αν είναι ενεργός ο περιορισμός ΚΑΙ ο χρήστης ΔΕΝ είναι admin ΚΑΙ ΔΕΝ είναι στη λίστα
     if ( $is_restricted === 'yes' && !current_user_can('manage_options') && !in_array($current_user, $allowed) ) {
-        return $items; // Κρύβει το tab
+        return $items;
     }
 
     $logout = array_pop($items);
@@ -233,12 +229,12 @@ function petling_crm_add_tab( $items ) {
 add_action( 'template_redirect', 'petling_crm_restrict_endpoint_access' );
 function petling_crm_restrict_endpoint_access() {
     if ( is_account_page() && isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/pet-crm') !== false ) {
-        $is_restricted = get_option('petling_crm_restrict_access', 'yes'); // Default είναι yes
+        $is_restricted = get_option('petling_crm_restrict_access', 'yes');
         $current_user = get_current_user_id();
         $allowed = get_option('petling_allowed_users', []);
 
         if ( $is_restricted === 'yes' && !current_user_can('manage_options') && !in_array($current_user, $allowed) ) {
-            wp_redirect( wc_get_page_permalink( 'myaccount' ) ); // Τον πετάει έξω αν γράψει το URL με το χέρι
+            wp_redirect( wc_get_page_permalink( 'myaccount' ) );
             exit;
         }
     }
@@ -257,7 +253,7 @@ require_once PETLING_CRM_PATH . 'includes/crm-ui.php';
 add_action( 'wp_enqueue_scripts', 'petling_crm_scripts' );
 function petling_crm_scripts() {
     if ( is_account_page() ) {
-        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'js/crm-scripts.js', ['jquery'], '2.5', true );
+        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'js/crm-scripts.js', array('jquery'), '2.5', true );
     }
 }
 
@@ -359,3 +355,4 @@ function petling_send_smart_reminder_email( $to, $pet_names, $interval_days ) {
 
     wp_mail( $to, $subject, $message, array('Content-Type: text/html; charset=UTF-8') );
 }
+?>
