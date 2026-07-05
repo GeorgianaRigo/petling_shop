@@ -24,11 +24,15 @@ function petling_crm_force_mobile_css() {
             padding: 10px !important; border: 1px solid #ccc !important; 
             border-radius: 6px !important; font-size: 15px !important; height: 42px !important; background-color: #fff !important; 
         }
+        
+        /* Error States for Validation */
+        .petling-crm-form input:invalid, .petling-crm-form select:invalid { border-color: #e62121 !important; box-shadow: 0 0 3px rgba(230,33,33,0.3); }
+        .petling-crm-form input:focus:invalid { outline: none; }
+        
         .petling-crm-form textarea { height: auto !important; min-height: 80px !important; }
         
         /* Grids & Blocks */
         .petling-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; width: 100%; max-width: 100%; }
-        .petling-grid-full { grid-column: span 1; }
         .pet-block { border: 2px solid #C7B297 !important; padding: 20px !important; margin-bottom: 30px !important; border-radius: 10px !important; background: #fffaf1 !important; display: none; width: 100%; max-width: 100%; box-sizing: border-box !important; }
         .pet-block-header { border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .pet-block-title { font-size: 1.2em; color: #43282F; font-weight: bold; margin: 0; }
@@ -40,11 +44,11 @@ function petling_crm_force_mobile_css() {
         .pet-tab-btn.is-active { background: #43282F !important; color: #fff !important; border-color: #43282F !important; }
 
         /* Checkboxes (Στοίχιση) */
-        .health-issues-container { display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 250px; overflow-y: auto; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; }
-        .health-issues-container label { display: flex !important; align-items: center !important; font-weight: normal; font-size: 14px; margin: 0; cursor: pointer; }
-        .health-issues-container input[type="checkbox"] { width: 20px !important; height: 20px !important; margin-right: 12px !important; flex-shrink: 0; }
+        .health-issues-container { display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 280px; overflow-y: auto; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; }
+        .health-issue-item { display: flex !important; align-items: center !important; font-weight: normal; font-size: 14px; margin: 0; cursor: pointer; }
+        .health-issue-item input[type="checkbox"] { width: 20px !important; height: 20px !important; margin-right: 12px !important; flex-shrink: 0; }
         .custom-checkbox-wrapper { background: #fbfbfb; padding: 15px; border-radius: 6px; border: 1px solid #e5e5e5; display: flex; align-items: center; margin-bottom: 20px; }
-        .custom-checkbox-wrapper label { margin: 0; display: flex; align-items: center; cursor: pointer; width: 100%; }
+        .custom-checkbox-wrapper label { margin: 0; display: flex; align-items: center; cursor: pointer; width: 100%; font-weight:normal; }
         .custom-checkbox-wrapper input[type="checkbox"] { width: 22px !important; height: 22px !important; margin-right: 12px !important; }
 
         /* Buttons */
@@ -78,25 +82,17 @@ function petling_crm_force_mobile_css() {
         .petling-table td { padding: 12px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
         /* ========================================================
-           ΚΙΝΗΤΑ (SMARTPHONES) - ΕΠΙΘΕΤΙΚΟ OVERRIDE (FIX HORIZONTAL SCROLL)
+           ΚΙΝΗΤΑ (SMARTPHONES) - ΕΠΙΘΕΤΙΚΟ OVERRIDE
            ======================================================== */
         @media (max-width: 767px) {
-            /* Μενού My Account Οριζόντιο Scroll - Χωρίς 100vw! */
-            body.woocommerce-account .woocommerce-MyAccount-navigation { 
-                width: 100% !important; margin: 0 0 20px 0 !important; padding: 0 !important; float: none !important; background: transparent !important; border: none !important;
-            }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul { 
-                display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; gap: 10px !important; padding: 0 0 10px 0 !important; margin: 0 !important; border: none !important; width: 100% !important; box-sizing: border-box !important;
-            }
+            body.woocommerce-account .woocommerce-MyAccount-navigation { width: 100% !important; margin: 0 0 20px 0 !important; padding: 0 !important; float: none !important; background: transparent !important; border: none !important; }
+            body.woocommerce-account .woocommerce-MyAccount-navigation ul { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; gap: 10px !important; padding: 0 0 10px 0 !important; margin: 0 !important; border: none !important; width: 100% !important; box-sizing: border-box !important; }
             body.woocommerce-account .woocommerce-MyAccount-navigation ul::-webkit-scrollbar { height: 4px; }
             body.woocommerce-account .woocommerce-MyAccount-navigation ul::-webkit-scrollbar-thumb { background: #dcdcdc; border-radius: 4px; }
             body.woocommerce-account .woocommerce-MyAccount-navigation ul li { flex: 0 0 auto !important; width: auto !important; border: none !important; padding: 0 !important; margin: 0 !important; }
-            body.woocommerce-account .woocommerce-MyAccount-navigation ul li a { 
-                display: block !important; padding: 10px 15px !important; background: #fff !important; border: 2px solid #C7B297 !important; border-radius: 25px !important; color: #43282F !important; font-size: 13px !important; font-weight: 600 !important; white-space: nowrap !important; line-height: 1 !important;
-            }
+            body.woocommerce-account .woocommerce-MyAccount-navigation ul li a { display: block !important; padding: 10px 15px !important; background: #fff !important; border: 2px solid #C7B297 !important; border-radius: 25px !important; color: #43282F !important; font-size: 13px !important; font-weight: 600 !important; white-space: nowrap !important; line-height: 1 !important; }
             body.woocommerce-account .woocommerce-MyAccount-navigation ul li.is-active a { background: #43282F !important; color: #fff !important; border-color: #43282F !important; }
             
-            /* Πίνακας Εμβολίων -> Κάρτες */
             .petling-table thead, .petling-table th { display: none !important; }
             .petling-table, .petling-table tbody, .petling-table tr, .petling-table td { display: block !important; width: 100% !important; box-sizing: border-box !important; }
             .petling-table tr { margin-bottom: 20px !important; border: 2px solid #e5e5e5 !important; border-radius: 10px !important; padding: 15px !important; background: #fafafa !important; }
@@ -108,10 +104,8 @@ function petling_crm_force_mobile_css() {
             .weight-form { flex-wrap: wrap !important; }
             .weight-form > div { width: 100% !important; }
             .weight-form button { width: 100% !important; max-width: 100% !important; margin-top: 10px !important; }
-            
             details.petling-accordion summary { font-size: 16px; padding: 15px; }
             
-            /* QR Flex Box Lock */
             .qr-flex-container { display: flex; flex-direction: row !important; flex-wrap: nowrap !important; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; }
             .qr-flex-container > div:first-child { flex: 1; min-width: 0; padding-right: 10px; }
         }
@@ -119,7 +113,6 @@ function petling_crm_force_mobile_css() {
         /* TABLETS & DESKTOPS */
         @media (min-width: 768px) {
             .petling-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
-            .petling-grid-full { grid-column: span 2; }
             .health-issues-container { grid-template-columns: 1fr 1fr; }
             .pet-block { padding: 30px !important; }
             .petling-medical-btn-wrapper { text-align: right !important; }
@@ -182,7 +175,7 @@ function petling_crm_save_pets() {
                     'type'         => sanitize_text_field( $_POST['pet_type'][ $index ] ?? '' ),
                     'birthday'     => sanitize_text_field( $_POST['pet_birthday'][ $index ] ?? '' ),
                     'energy'       => sanitize_text_field( $_POST['pet_energy'][ $index ] ?? '' ),
-                    'breed'        => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ),
+                    'breed'        => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ), // Διατηρούμε τυχόν παλιά δεδομένα
                     'weight'       => sanitize_text_field( $_POST['pet_weight'][ $index ] ?? '' ),
                     'microchip'    => sanitize_text_field( $_POST['pet_microchip'][$index] ?? '' ),
                     'daily_food'   => sanitize_text_field( $_POST['pet_daily_food'][ $index ] ?? '' ),
@@ -257,33 +250,53 @@ function petling_crm_endpoint_content() {
     $min_date = date('Y-m-d', strtotime('-30 years'));
     
     $energy_levels = [ 'low' => 'Χαμηλή', 'medium' => 'Μέτρια', 'high' => 'Υψηλή' ];
-    $breeds = [ 'amstaff' => 'American Staffordshire Terrier (Amstaff)', 'beagle' => 'Beagle', 'boxer' => 'Boxer', 'chihuahua' => 'Chihuahua', 'cocker_spaniel' => 'Cocker Spaniel', 'dachshund' => 'Dachshund (Λουκάνικο)', 'doberman' => 'Doberman', 'french_bulldog' => 'French Bulldog', 'german_shepherd' => 'German Shepherd (Γερμανικός Ποιμενικός)', 'golden_retriever' => 'Golden Retriever', 'griffon' => 'Griffon', 'jack_russell' => 'Jack Russell Terrier', 'kane_korso' => 'Cane Corso', 'labrador_retriever' => 'Labrador Retriever', 'maltese' => 'Maltese', 'poodle' => 'Poodle (Κανίς)', 'pomeranian' => 'Pomeranian', 'pug' => 'Pug', 'rottweiler' => 'Rottweiler', 'setter' => 'Setter', 'shih_tzu' => 'Shih Tzu', 'siberian_husky' => 'Siberian Husky', 'westie' => 'West Highland White Terrier (Westie)', 'yorkshire_terrier' => 'Yorkshire Terrier', 'greek_harehound' => 'Ελληνικός Ιχνηλάτης', 'greek_shepherd' => 'Ελληνικός Ποιμενικός', 'kokoni' => 'Κοκόνι', 'imichano_dog' => 'Ημίαιμο (Σκύλος)', 'aegean' => 'Aegean (Γάτα του Αιγαίου)', 'bengal' => 'Bengal', 'birman' => 'Birman', 'british_shorthair' => 'British Shorthair', 'maine_coon' => 'Maine Coon', 'persian' => 'Persian (Περσίας)', 'ragdoll' => 'Ragdoll', 'siamese' => 'Siamese (Σιάμ)', 'sphynx' => 'Sphynx', 'imichani_cat' => 'Ημίαιμη (Γάτα)', 'other' => 'Άλλη Φυλή' ];
-    asort($breeds);
-    $health_issues = [ 'allergies' => 'Αλλεργίες (Δερματικές/Τροφικές)', 'gastrointestinal'=> 'Γαστρεντερικές Ευαισθησίες', 'dysplasia' => 'Δυσπλασία Ισχίου/Αγκώνα', 'arthritis' => 'Αρθρίτιδα / Οστεοαρθρίτιδα', 'leishmaniasis' => 'Λεϊσμανίαση (Καλαζάρ)', 'urinary' => 'Ουρολογικά Προβλήματα (FLUTD)', 'kidney' => 'Χρόνια Νεφρική Ανεπάρκεια', 'dental' => 'Οδοντικά Προβλήματα', 'heart' => 'Καρδιολογικά Προβλήματα', 'obesity' => 'Παχυσαρκία', 'thyroid' => 'Θυρεοειδής', 'ear_infections'  => 'Συχνές Ωτίτιδες' ];
+    
+    // SMART FORM: Διαχωρισμός παθήσεων με έμφαση στην Ελλάδα
+    $health_issues = [ 
+        'allergies'        => ['label' => 'Αλλεργίες (Δερματικές/Τροφικές)', 'target' => 'both'],
+        'gastrointestinal' => ['label' => 'Γαστρεντερικές Ευαισθησίες', 'target' => 'both'],
+        'arthritis'        => ['label' => 'Αρθρίτιδα / Οστεοαρθρίτιδα', 'target' => 'both'],
+        'urinary'          => ['label' => 'Ουρολογικά (π.χ. Κρυσταλλουρία, FLUTD)', 'target' => 'both'],
+        'kidney'           => ['label' => 'Νεφρική Ανεπάρκεια', 'target' => 'both'],
+        'dental'           => ['label' => 'Οδοντικά Προβλήματα / Ουλίτιδα', 'target' => 'both'],
+        'heart'            => ['label' => 'Καρδιοπάθειες / Φύσημα', 'target' => 'both'],
+        'obesity'          => ['label' => 'Παχυσαρκία', 'target' => 'both'],
+        'thyroid_diabetes' => ['label' => 'Θυρεοειδής / Διαβήτης', 'target' => 'both'],
+        'leishmaniasis'    => ['label' => 'Λεϊσμανίαση (Καλαζάρ)', 'target' => 'dog'],
+        'ehrlichiosis'     => ['label' => 'Ερλιχίωση (από τσιμπούρια)', 'target' => 'dog'],
+        'heartworm'        => ['label' => 'Διροφιλαρίωση (Σκουλήκι καρδιάς)', 'target' => 'dog'],
+        'dysplasia'        => ['label' => 'Δυσπλασία (Ισχίου/Αγκώνα)', 'target' => 'dog'],
+        'ear_infections'   => ['label' => 'Συχνές Ωτίτιδες', 'target' => 'dog'],
+        'fiv_felv'         => ['label' => 'FIV / FeLV (AIDS / Λευχαιμία)', 'target' => 'cat'],
+        'fip'              => ['label' => 'FIP (Λοιμώδης Περιτονίτιδα)', 'target' => 'cat'],
+        'cat_flu'          => ['label' => 'Χρόνια Καταρροή / Ρινοτραχειίτιδα', 'target' => 'cat']
+    ];
 
     ?>
     <form method="post" action="" class="petling-crm-form" id="petling-main-form">
         <?php wp_nonce_field( 'petling_save_pets', 'petling_crm_nonce' ); ?>
         
-        <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
+        <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
             <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾: Κάντε τις αγορές σας παιχνίδι!</label>
             <p style="font-size: 0.95em; color: #555; margin-bottom: 15px;">Επιλέξτε κάθε πότε θέλετε να σας θυμίζουμε να ανανεώσετε τα αποθέματα σας:</p>
-            <select name="petling_order_reminder_interval" style="max-width: 300px; margin: 0 auto; display: block;">
+            <select name="petling_order_reminder_interval" id="petling_reminder_dropdown" style="max-width: 300px; margin: 0 auto; display: block;">
                 <option value="no" <?php selected($reminder_interval, 'no'); ?>>Όχι, ευχαριστώ</option>
                 <option value="15" <?php selected($reminder_interval, '15'); ?>>Κάθε 15 μέρες</option>
                 <option value="30" <?php selected($reminder_interval, '30'); ?>>Κάθε 1 Μήνα (30 μέρες)</option>
                 <option value="45" <?php selected($reminder_interval, '45'); ?>>Κάθε 1.5 Μήνα (45 μέρες)</option>
                 <option value="60" <?php selected($reminder_interval, '60'); ?>>Κάθε 2 Μήνες (60 μέρες)</option>
             </select>
+            <div id="reminder-save-warning" style="display:none; color:#d63638; font-size:13px; font-weight:bold; margin-top:10px; animation: fadeIn 0.3s;">⚠️ Μην ξεχάσετε να πατήσετε 'Αποθήκευση' στο κάτω μέρος!</div>
             
             <?php if ( current_user_can( 'manage_options' ) ) : ?>
             <div style="margin-top: 15px; border-top: 1px dashed #5b9a68; padding-top: 15px;">
-                <button type="submit" name="petling_test_email_trigger" value="1" class="btn-petling btn-dark" style="width: 100%; max-width: 300px;">📧 Δοκιμαστικό Email</button>
+                <button type="submit" name="petling_test_email_trigger" value="1" class="btn-petling btn-dark" style="width: 100%; max-width: 300px;" formnovalidate>📧 Δοκιμαστικό Email</button>
             </div>
             <?php endif; ?>
         </div>
 
         <h2 style="color: #43282F; margin-bottom: 10px;">Τα Κατοικίδιά μου 🐾</h2>
+        
         <div class="pet-tabs-nav">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
                 $tab_name = !empty($pet['name']) ? esc_html($pet['name']) : 'Ζώο ' . ($index + 1);
@@ -300,10 +313,10 @@ function petling_crm_endpoint_content() {
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
                 $p_id      = $pet['id'] ?? '';
                 $p_name    = $pet['name'] ?? '';
-                $p_type    = $pet['type'] ?? '';
+                $p_type    = $pet['type'] ?? 'dog';
                 $p_bday    = $pet['birthday'] ?? '';
                 $p_energy  = $pet['energy'] ?? '';
-                $p_breed   = $pet['breed'] ?? '';
+                $p_breed   = $pet['breed'] ?? ''; // Κρυφό πλέον
                 $p_weight  = $pet['weight'] ?? '';
                 $p_micro   = $pet['microchip'] ?? '';
                 $p_dfood   = $pet['daily_food'] ?? '';
@@ -311,7 +324,6 @@ function petling_crm_endpoint_content() {
                 $p_health  = (isset($pet['health']) && is_array($pet['health'])) ? $pet['health'] : [];
                 $p_notes   = $pet['health_notes'] ?? '';
                 
-                // Το πρώτο pet block εμφανίζεται, τα υπόλοιπα κρύβονται αρχικά
                 $display_style = ($index === 0) ? 'block' : 'none';
             ?>
                 <div class="pet-block" id="pet-block-<?php echo $index; ?>" style="display: <?php echo $display_style; ?>;">
@@ -319,22 +331,28 @@ function petling_crm_endpoint_content() {
                         <h4 class="pet-block-title">Κατοικίδιο: <?php echo esc_html($p_name); ?></h4>
                         <button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button>
                     </div>
+                    
                     <input type="hidden" name="pet_id[]" value="<?php echo esc_attr( $p_id ); ?>">
+                    <input type="hidden" name="pet_breed[]" value="<?php echo esc_attr( $p_breed ); ?>">
                     
                     <div class="petling-grid">
-                        <div><label>Όνομα</label><input type="text" name="pet_name[]" class="pet-name-input" value="<?php echo esc_attr( $p_name ); ?>"></div>
-                        <div><label>Τύπος</label><select name="pet_type[]" class="pet-type-select"><option value="dog" <?php selected( $p_type, 'dog' ); ?>>Σκύλος</option><option value="cat" <?php selected( $p_type, 'cat' ); ?>>Γάτα</option></select></div>
-                        <div><label>Ημερομηνία Γέννησης 🎉</label><input type="date" name="pet_birthday[]" value="<?php echo esc_attr( $p_bday ); ?>" max="<?php echo $today; ?>" min="<?php echo $min_date; ?>"></div>
+                        <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" value="<?php echo esc_attr( $p_name ); ?>" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
+                        
+                        <div><label>Τύπος *</label><select name="pet_type[]" class="pet-type-select" required><option value="dog" <?php selected( $p_type, 'dog' ); ?>>Σκύλος</option><option value="cat" <?php selected( $p_type, 'cat' ); ?>>Γάτα</option></select></div>
+                        
+                        <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[]" value="<?php echo esc_attr( $p_bday ); ?>" required max="<?php echo $today; ?>" min="<?php echo $min_date; ?>"></div>
+                        
                         <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_energy, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
-                        <div><label>Φυλή</label><select name="pet_breed[]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_breed, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
-                        <div><label>Βάρος (κιλά)</label><input type="text" name="pet_weight[]" placeholder="π.χ. 25.5" value="<?php echo esc_attr( $p_weight ); ?>"></div>
-                        <div class="petling-grid-full"><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]" placeholder="15ψήφιος κωδικός" value="<?php echo esc_attr( $p_micro ); ?>"></div>
+                        
+                        <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[]" placeholder="π.χ. 25.5" value="<?php echo esc_attr( $p_weight ); ?>"></div>
+                        
+                        <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]" placeholder="15ψήφιος κωδικός" value="<?php echo esc_attr( $p_micro ); ?>" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
                     </div>
 
                     <div style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                         <label style="color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια)</label>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
-                            <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" value="<?php echo esc_attr( $p_dfood ); ?>" style="max-width: 120px; margin: 0 !important;">
+                            <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" value="<?php echo esc_attr( $p_dfood ); ?>" style="max-width: 120px; margin: 0 !important;" min="0">
                             <span style="color:#555; font-weight:bold;">γρ.</span>
                         </div>
                     </div>
@@ -350,8 +368,8 @@ function petling_crm_endpoint_content() {
                     <div style="margin-bottom: 20px;">
                         <label>Προβλήματα Υγείας</label>
                         <div class="health-issues-container">
-                            <?php foreach ($health_issues as $key => $label) : ?>
-                                <label><input type="checkbox" name="pet_health[<?php echo $index; ?>][]" value="<?php echo esc_attr($key); ?>" <?php checked( in_array( $key, $p_health ) ); ?>> <span><?php echo esc_html($label); ?></span></label>
+                            <?php foreach ($health_issues as $key => $data) : ?>
+                                <label class="health-issue-item" data-animal="<?php echo esc_attr($data['target']); ?>"><input type="checkbox" name="pet_health[<?php echo $index; ?>][]" value="<?php echo esc_attr($key); ?>" <?php checked( in_array( $key, $p_health ) ); ?>> <span><?php echo esc_html($data['label']); ?></span></label>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -378,20 +396,21 @@ function petling_crm_endpoint_content() {
     
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[]" value="">
+        <input type="hidden" name="pet_breed[]" value="">
+        
         <div class="petling-grid">
-            <div><label>Όνομα</label><input type="text" name="pet_name[]" class="pet-name-input" placeholder="Όνομα ζώου"></div>
-            <div><label>Τύπος</label><select name="pet_type[]" class="pet-type-select"><option value="dog">Σκύλος</option><option value="cat">Γάτα</option></select></div>
-            <div><label>Ημερομηνία Γέννησης 🎉</label><input type="date" name="pet_birthday[]" max="<?php echo $today; ?>"></div>
+            <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" placeholder="Όνομα ζώου" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
+            <div><label>Τύπος *</label><select name="pet_type[]" class="pet-type-select" required><option value="dog">Σκύλος</option><option value="cat">Γάτα</option></select></div>
+            <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[]" required max="<?php echo $today; ?>"></div>
             <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
-            <div><label>Φυλή</label><select name="pet_breed[]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
-            <div><label>Βάρος (κιλά)</label><input type="text" name="pet_weight[]"></div>
-            <div class="petling-grid-full"><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]"></div>
+            <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[]"></div>
+            <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
         </div>
         
         <div style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 6px; margin-bottom: 20px; margin-top: 15px;">
             <label style="color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια)</label>
             <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
-                <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" style="max-width: 120px; margin: 0 !important;">
+                <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" style="max-width: 120px; margin: 0 !important;" min="0">
                 <span style="color:#555; font-weight:bold;">γρ.</span>
             </div>
         </div>
@@ -407,8 +426,8 @@ function petling_crm_endpoint_content() {
         <div style="margin-bottom: 20px;">
             <label>Προβλήματα Υγείας</label>
             <div class="health-issues-container">
-                <?php foreach ($health_issues as $key => $label) : ?>
-                    <label><input type="checkbox" name="pet_health[__INDEX__][]" value="<?php echo esc_attr($key); ?>"> <span><?php echo esc_html($label); ?></span></label>
+                <?php foreach ($health_issues as $key => $data) : ?>
+                    <label class="health-issue-item" data-animal="<?php echo esc_attr($data['target']); ?>"><input type="checkbox" name="pet_health[__INDEX__][]" value="<?php echo esc_attr($key); ?>"> <span><?php echo esc_html($data['label']); ?></span></label>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -421,42 +440,75 @@ function petling_crm_endpoint_content() {
 
     <script>
     jQuery(document).ready(function($) {
-        // 1. Εναλλαγή μεταξύ των Tabs
+        
+        // --- 1. UNSAVED CHANGES WARNING ---
+        let formIsDirty = false;
+        
+        $('#petling-main-form').on('input change', 'input, select, textarea', function() {
+            formIsDirty = true;
+            if ($(this).attr('name') === 'petling_order_reminder_interval') {
+                $('#reminder-save-warning').slideDown(200);
+            }
+        });
+
+        $(window).on('beforeunload', function() {
+            if (formIsDirty) {
+                return "Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε;";
+            }
+        });
+
+        $('#petling-main-form').on('submit', function() {
+            formIsDirty = false; 
+        });
+
+        // --- 2. SMART FORM FILTERING (DOG/CAT) ---
+        function filterPetData($block) {
+            let type = $block.find('.pet-type-select').val(); // 'dog' or 'cat'
+
+            // Filter Health Issues
+            $block.find('.health-issue-item').each(function() {
+                let animal = $(this).data('animal');
+                if (animal === 'both' || animal === type) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                    $(this).find('input[type="checkbox"]').prop('checked', false);
+                }
+            });
+        }
+
+        $('.pet-block').each(function() { filterPetData($(this)); });
+
+        $(document).on('change', '.pet-type-select', function() {
+            filterPetData($(this).closest('.pet-block'));
+        });
+
+        // --- 3. TABS LOGIC ---
         $(document).on('click', '.pet-tab-btn', function() {
             $('.pet-tab-btn').removeClass('is-active');
             $(this).addClass('is-active');
-            
             $('.pet-block').hide();
-            const targetIndex = $(this).data('tab');
-            $('#pet-block-' + targetIndex).show();
+            $('#pet-block-' + $(this).data('tab')).show();
         });
 
-        // 2. Δυναμική Προσθήκη Νέου Ζώου με αυτόματη δημιουργία Tab
         $('#add-pet-button').on('click', function(e) {
             e.preventDefault();
             const nextIndex = $('.pet-block').length; 
-            
-            // Παίρνουμε το template
             let templateHTML = $('#pet-block-template').html();
             templateHTML = templateHTML.replace(/__INDEX__/g, nextIndex);
             
-            // Δημιουργούμε το νέο pet-block
             const $newBlock = $('<div class="pet-block" id="pet-block-' + nextIndex + '"></div>');
-            
-            // Φτιάχνουμε το header της νέας φόρμας
-            const $header = $('<div class="pet-block-header"><h4 class="pet-block-title">Νέο Ζώο 🐾</h4><button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button></div>');
+            const $header = $('<div class="pet-block-header"><h4 class="pet-block-title">Νέο Ζώο 🐾</h4><button type="button" class="btn-petling btn-red remove-pet-button" formnovalidate>Αφαίρεση</button></div>');
             
             $newBlock.append($header).append(templateHTML);
             $('#pet-repeater-container').append($newBlock);
             
-            // Δημιουργούμε και προσθέτουμε το αντίστοιχο Tab επάνω
+            filterPetData($newBlock);
+            
             const $newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextIndex + '">🐾 Νέο Ζώο</button>');
             $('.pet-tabs-nav').append($newTab);
-            
-            // Κάνουμε κλικ στο νέο tab για να μεταφερθεί ο χρήστης εκεί
             $newTab.click();
             
-            // Δυναμικό update του Tab Name όταν ο χρήστης πληκτρολογεί το όνομα
             $('#pet-block-' + nextIndex + ' .pet-name-input').on('input', function() {
                 let name = $(this).val().trim();
                 let type = $('#pet-block-' + nextIndex + ' .pet-type-select').val();
@@ -467,7 +519,6 @@ function petling_crm_endpoint_content() {
             });
         });
 
-        // 3. Δυναμικό update emoji στο tab αν αλλάξει ο τύπος (Σκύλος/Γάτα)
         $(document).on('change', '.pet-type-select', function() {
             const $block = $(this).closest('.pet-block');
             const id = $block.attr('id');
@@ -480,7 +531,6 @@ function petling_crm_endpoint_content() {
             }
         });
 
-        // 4. Αφαίρεση Ζώου & του Tab του
         $(document).on('click', '.remove-pet-button', function() {
             if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
                 const $block = $(this).closest('.pet-block');
@@ -490,8 +540,8 @@ function petling_crm_endpoint_content() {
                     $('.pet-tab-btn[data-tab="' + index + '"]').remove();
                 }
                 $block.remove();
-                // Επιστροφή στο πρώτο διαθέσιμο Tab
                 $('.pet-tab-btn').first().click();
+                formIsDirty = true; 
             }
         });
     });
@@ -534,7 +584,6 @@ function petling_crm_render_medical_history( $pet ) {
                 <h3 style="margin: 0; color: #fff; font-size: 20px; word-wrap: break-word;"><?php echo esc_html($pet['name']); ?></h3>
                 <p style="margin: 5px 0 0 0; color: #e0e0e0; font-size: 14px;">
                     <?php echo ($pet['type'] === 'dog' ? 'Σκύλος 🐶' : 'Γάτα 🐱'); ?> 
-                    <?php if(!empty($pet['breed'])) echo '<br>' . esc_html($pet['breed']); ?>
                 </p>
                 <?php if(!empty($pet['microchip'])): ?>
                     <div style="margin-top: 12px; background: rgba(255,255,255,0.1); padding: 8px 10px; border-radius: 6px; display: inline-block;">
@@ -580,7 +629,7 @@ function petling_crm_render_medical_history( $pet ) {
                     <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
                     <div style="flex:1; min-width: 150px;">
                         <label>Νέα Ζύγιση (kg) *</label>
-                        <input type="number" step="0.01" name="weight" required>
+                        <input type="number" step="0.01" min="0" name="weight" required>
                     </div>
                     <button type="submit" class="btn-petling btn-brown" style="height:42px; width: 100%; max-width: 200px;">Προσθήκη Βάρους</button>
                 </form>
