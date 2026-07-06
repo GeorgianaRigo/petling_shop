@@ -246,14 +246,15 @@ function petling_crm_register_endpoint() {
 }
 
 /**
- * 4. ΦΟΡΤΩΣΗ SCRIPTS & UI
+ * 4. ΦΟΡΤΩΣΗ SCRIPTS, CSS & UI
  */
 require_once PETLING_CRM_PATH . 'includes/crm-ui.php';
 
 add_action( 'wp_enqueue_scripts', 'petling_crm_scripts' );
 function petling_crm_scripts() {
-    if ( is_account_page() ) {
-        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'js/crm-scripts.js', array('jquery'), '2.5', true );
+    if ( is_account_page() || strpos( $_SERVER['REQUEST_URI'], '/vet-pass/' ) !== false ) {
+        wp_enqueue_style( 'petling-crm-css', PETLING_CRM_URL . 'assets/css/crm-styles.css', array(), '2.6' );
+        wp_enqueue_script( 'petling-crm-js', PETLING_CRM_URL . 'assets/js/crm-scripts.js', array('jquery'), '2.6', true );
     }
 }
 

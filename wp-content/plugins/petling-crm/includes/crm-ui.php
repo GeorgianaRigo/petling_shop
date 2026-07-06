@@ -3,7 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* =========================================================================
    ΕΝΟΤΗΤΑ 1: DATA HANDLING & FUNCTIONS (PHP Λογική)
-   Εδώ βρίσκονται όλες οι συναρτήσεις αποθήκευσης, διαγραφής και δημιουργίας.
    ========================================================================= */
 
 // 1A. Δημιουργία .ICS Υπενθυμίσεων
@@ -146,8 +145,7 @@ function petling_crm_handle_vet_notes() {
 
 
 /* =========================================================================
-   ΕΝΟΤΗΤΑ 2: USER INTERFACE (HTML Φόρμες)
-   Εδώ βρίσκονται οι φόρμες που βλέπει ο χρήστης στο My Account.
+   ΕΝΟΤΗΤΑ 2: HTML VIEWS (Φόρμες Πελάτη)
    ========================================================================= */
 
 add_action( 'woocommerce_account_pet-crm_endpoint', 'petling_crm_endpoint_content' );
@@ -156,7 +154,6 @@ function petling_crm_endpoint_content() {
     $pets = get_user_meta( $user_id, 'petling_pets', true );
     if ( ! is_array( $pets ) ) { $pets = []; }
 
-    // Έλεγχος για το ποια προβολή πρέπει να φορτώσει
     if ( isset( $_GET['view'] ) && $_GET['view'] === 'medical' && ! empty( $_GET['pet_id'] ) ) {
         $target_pet_id = sanitize_text_field( $_GET['pet_id'] );
         foreach ( $pets as $pet ) {
@@ -352,6 +349,11 @@ function petling_crm_endpoint_content() {
     <?php
 }
 
+
+/* =========================================================================
+   ΕΝΟΤΗΤΑ 3: HTML VIEW (Ιατρικό Ιστορικό Πελάτη)
+   ========================================================================= */
+
 function petling_crm_render_medical_history( $pet ) {
     global $wpdb;
     $pet_id = $pet['id'] ?? '';
@@ -361,20 +363,11 @@ function petling_crm_render_medical_history( $pet ) {
     $vet_pass_url = site_url( '/vet-pass/?pet=' . $pet_id . '&t=' . $current_time . '&token=' . $vet_token );
     $qr_code_url = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode( $vet_pass_url );
 
-    $parasite_options = array(
-        'Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)',
-        'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)',
-        'Combo (Εσωτερικά & Εξωτερικά)'
-    );
+    $parasite_options = array('Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)', 'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)', 'Combo (Εσωτερικά & Εξωτερικά)');
 
-    // ΑΥΤΟΜΑΤΟΣ ΚΑΘΑΡΙΣΜΟΣ ΠΑΛΙΩΝ ΑΠΟΠΑΡΑΣΙΤΩΣΕΩΝ (> 1 ΕΤΟΣ)
     $one_year_ago = date('Y-m-d', strtotime('-1 year'));
     foreach ($parasite_options as $p_opt) {
-        $wpdb->query( $wpdb->prepare(
-            "DELETE FROM {$wpdb->prefix}petling_vaccines 
-             WHERE pet_unique_id = %s AND vaccine_name = %s AND date_administered < %s", 
-            $pet_id, $p_opt, $one_year_ago
-        ) );
+        $wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s AND vaccine_name = %s AND date_administered < %s", $pet_id, $p_opt, $one_year_ago) );
     }
 
     $all_records = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s ORDER BY date_administered DESC", $pet_id ) );
@@ -389,11 +382,7 @@ function petling_crm_render_medical_history( $pet ) {
     $vaccines = [];
     $parasites = [];
     foreach ($all_records as $rec) {
-        if (in_array($rec->vaccine_name, $parasite_options)) {
-            $parasites[] = $rec;
-        } else {
-            $vaccines[] = $rec;
-        }
+        if (in_array($rec->vaccine_name, $parasite_options)) { $parasites[] = $rec; } else { $vaccines[] = $rec; }
     }
 
     $min_future_date = date('Y-m-d'); 
@@ -435,7 +424,6 @@ function petling_crm_render_medical_history( $pet ) {
             <div class="accordion-content">
                 <?php
                 $weight_history = [];
-                // Ομαδοποίηση ανά έτος
                 foreach ($vet_notes as $n) {
                     if (!empty($n->weight)) { 
                         $year = date('Y', strtotime($n->created_at));
@@ -472,14 +460,12 @@ function petling_crm_render_medical_history( $pet ) {
                         echo '</div>';
                     }
                     
-                    // Κουμπί Load More
                     if ($total_weights > 5) {
                         $hidden_count = $total_weights - 5;
                         echo '<div style="text-align:center; padding:12px; border-top:1px solid #e5e5e5; background:#fafafa;">';
                         echo '<button type="button" class="btn-show-older-weights">👁️ Εμφάνιση παλαιότερων ('.$hidden_count.')</button>';
                         echo '</div>';
                     }
-                    
                     echo '</div>';
                 } else {
                     echo '<p style="font-style:italic; color:#666; margin-bottom:15px; font-size:14px;">Δεν υπάρχουν ακόμα καταγραφές βάρους.</p>';
@@ -502,9 +488,7 @@ function petling_crm_render_medical_history( $pet ) {
             <div class="accordion-content">
                 <?php if ( $vaccines ) : ?>
                     <table class="petling-table">
-                        <thead>
-                            <tr><th>Εμβόλιο</th><th>Ημ. Εμβολιασμού</th><th>Επόμενο Εμβόλιο</th><th>Κατάσταση</th><th style="text-align:center;">Ενέργεια</th></tr>
-                        </thead>
+                        <thead><tr><th>Εμβόλιο</th><th>Ημ. Εμβολιασμού</th><th>Επόμενο Εμβόλιο</th><th>Κατάσταση</th><th style="text-align:center;">Ενέργεια</th></tr></thead>
                         <tbody>
                         <?php foreach ( $vaccines as $vac ) : 
                             $is_verified = ($vac->status === 'verified');
@@ -517,14 +501,14 @@ function petling_crm_render_medical_history( $pet ) {
                                 <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' && strtotime($vac->next_vaccine_date) > 0 ) : 
                                     echo esc_html(date('d/m/Y', strtotime($vac->next_vaccine_date)));
                                     $ics_url = petling_crm_get_ics_link( '💉 Εμβολιασμός: ' . $vac->vaccine_name . ' (' . $pet['name'] . ')', $vac->next_vaccine_date, 'Υπενθύμιση από το Petling CRM.' );
-                                    echo '<br><a href="' . esc_url($ics_url) . '" style="font-size:12px; color:#5b9a68; text-decoration:none; font-weight:normal; display:inline-block; margin-top:5px; background:#eef7ee; padding:3px 8px; border-radius:4px;">📅 Προσθήκη στο Ημερολόγιο</a>';
+                                    echo '<br><a href="' . esc_url($ics_url) . '" style="font-size:12px; color:#5b9a68; text-decoration:none; font-weight:normal; display:inline-block; margin-top:5px; background:#eef7ee; padding:3px 8px; border-radius:4px;">📅 Προσθήκη</a>';
                                 else : echo '-'; endif; ?>
                             </td>
                             <td data-label="Κατάσταση:"><?php echo $status_html; ?></td>
                             <td data-label="Ενέργεια:" style="text-align:center;">
                                 <?php if ( !$is_verified ) : 
                                     $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_vac', 'vac_id' => $vac->id ) ), 'del_vac_' . $vac->id );
-                                    echo '<a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Είστε σίγουροι;\');" style="color:#e62121; text-decoration:none; font-size:18px;">🗑️</a>';
+                                    echo '<a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Διαγραφή προσχεδίου;\');" style="color:#e62121; font-size:18px;">🗑️</a>';
                                 else : echo '🔒'; endif; ?>
                             </td>
                         </tr>
@@ -540,18 +524,12 @@ function petling_crm_render_medical_history( $pet ) {
                     <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
                     <h4 style="margin:0 0 15px 0; color:#43282F;">➕ Προετοιμασία Εγγραφής</h4>
                     <div class="petling-grid">
-                        <div><label>Επιλογή Εμβολίου *</label>
-                            <select name="vaccine_name" required>
-                                <?php foreach($vaccine_options as $option) { echo '<option value="'.$option.'">'.$option.'</option>'; } ?>
-                            </select>
-                        </div>
+                        <div><label>Επιλογή Εμβολίου *</label><select name="vaccine_name" required><?php foreach($vaccine_options as $option) { echo '<option value="'.$option.'">'.$option.'</option>'; } ?></select></div>
                         <div><label>Κλινική (Προαιρετικό)</label><input type="text" name="vet_name"></div>
                         <div><label>Ημερομηνία Εμβολιασμού *</label><input type="date" name="date_administered" required value="<?php echo date('Y-m-d'); ?>"></div>
                         <div><label>Επόμενο Εμβόλιο (Υπενθύμιση) 📅</label><input type="date" name="next_vaccine_date" min="<?php echo $min_future_date; ?>"></div>
                     </div>
-                    <div style="text-align:right; margin-top:15px;">
-                        <button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button>
-                    </div>
+                    <div style="text-align:right; margin-top:15px;"><button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button></div>
                 </form>
             </div>
         </details>
@@ -559,29 +537,24 @@ function petling_crm_render_medical_history( $pet ) {
         <details class="petling-accordion petling-crm-form">
             <summary>🪱 Τρέχουσα Αποπαρασίτωση</summary>
             <div class="accordion-content">
-                
                 <div style="background:#fff3cd; border-left:4px solid #ffeeba; padding:10px 15px; margin-bottom:20px; font-size:13px; color:#856404; border-radius:4px; line-height:1.5;">
-                    <strong>ℹ️ Πώς λειτουργεί:</strong> Όταν προσθέτετε μια νέα προστασία ίδιου τύπου, η προηγούμενη αντικαθίσταται αυτόματα. Επίσης, για να διατηρείται το ιστορικό σας καθαρό, καταγραφές αποπαρασίτωσης <strong>παλαιότερες του 1 έτους</strong> διαγράφονται οριστικά από το σύστημα.
+                    <strong>ℹ️ Πώς λειτουργεί:</strong> Όταν προσθέτετε μια νέα προστασία ίδιου τύπου, η προηγούμενη αντικαθίσταται αυτόματα. Επίσης, καταγραφές αποπαρασίτωσης <strong>παλαιότερες του 1 έτους</strong> διαγράφονται οριστικά.
                 </div>
 
                 <?php if ( $parasites ) : ?>
                     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px;">
                     <?php foreach ( $parasites as $vac ) : ?>
                         <div style="background:#fffaf1; border:2px solid #e2d4c0; padding:15px; border-radius:10px; position:relative;">
-                            <?php 
-                            $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_vac', 'vac_id' => $vac->id ) ), 'del_vac_' . $vac->id );
-                            ?>
-                            <a href="<?php echo esc_url($delete_url); ?>" onclick="return confirm('Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την προστασία;');" style="position:absolute; top:10px; right:15px; color:#e62121; text-decoration:none; font-size:20px; font-weight:bold;">&times;</a>
+                            <?php $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_vac', 'vac_id' => $vac->id ) ), 'del_vac_' . $vac->id ); ?>
+                            <a href="<?php echo esc_url($delete_url); ?>" onclick="return confirm('Διαγραφή αυτής της προστασίας;');" style="position:absolute; top:10px; right:15px; color:#e62121; text-decoration:none; font-size:20px; font-weight:bold;">&times;</a>
                             <h4 style="margin:0 0 10px 0; color:#43282F; font-size:16px; padding-right:20px; border-bottom:1px solid #e2d4c0; padding-bottom:8px;"><?php echo esc_html($vac->vaccine_name); ?></h4>
                             <p style="margin:5px 0; font-size:14px;"><strong>Σκεύασμα:</strong> <?php echo esc_html($vac->vet_name ? $vac->vet_name : '-'); ?></p>
                             
                             <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' && strtotime($vac->next_vaccine_date) > 0 ) : ?>
                                 <p style="margin:10px 0 5px 0; color:#d63638; font-weight:bold; font-size:14px;">📅 Επόμενη Δόση: <?php echo esc_html(date('d/m/Y', strtotime($vac->next_vaccine_date))); ?></p>
                                 <?php $ics_url = petling_crm_get_ics_link( '🪱 Αποπαρασίτωση: ' . $vac->vaccine_name . ' (' . $pet['name'] . ')', $vac->next_vaccine_date, 'Υπενθύμιση από το Petling CRM.' ); ?>
-                                <a href="<?php echo esc_url($ics_url); ?>" style="display:inline-block; font-size:12px; color:#5b9a68; text-decoration:none; font-weight:bold; border: 1px solid #5b9a68; padding: 4px 8px; border-radius: 4px; background: #fff; margin-top:5px;">🗓️ Προσθήκη Υπενθύμισης</a>
-                            <?php else: ?>
-                                 <p style="margin:10px 0 5px 0; color:#666; font-size:14px;">Δεν έχει οριστεί επόμενη δόση.</p>
-                            <?php endif; ?>
+                                <a href="' . esc_url($ics_url) . '" style="display:inline-block; font-size:12px; color:#5b9a68; text-decoration:none; font-weight:bold; border: 1px solid #5b9a68; padding: 4px 8px; border-radius: 4px; background: #fff; margin-top:5px;">🗓️ Προσθήκη Υπενθύμισης</a>
+                            <?php else: echo '<p style="margin:10px 0 5px 0; color:#666; font-size:14px;">Δεν έχει οριστεί επόμενη δόση.</p>'; endif; ?>
                         </div>
                     <?php endforeach; ?>
                     </div>
@@ -594,17 +567,11 @@ function petling_crm_render_medical_history( $pet ) {
                     <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
                     <h4 style="margin:0 0 15px 0; color:#43282F;">➕ Ανανέωση Προστασίας</h4>
                     <div class="petling-grid">
-                        <div><label>Τύπος *</label>
-                            <select name="vaccine_name" required>
-                                <?php foreach($parasite_options as $option) { echo '<option value="'.$option.'">'.$option.'</option>'; } ?>
-                            </select>
-                        </div>
+                        <div><label>Τύπος *</label><select name="vaccine_name" required><?php foreach($parasite_options as $option) { echo '<option value="'.$option.'">'.$option.'</option>'; } ?></select></div>
                         <div><label>Σκεύασμα (π.χ. Bravecto, Nexgard)</label><input type="text" name="vet_name" placeholder="Προαιρετικό"></div>
                         <div class="petling-grid-full"><label>Επόμενη Δόση 📅 *</label><input type="date" name="next_vaccine_date" min="<?php echo $min_future_date; ?>" required></div>
                     </div>
-                    <div style="text-align:right; margin-top:15px;">
-                        <button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button>
-                    </div>
+                    <div style="text-align:right; margin-top:15px;"><button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button></div>
                 </form>
             </div>
         </details>
@@ -625,13 +592,11 @@ function petling_crm_render_medical_history( $pet ) {
                                     <?php if (!empty($note->vet_name)) { echo '<span style="display:inline-block; margin-right:15px;"><strong>Γιατρός:</strong> ' . esc_html($note->vet_name) . '</span>'; } ?>
                                     <?php echo ($is_verified ? '<span style="color:#5b9a68; font-weight:bold;">✅ Verified</span>' : '<span style="color:#e6a23c; font-weight:bold;">⏳ Draft</span>'); ?>
                                 </div>
-                                
                                 <?php if ( !$is_verified ) : 
                                     $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_note', 'note_id' => $note->id ) ), 'del_note_' . $note->id );
-                                    echo '<a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Είστε σίγουροι;\');" style="color:#e62121; text-decoration:none; font-size:18px; margin-left:10px;">🗑️</a>';
+                                    echo '<a href="' . esc_url($delete_url) . '" onclick="return confirm(\'Διαγραφή σημείωσης;\');" style="color:#e62121; font-size:18px; margin-left:10px;">🗑️</a>';
                                 else : echo '<span style="font-size:18px;">🔒</span>'; endif; ?>
                             </div>
-                            
                             <p style="margin:0; font-size:15px; color:#333; line-height:1.5;"><?php echo nl2br(esc_html($note->vet_comment)); ?></p>
                             
                             <?php if ( !empty($note->next_exam_date) && $note->next_exam_date !== '0000-00-00' && strtotime($note->next_exam_date) > 0 ) : ?>
@@ -657,174 +622,10 @@ function petling_crm_render_medical_history( $pet ) {
                         <div><label>Επανεξέταση 📅</label><input type="date" name="next_exam_date" min="<?php echo $min_future_date; ?>"></div>
                         <div class="petling-grid-full"><label>Σχόλια / Διάγνωση *</label><textarea name="vet_comment" required></textarea></div>
                     </div>
-                    <div style="text-align:right; margin-top:15px;">
-                        <button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button>
-                    </div>
+                    <div style="text-align:right; margin-top:15px;"><button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button></div>
                 </form>
             </div>
         </details>
     </div>
-    <?php
-}
-
-/* =========================================================================
-   ΕΝΟΤΗΤΑ 3: STYLES (CSS)
-   ========================================================================= */
-add_action( 'wp_head', 'petling_crm_custom_styles', 1000 );
-function petling_crm_custom_styles() {
-    if ( ! is_account_page() ) return;
-    ?>
-    <style>
-        /* Κουμπί Εμφάνισης Παλαιότερων Ζυγίσεων (Mobile Fixes Included) */
-        .btn-show-older-weights { 
-            background-color: #ffffff !important; 
-            border: 2px dashed #5b9a68 !important; 
-            color: #5b9a68 !important; 
-            font-weight: bold !important; 
-            cursor: pointer !important; 
-            font-size: 15px !important; 
-            padding: 12px 20px !important; 
-            border-radius: 8px !important; 
-            width: 100% !important; 
-            display: block !important;
-            text-align: center !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-            margin-top: 5px !important;
-            transition: all 0.2s;
-            -webkit-appearance: none !important; /* Πολύ σημαντικό για iPhone/Safari */
-        }
-        .btn-show-older-weights:hover, 
-        .btn-show-older-weights:active { 
-            background-color: #eef7ee !important; 
-        }
-    </style>
-    <?php
-}
-
-/* =========================================================================
-   ΕΝΟΤΗΤΑ 4: SCRIPTS (JAVASCRIPT)
-   Εδώ βρίσκονται όλα τα δυναμικά φίλτρα, τα accordions και τα tabs.
-   Φορτώνονται στο footer για βέλτιστη απόδοση.
-   ========================================================================= */
-add_action( 'wp_footer', 'petling_crm_inline_scripts', 99 );
-function petling_crm_inline_scripts() {
-    if ( ! is_account_page() ) return;
-    ?>
-    <script>
-    jQuery(document).ready(function($) {
-        
-        // --- 1. UNSAVED CHANGES WARNING ---
-        let formIsDirty = false;
-        $('#petling-main-form').on('input change', 'input, select, textarea', function() {
-            formIsDirty = true;
-            if ($(this).attr('name') === 'petling_order_reminder_interval') {
-                $('#reminder-save-warning').slideDown(200);
-            }
-        });
-        $(window).on('beforeunload', function() {
-            if (formIsDirty) { return "Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε;"; }
-        });
-        $('#petling-main-form').on('submit', function() { formIsDirty = false; });
-
-        // --- 2. SMART FORM FILTERING (DOG/CAT) ---
-        function filterPetData($block) {
-            let type = $block.find('.pet-type-select').val(); 
-            $block.find('.health-issue-item').each(function() {
-                let animal = $(this).data('animal');
-                if (animal === 'both' || animal === type) {
-                    $(this).show();
-                } else {
-                    $(this).hide();
-                    $(this).find('input[type="checkbox"]').prop('checked', false);
-                }
-            });
-        }
-        $('.pet-block').each(function() { filterPetData($(this)); });
-        $(document).on('change', '.pet-type-select', function() { filterPetData($(this).closest('.pet-block')); });
-
-        // --- 3. TABS LOGIC ---
-        $(document).on('click', '.pet-tab-btn', function() {
-            $('.pet-tab-btn').removeClass('is-active');
-            $(this).addClass('is-active');
-            $('.pet-block').hide();
-            $('#pet-block-' + $(this).data('tab')).show();
-        });
-
-        // --- 4. ΠΡΟΣΘΗΚΗ ΝΕΟΥ ΖΩΟΥ ---
-        $('#add-pet-button').on('click', function(e) {
-            e.preventDefault();
-            const nextIndex = $('.pet-block').length; 
-            let templateHTML = $('#pet-block-template').html();
-            templateHTML = templateHTML.replace(/__INDEX__/g, nextIndex);
-            const $newBlock = $('<div class="pet-block" id="pet-block-' + nextIndex + '"></div>');
-            const $header = $('<div class="pet-block-header"><h4 class="pet-block-title">Νέο Ζώο 🐾</h4><button type="button" class="btn-petling btn-red remove-pet-button" formnovalidate>Αφαίρεση</button></div>');
-            $newBlock.append($header).append(templateHTML);
-            $('#pet-repeater-container').append($newBlock);
-            filterPetData($newBlock);
-            const $newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextIndex + '">🐾 Νέο Ζώο</button>');
-            $('.pet-tabs-nav').append($newTab);
-            $newTab.click();
-            $('#pet-block-' + nextIndex + ' .pet-name-input').on('input', function() {
-                let name = $(this).val().trim();
-                let type = $('#pet-block-' + nextIndex + ' .pet-type-select').val();
-                let emoji = (type === 'cat') ? '🐱' : '🐶';
-                if(name === '') name = 'Νέο Ζώο';
-                $newTab.html(emoji + ' ' + name);
-                $('#pet-block-' + nextIndex + ' .pet-block-title').text('Κατοικίδιο: ' + name);
-            });
-        });
-
-        // --- 5. ΑΛΛΑΓΗ TAB EMOJI ΟΤΑΝ ΑΛΛΑΖΕΙ Ο ΤΥΠΟΣ ---
-        $(document).on('change', '.pet-type-select', function() {
-            const $block = $(this).closest('.pet-block');
-            const id = $block.attr('id');
-            if (id) {
-                const index = id.replace('pet-block-', '');
-                const nameInput = $block.find('.pet-name-input').val().trim();
-                const name = nameInput === '' ? 'Νέο Ζώο' : nameInput;
-                const emoji = ($(this).val() === 'cat') ? '🐱' : '🐶';
-                $('.pet-tab-btn[data-tab="' + index + '"]').html(emoji + ' ' + name);
-            }
-        });
-
-        // --- 6. ΑΦΑΙΡΕΣΗ ΖΩΟΥ ---
-        $(document).on('click', '.remove-pet-button', function() {
-            if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
-                const $block = $(this).closest('.pet-block');
-                const id = $block.attr('id');
-                if (id) {
-                    const index = id.replace('pet-block-', '');
-                    $('.pet-tab-btn[data-tab="' + index + '"]').remove();
-                }
-                $block.remove();
-                $('.pet-tab-btn').first().click();
-                formIsDirty = true; 
-            }
-        });
-
-        // --- 7. ACCORDIONS AUTO-CLOSE ---
-        const accordions = document.querySelectorAll('.petling-accordion');
-        accordions.forEach(acc => {
-            acc.addEventListener('click', function(e) {
-                if (!this.hasAttribute('open')) {
-                    accordions.forEach(otherAcc => {
-                        if (otherAcc !== this) {
-                            otherAcc.removeAttribute('open');
-                        }
-                    });
-                }
-            });
-        });
-
-        // --- 8. SHOW OLDER WEIGHTS BUTTON ---
-        $(document).on('click', '.btn-show-older-weights', function() {
-            var wrapper = $(this).closest('.weight-history-wrapper');
-            wrapper.find('.weight-year-group').slideDown(300);
-            wrapper.find('.weight-item-row').slideDown(300);
-            $(this).parent().slideUp(300);
-        });
-
-    });
-    </script>
     <?php
 }
