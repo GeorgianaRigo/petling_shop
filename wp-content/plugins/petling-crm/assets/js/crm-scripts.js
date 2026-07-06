@@ -1,7 +1,18 @@
 jQuery(document).ready(function($) {
     
-    // Εμφάνιση Loader σε κάθε υποβολή φόρμας
+    // --- ΚΑΘΑΡΙΣΜΟΣ URL (Αφαίρεση του ?saved=1 για να μην ξαναβγεί στο refresh) ---
+    if (window.history.replaceState) {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('saved')) {
+            $('#petling-toast').css('display', 'block');
+            url.searchParams.delete('saved');
+            window.history.replaceState({path: url.href}, '', url.href);
+        }
+    }
+
+    // --- Εμφάνιση Loader σε κάθε υποβολή φόρμας ---
     $('form').on('submit', function() {
+        if (this.checkValidity && !this.checkValidity()) return;
         if (!$(this).hasClass('no-loader')) {
             $('#petling-global-loader').css('display', 'flex');
         }
@@ -16,7 +27,7 @@ jQuery(document).ready(function($) {
         }
     });
     $(window).on('beforeunload', function() {
-        if (formIsDirty) { return "Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε;"; }
+        if (formIsDirty) { return "Έχετε μη αποθηκευμένες αλλαγές. Θέλετε σίγουρα να φύγετε;"; }
     });
     $('#petling-main-form').on('submit', function() { formIsDirty = false; });
 
@@ -83,7 +94,7 @@ jQuery(document).ready(function($) {
 
     // --- 6. ΑΦΑΙΡΕΣΗ ΖΩΟΥ ---
     $(document).on('click', '.remove-pet-button', function() {
-        if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
+        if (confirm('Θέλετε σίγουρα να αφαιρέσετε αυτό το κατοικίδιο;')) {
             const $block = $(this).closest('.pet-block');
             const id = $block.attr('id');
             if (id) {

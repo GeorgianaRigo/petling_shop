@@ -39,4 +39,34 @@ details.vet-accordion .accordion-content { padding: 20px; animation: fadeSlideDo
 .weight-year-group { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; margin-bottom: 15px; }
 .weight-year-group h5 { margin: 0; padding: 10px 15px; background: #fdfaf5; border-bottom: 1px solid #e5e5e5; color: #8a6a43; font-size: 14px; }
 .weight-timeline { display:flex; gap:10px; overflow-x:auto; padding: 10px 15px; background: #fff; }
-.weight-card { background:#f9f9f9; border:1px solid #e5e5e5; padding:10px 12px; border-radius:6px; min-width:80px; text-align:center; flex-shrink: 0;}
+/* Το κουτάκι της κάθε ζύγισης */
+.weight-card { 
+    background: #f9f9f9; 
+    border: 1px solid #e5e5e5; 
+    padding: 10px !important; 
+    border-radius: 6px; 
+    min-width: 80px; 
+    text-align: center; 
+    flex-shrink: 0;
+    position: relative !important;
+    display: block !important;
+}
+
+.w-del-corner {
+    position: absolute !important;
+    top: -14px !important;
+    right: -7px !important;
+    display: inline-block !important;
+    color: #e62121 !important; 
+    font-size: 28px !important; 
+    text-decoration: none !important;
+    line-height: 1 !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+}
+
+/* Εφέ όταν ο γιατρός ακουμπάει το Χ */
+.w-del-corner:hover {
+    color: #b31515 !important; 
+}
