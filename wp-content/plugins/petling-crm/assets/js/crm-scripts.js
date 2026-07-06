@@ -1,5 +1,12 @@
 jQuery(document).ready(function($) {
     
+    // Εμφάνιση Loader σε κάθε υποβολή φόρμας
+    $('form').on('submit', function() {
+        if (!$(this).hasClass('no-loader')) {
+            $('#petling-global-loader').css('display', 'flex');
+        }
+    });
+    
     // --- 1. UNSAVED CHANGES WARNING ---
     let formIsDirty = false;
     $('#petling-main-form').on('input change', 'input, select, textarea', function() {

@@ -137,3 +137,26 @@ details.petling-accordion .accordion-content { padding: 20px; animation: fadeSli
     .petling-medical-btn-wrapper { text-align: right !important; }
     .weight-form { flex-wrap: nowrap !important; }
 }
+
+/* Toast Notification Επιτυχίας */
+.petling-toast-notification {
+    position: fixed; top: 20px; right: 20px; background: #5b9a68; color: #fff;
+    padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 999999;
+    animation: slideInRight 0.4s ease-out forwards, fadeOut 0.4s ease-in 3.5s forwards;
+}
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+
+/* Fullscreen Loader */
+.petling-loader-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.85); z-index: 9999999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.petling-spinner {
+    border: 4px solid #f3f3f3; border-top: 4px solid #C7B297; border-radius: 50%;
+    width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.petling-loader-overlay p { font-weight: bold; color: #43282F; font-size: 16px; margin: 0; }

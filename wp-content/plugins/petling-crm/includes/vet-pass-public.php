@@ -19,7 +19,6 @@ if ( empty( $pet_id ) || empty( $token ) || $token !== $expected_token ) {
 
 global $wpdb;
 
-/* Πιθανές ονομασίες παρασίτων (νέες & παλιές) */
 $parasite_options = array(
     'Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)',
     'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)',
@@ -51,15 +50,14 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vet_action']) ) {
                 if ($updated) update_user_meta($ur->user_id, 'petling_pets', $p_array);
             }
         }
-        wp_redirect( $_SERVER['REQUEST_URI'] ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
     }
 
-    // 2B. Εμβόλια & Παράσιτα (Επιβεβαίωση/Προσθήκη)
+    // 2B. Εμβόλια & Παράσιτα
     if ( $_POST['vet_action'] === 'verify_vaccine' || $_POST['vet_action'] === 'add_vaccine' ) {
         $v_name = sanitize_text_field($_POST['vaccine_name']);
 
         if (in_array($v_name, $parasite_options)) {
-            // Αυτόματη αντικατάσταση για τα παράσιτα
             $wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s AND vaccine_name = %s", $pet_id, $v_name) );
             $d_admin = date('Y-m-d');
         } else {
@@ -72,30 +70,30 @@ if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vet_action']) ) {
         } else {
             $wpdb->insert( $wpdb->prefix . 'petling_vaccines', array( 'pet_unique_id' => $pet_id, 'vaccine_name' => $v_name, 'date_administered' => $d_admin, 'next_vaccine_date' => sanitize_text_field($_POST['next_vaccine_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'status' => 'verified', 'created_by' => 'vet' ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
         }
-        wp_redirect( $_SERVER['REQUEST_URI'] ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
     }
     
-    // 2C. Σημειώσεις (Επιβεβαίωση/Προσθήκη)
+    // 2C. Σημειώσεις
     if ( $_POST['vet_action'] === 'verify_note' ) {
         $note_id = intval($_POST['note_id']);
         $wpdb->update( $wpdb->prefix . 'petling_vet_notes', array('status' => 'verified', 'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 'next_exam_date' => sanitize_text_field($_POST['next_exam_date']), 'vet_name' => sanitize_text_field($_POST['vet_name'])), array('id' => $note_id) );
-        wp_redirect( $_SERVER['REQUEST_URI'] ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
     }
     if ( $_POST['vet_action'] === 'add_note' ) {
         $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 'pet_unique_id' => $pet_id, 'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 'next_exam_date'=> sanitize_text_field($_POST['next_exam_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'status' => 'verified', 'created_by' => 'vet' ), array( '%s', '%s', '%s', '%s', '%s', '%s' ) );
-        wp_redirect( $_SERVER['REQUEST_URI'] ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
     }
 }
 
-// 2D. Διαγραφές (Drafts)
+// 2D. Διαγραφές
 if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
     if ( $_GET['action'] === 'vet_del_vac' && isset( $_GET['vac_id'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'vet_del_vac_' . $_GET['vac_id'] ) ) {
         $wpdb->delete( $wpdb->prefix . 'petling_vaccines', array( 'id' => intval( $_GET['vac_id'] ) ) );
-        wp_redirect( remove_query_arg( array( 'action', 'vac_id', '_wpnonce' ) ) ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg( array( 'action', 'vac_id', '_wpnonce', 'saved' ) )) ); exit;
     }
     if ( $_GET['action'] === 'vet_del_note' && isset( $_GET['note_id'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'vet_del_note_' . $_GET['note_id'] ) ) {
         $wpdb->delete( $wpdb->prefix . 'petling_vet_notes', array( 'id' => intval( $_GET['note_id'] ) ) );
-        wp_redirect( remove_query_arg( array( 'action', 'note_id', '_wpnonce' ) ) ); exit;
+        wp_redirect( add_query_arg('saved', '1', remove_query_arg( array( 'action', 'note_id', '_wpnonce', 'saved' ) )) ); exit;
     }
 }
 
@@ -151,9 +149,19 @@ $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo
     <title>Vet Pass | <?php echo esc_html($current_pet['name']); ?></title>
     
     <link rel="stylesheet" href="<?php echo esc_url( PETLING_CRM_URL . 'assets/css/vet-pass.css' ); ?>">
+    <link rel="stylesheet" href="<?php echo esc_url( PETLING_CRM_URL . 'assets/css/crm-styles.css' ); ?>"> <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="<?php echo esc_url( PETLING_CRM_URL . 'assets/js/vet-pass.js' ); ?>" defer></script>
-</head>
+    <script src="<?php echo esc_url( PETLING_CRM_URL . 'assets/js/crm-scripts.js' ); ?>" defer></script> </head>
 <body>
+
+    <div class="petling-loader-overlay" id="petling-global-loader" style="display: none;">
+        <div class="petling-spinner"></div>
+        <p>Αποθήκευση...</p>
+    </div>
+
+    <?php if ( isset($_GET['saved']) && $_GET['saved'] == '1' ) : ?>
+        <div class="petling-toast-notification">✅ Η αλλαγή αποθηκεύτηκε επιτυχώς!</div>
+    <?php endif; ?>
 
     <div class="header">
         <?php echo $logo_html; ?>
@@ -195,26 +203,49 @@ $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo
                     if (!empty($n->weight)) { 
                         $year = date('Y', strtotime($n->created_at));
                         if(!isset($weight_history[$year])) $weight_history[$year] = [];
-                        $weight_history[$year][] = array('date' => $n->created_at, 'weight' => $n->weight); 
+                        $weight_history[$year][] = array('id' => $n->id, 'date' => $n->created_at, 'weight' => $n->weight); 
                     }
                 }
-                if (!empty($weight_history)): 
-                    foreach($weight_history as $year => $weights): 
+                
+                $total_weights = 0;
+                foreach($weight_history as $year => $weights) { $total_weights += count($weights); }
+
+                if ($total_weights > 0) {
+                    echo '<div class="weight-history-wrapper">';
+                    $global_index = 0;
+                    
+                    foreach($weight_history as $year => $weights) {
+                        $year_display = ($global_index >= 5) ? 'display:none;' : '';
+                        echo '<div class="weight-year-group" data-year="'.$year.'" style="'.$year_display.'">';
+                        echo '<h5>📅 '.$year.'</h5>';
+                        echo '<ul class="weight-compact-list" style="padding:0; margin:0; list-style:none;">';
+                        
+                        foreach($weights as $wh) {
+                            $item_display = ($global_index >= 5) ? 'display:none;' : '';
+                            $delete_weight_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_weight', 'weight_id' => $wh['id'] ) ), 'del_weight_' . $wh['id'] );
+                            
+                            echo '<li class="weight-compact-item weight-item-row" style="'.$item_display.'">';
+                            echo '<span class="w-date" style="flex: 0 0 100px; display: inline-block; color: #666;">' . date('d/m/Y', strtotime($wh['date'])) . '</span>';
+                            echo '<span class="w-val" style="flex:1; text-align:right; font-weight:bold; padding-right:10px;">' . esc_html($wh['weight']) . ' <span style="font-size:13px; font-weight:normal;">kg</span></span>';
+                            echo '<a href="' . esc_url($delete_weight_url) . '" class="w-del no-loader" onclick="return confirm(\'Θέλετε σίγουρα να διαγράψετε αυτή τη ζύγιση;\');" style="color:#e62121; text-decoration:none; font-size:24px;">&times;</a>';
+                            echo '</li>';
+                            $global_index++;
+                        }
+                        echo '</ul>';
+                        echo '</div>';
+                    }
+                    
+                    if ($total_weights > 5) {
+                        $hidden_count = $total_weights - 5;
+                        echo '<div style="text-align:center; padding:12px; border-top:1px solid #e5e5e5; background:#fafafa;">';
+                        echo '<button type="button" class="btn-show-older-weights">👁️ Εμφάνιση παλαιότερων ('.$hidden_count.')</button>';
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                } else {
+                    echo '<p style="font-style:italic; color:#666; margin-bottom:15px; font-size:14px;">Δεν υπάρχουν ακόμα καταγραφές βάρους.</p>';
+                }
                 ?>
-                    <div class="weight-year-group">
-                        <h5>📅 Έτος <?php echo $year; ?></h5>
-                        <div class="weight-timeline">
-                        <?php foreach($weights as $wh): ?>
-                            <div class="weight-card">
-                                <div style="font-size:11px; color:#666; margin-bottom:4px;"><?php echo date('d/m', strtotime($wh['date'])); ?></div>
-                                <div style="font-weight:bold; color:#43282F; font-size:15px;"><?php echo esc_html($wh['weight']); ?> <span style="font-size:11px;">kg</span></div>
-                            </div>
-                        <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endforeach; else: ?>
-                    <p style="color: #999; font-style: italic; font-size: 14px;">Κανένα ιστορικό βάρους.</p>
-                <?php endif; ?>
             </div>
         </details>
 
@@ -248,7 +279,7 @@ $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo
                                 <label style="font-size:12px; color:#666;">Ιατρός / Κλινική *</label>
                                 <input type="text" name="vet_name" value="<?php echo esc_attr($vac->vet_name); ?>" required style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
                                 <button type="submit" class="btn-verify">Επιβεβαίωση & Κλείδωμα</button>
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id)); ?>" class="del-btn" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id)); ?>" class="del-btn no-loader" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -302,8 +333,8 @@ $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo
                                 <input type="text" name="vet_name" value="<?php echo esc_attr($vac->vet_name); ?>" style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
                                 <label style="font-size:12px; color:#666;">Επόμενη Δόση 📅 *</label>
                                 <input type="date" name="next_vaccine_date" value="<?php echo esc_attr($vac->next_vaccine_date); ?>" min="<?php echo $min_future_date; ?>" required style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
-                                <button type="submit" class="btn-verify">Επιβεβαίωση & Κλείδωμα</button>
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id)); ?>" class="del-btn" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
+                                <button type="submit" style="width:100%; padding:10px; background:#5b9a68; color:white; border:none; border-radius:4px; font-weight:bold;">Επιβεβαίωση & Κλείδωμα</button>
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id)); ?>" class="del-btn no-loader" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
                             </form>
                         <?php endif; ?>
                     </div>
@@ -356,8 +387,8 @@ $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo
                                 <input type="date" name="next_exam_date" value="<?php echo esc_attr($note->next_exam_date); ?>" min="<?php echo $min_future_date; ?>" style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
                                 <label style="font-size:12px; color:#666;">Ιατρός / Κλινική *</label>
                                 <input type="text" name="vet_name" value="<?php echo esc_attr($note->vet_name); ?>" required style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
-                                <button type="submit" class="btn-verify">Ενημέρωση & Κλείδωμα</button>
-                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_note','note_id'=>$note->id)), 'vet_del_note_'.$note->id)); ?>" class="del-btn" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
+                                <button type="submit" style="width:100%; padding:10px; background:#5b9a68; color:white; border:none; border-radius:4px; font-weight:bold;">Ενημέρωση & Κλείδωμα</button>
+                                <a href="<?php echo esc_url(wp_nonce_url(add_query_arg(array('action'=>'vet_del_note','note_id'=>$note->id)), 'vet_del_note_'.$note->id)); ?>" class="del-btn no-loader" onclick="return confirm('Διαγραφή αυτού του προσχεδίου;');">🗑️ Διαγραφή Εγγραφής</a>
                             </form>
                         <?php endif; ?>
                     </div>
