@@ -850,3 +850,6 @@ article.single-post-wrapper h1 {
 .vamtam-has-theme-widget-styles h2.yoggies-product-description-title1 {
   font-size: 16px;
 }
+
+/** post page **/
+.single-post #sub-header { display: none;}
