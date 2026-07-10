@@ -54,7 +54,6 @@ function petling_promo_handle_admin_actions() {
                 'amount'        => floatval( $_POST['p_amount'][ $i ] ?? 0 ),
                 'min_order'     => floatval( $_POST['p_min_order'][ $i ] ?? 0 ),
                 'lock_days'     => intval( $_POST['p_lock_days'][ $i ] ?? 20 ),
-                // Αν αφήσει κενό το password σε υπάρχοντα συνεργάτη appointment, κρατάμε ό,τι ίσχυε ήδη αντί να το αδειάσουμε
                 'password'      => $existing_password,
             );
         }
@@ -114,7 +113,7 @@ function petling_promo_render_settings_tab() {
         <p>Πρόσθεσε το widget <strong>"Σορτκόντ (Shortcode)"</strong> στο Elementor:</p>
         <ul style="list-style-type: disc; margin-left: 25px; margin-top: 10px;">
             <li style="margin-bottom: 5px;"><strong>Φόρμα για τον πελάτη</strong> (σελίδα συνεργάτη, π.χ. Dogs by Joy): <code>[petling_partner_promo prefix="JOY"]</code></li>
-            <li><strong>Σελίδα ελέγχου/εξαργύρωσης</strong> (μόνο για συνεργάτες τύπου "Ραντεβού", π.χ. δική της ιδιωτική σελίδα που θα δίνεις στην κτηνίατρο): <code>[petling_partner_redeem prefix="VET"]</code></li>
+            <li><strong>Σελίδα ελέγχου/εξαργύρωσης</strong> (μόνο για συνεργάτες τύπου "Ραντεβού", π.χ. δική της ιδιωτική σελίδα που θα δίνεις στην κτηνίατρο): <code>[petling_partner_redeem prefix="VET"]</code> ή <code>[petling_vet_dashboard prefix="VET"]</code></li>
         </ul>
         <p style="color:#a55;">Η σελίδα εξαργύρωσης δεν χρειάζεται να είναι δημόσια συνδεδεμένη πουθενά στο μενού - φτιάξε μια κρυφή σελίδα (χωρίς link από αλλού) και στείλε το link απευθείας στον συνεργάτη.</p>
     </div>
@@ -139,7 +138,6 @@ function petling_promo_render_settings_tab() {
             <tbody>
                 <?php
                 $rows = $partners;
-                // + 2 κενές γραμμές στο τέλος για προσθήκη νέων συνεργατών
                 $rows[] = array( 'prefix' => '', 'label' => '', 'type' => 'shop', 'discount_type' => 'fixed', 'amount' => '', 'min_order' => '', 'lock_days' => 20, 'password' => '' );
                 $rows[] = array( 'prefix' => '', 'label' => '', 'type' => 'shop', 'discount_type' => 'fixed', 'amount' => '', 'min_order' => '', 'lock_days' => 20, 'password' => '' );
 
@@ -177,40 +175,101 @@ function petling_promo_render_settings_tab() {
 }
 
 // =========================================================================
-// TAB 2: Εγγεγραμμένοι Πελάτες
+// TAB 2: Εγγεγραμμένοι Πελάτες (Με Φίλτρα)
 // =========================================================================
 function petling_promo_render_leads_tab( $wpdb, $table ) {
     $partners_by_prefix = array();
     foreach ( petling_promo_get_partners() as $p ) {
         $partners_by_prefix[ strtoupper( $p['prefix'] ) ] = $p['label'];
     }
+    
+    // Λήψη παραμέτρων φίλτρων από το URL
+    $filter_prefix = isset($_GET['filter_prefix']) ? sanitize_text_field($_GET['filter_prefix']) : '';
+    $filter_status = isset($_GET['filter_status']) ? sanitize_text_field($_GET['filter_status']) : '';
+    $order = (isset($_GET['order']) && $_GET['order'] === 'asc') ? 'ASC' : 'DESC';
+    $new_order = ($order === 'DESC') ? 'asc' : 'desc';
+
+    // Χτίσιμο του Query δυναμικά
+    $query = "SELECT * FROM $table WHERE 1=1";
+    if ( !empty($filter_prefix) ) {
+        $query .= $wpdb->prepare(" AND partner_prefix = %s", $filter_prefix);
+    }
+    if ( !empty($filter_status) ) {
+        $query .= $wpdb->prepare(" AND status = %s", $filter_status);
+    }
+    $query .= " ORDER BY created_at $order";
+
+    $leads = $wpdb->get_results( $query );
     ?>
-    <div style="background:#fff; border:1px solid #ccd0d4; border-radius:4px; margin-top:20px;">
+    
+    <!-- Φόρμα Φίλτρων -->
+    <form method="GET" style="margin: 20px 0; background: #fff; padding: 15px; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,.04); display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <input type="hidden" name="page" value="petling-partners-promo">
+        <input type="hidden" name="tab" value="leads">
+        
+        <div>
+            <label style="font-weight:bold; margin-right:5px;">Συνεργάτης:</label>
+            <select name="filter_prefix">
+                <option value="">Όλοι οι συνεργάτες</option>
+                <?php foreach ($partners_by_prefix as $prefix => $label): ?>
+                    <option value="<?php echo esc_attr($prefix); ?>" <?php selected($filter_prefix, $prefix); ?>><?php echo esc_html($label); ?> (<?php echo esc_html($prefix); ?>)</option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div>
+            <label style="font-weight:bold; margin-right:5px;">Κατάσταση:</label>
+            <select name="filter_status">
+                <option value="">Όλες οι καταστάσεις</option>
+                <option value="active" <?php selected($filter_status, 'active'); ?>>Ενεργός</option>
+                <option value="redeemed" <?php selected($filter_status, 'redeemed'); ?>>Χρησιμοποιήθηκε</option>
+            </select>
+        </div>
+
+        <input type="submit" class="button button-primary" value="Φιλτράρισμα">
+        <a href="?page=petling-partners-promo&tab=leads" class="button">Καθαρισμός</a>
+    </form>
+
+    <!-- Πίνακας Δεδομένων -->
+    <div style="background:#fff; border:1px solid #ccd0d4; border-radius:4px; margin-top:10px;">
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th style="width: 50px;">ID</th>
                     <th>Email Πελάτη</th>
                     <th>Συνεργάτης</th>
                     <th>Τύπος</th>
                     <th>Κωδικός</th>
                     <th>Κατάσταση</th>
-                    <th>Ημ/νία Λήψης</th>
+                    <th>
+                        <a href="?page=petling-partners-promo&tab=leads&filter_prefix=<?php echo esc_attr($filter_prefix); ?>&filter_status=<?php echo esc_attr($filter_status); ?>&order=<?php echo $new_order; ?>" style="color:#2c3338; text-decoration:none;">
+                            Ημ/νία Λήψης <span class="sorting-indicator <?php echo $order === 'DESC' ? 'desc' : 'asc'; ?>"></span>
+                        </a>
+                    </th>
                     <th>Ημ/νία Εξαργύρωσης</th>
                     <th>Ενέργειες</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $leads = $wpdb->get_results( "SELECT * FROM $table ORDER BY created_at DESC" );
                 if ( $leads ) {
                     foreach ( $leads as $lead ) {
-                        $del_url      = wp_nonce_url( admin_url( "admin.php?page=petling-partners-promo&tab=leads&delete_lead={$lead->id}" ), 'delete_lead_' . $lead->id );
+                        // Διατηρούμε τις παραμέτρους του φίλτρου στο URL διαγραφής
+                        $del_args = array(
+                            'page' => 'petling-partners-promo',
+                            'tab' => 'leads',
+                            'delete_lead' => $lead->id,
+                            'filter_prefix' => $filter_prefix,
+                            'filter_status' => $filter_status,
+                            'order' => strtolower($order)
+                        );
+                        $del_url      = wp_nonce_url( add_query_arg( $del_args, admin_url( "admin.php" ) ), 'delete_lead_' . $lead->id );
                         $partner_name = $partners_by_prefix[ strtoupper( $lead->partner_prefix ) ] ?? $lead->partner_prefix;
                         $is_redeemed  = 'redeemed' === $lead->status;
                         $status_badge = $is_redeemed
                             ? '<span style="background:#eef2f2;color:#555;padding:2px 8px;border-radius:10px;">Χρησιμοποιήθηκε</span>'
-                            : '<span style="background:#eef7ee;color:#5b9a68;padding:2px 8px;border-radius:10px;">Ενεργός</span>';
+                            : '<span style="background:#eef7ee;color:#5b9a68;padding:2px 8px;border-radius:10px; font-weight:bold;">Ενεργός</span>';
+                        
                         echo '<tr>';
                         echo '<td>' . esc_html( $lead->id ) . '</td>';
                         echo '<td><strong>' . esc_html( $lead->email ) . '</strong></td>';
@@ -224,7 +283,7 @@ function petling_promo_render_leads_tab( $wpdb, $table ) {
                         echo '</tr>';
                     }
                 } else {
-                    echo '<tr><td colspan="9" style="padding:20px; text-align:center;">Δεν υπάρχουν ακόμα εγγραφές.</td></tr>';
+                    echo '<tr><td colspan="9" style="padding:20px; text-align:center;">Δεν βρέθηκαν εγγραφές με αυτά τα κριτήρια.</td></tr>';
                 }
                 ?>
             </tbody>

@@ -634,3 +634,103 @@ function petling_save_custom_product_fields_editor( $post_id ) {
         update_post_meta( $post_id, '_petling_storage', wp_kses_post( wp_unslash( $_POST['_petling_storage'] ) ) );
     }
 }
+
+// =========================================================================
+// ΝΕΟ SHORTCODE: Πίνακας Ελέγχου Κτηνιάτρου (Απλοποιημένο)
+// Χρήση: [petling_vet_dashboard prefix="VET"]
+// =========================================================================
+add_shortcode('petling_vet_dashboard', 'ptl_vet_dashboard_shortcode');
+function ptl_vet_dashboard_shortcode($atts) {
+    global $wpdb;
+    $atts = shortcode_atts(array('prefix' => 'VET'), $atts);
+    $prefix = sanitize_text_field($atts['prefix']);
+    $promo_table = $wpdb->prefix . 'petling_partner_leads';
+    
+    $html = '<style>
+        .ptl-dash-container { max-width: 800px; margin: 40px auto; background: #fffaf1; padding: 30px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; }
+        .ptl-dash-container h3 { color: #43282F; text-align: center; margin-top:0; }
+        .ptl-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .ptl-table th, .ptl-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        .ptl-table th { background: #C7B297; color: #43282F; font-weight: bold; }
+        .ptl-btn-redeem { background: #5b9a68; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .ptl-btn-redeem:hover { background: #4a8255; }
+        .ptl-search-bar { width: 100%; padding: 12px 15px; border: 2px solid #C7B297; border-radius: 8px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; }
+    </style>';
+
+    $html .= '<div class="ptl-dash-container">';
+
+    // 1. Έλεγχος αν πατήθηκε το κουμπί Εξαργύρωσης
+    if (isset($_POST['ptl_redeem_id'])) {
+        $redeem_id = intval($_POST['ptl_redeem_id']);
+        $wpdb->update(
+            $promo_table, 
+            array('status' => 'redeemed', 'redeemed_at' => current_time('mysql')), 
+            array('id' => $redeem_id)
+        );
+        $html .= '<div style="background:#eef7ee; color:#5b9a68; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #5b9a68; text-align:center; font-weight:bold;">Ο κωδικός διαγράφηκε (εξαργυρώθηκε) επιτυχώς!</div>';
+    }
+
+    // 2. Λήψη όλων των ενεργών κωδικών από τη βάση
+    $active_codes = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM $promo_table WHERE partner_prefix = %s AND status = 'active' ORDER BY created_at DESC", 
+        $prefix
+    ));
+
+    $html .= '<h3>📋 Λίστα Ενεργών Κωδικών (' . esc_html($prefix) . ')</h3>';
+    $html .= '<p style="color:#666; font-size:14px; text-align:center;">Εδώ βλέπετε όλους τους πελάτες που έλαβαν κωδικό. Πατήστε "Εξαργύρωση" για να τον σβήσετε από τη λίστα.</p>';
+    
+    // Μπάρα αναζήτησης
+    $html .= '<input type="text" id="ptl-search-input" class="ptl-search-bar" placeholder="🔍 Αναζήτηση με email, κωδικό ή ημερομηνία..." onkeyup="ptlFilterTable()">';
+
+    // 3. Εμφάνιση του Πίνακα
+    if (empty($active_codes)) {
+        $html .= '<p style="text-align:center; padding:30px; background:#fff; border-radius:8px;">Δεν υπάρχουν ενεργοί κωδικοί αυτή τη στιγμή.</p>';
+    } else {
+        $html .= '<table class="ptl-table" id="ptl-codes-table">';
+        $html .= '<thead><tr><th>Κωδικός</th><th>Email Πελάτη</th><th>Ημερομηνία</th><th>Ενέργεια</th></tr></thead>';
+        $html .= '<tbody>';
+        foreach ($active_codes as $row) {
+            $date = date('d/m/Y H:i', strtotime($row->created_at));
+            $html .= '<tr>';
+            $html .= '<td style="font-weight:bold; color:#43282F;">' . esc_html($row->coupon_code) . '</td>';
+            $html .= '<td>' . esc_html($row->email) . '</td>';
+            $html .= '<td style="font-size:13px; color:#777;">' . $date . '</td>';
+            $html .= '<td>
+                        <form method="post" style="margin:0;" onsubmit="return confirm(\'Σίγουρα θέλετε να σβήσετε (εξαργυρώσετε) αυτόν τον κωδικό;\');">
+                            <input type="hidden" name="ptl_redeem_id" value="' . $row->id . '">
+                            <button type="submit" class="ptl-btn-redeem">✔️ Εξαργύρωση</button>
+                        </form>
+                      </td>';
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table>';
+    }
+
+    // JS για τη Ζωντανή Αναζήτηση
+    $html .= '<script>
+    function ptlFilterTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("ptl-search-input");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("ptl-codes-table");
+        if(!table) return;
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length - 1; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    </script>';
+    
+    $html .= '</div>';
+    return $html;
+}
