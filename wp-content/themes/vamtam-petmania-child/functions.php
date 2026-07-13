@@ -734,3 +734,104 @@ function ptl_vet_dashboard_shortcode($atts) {
     $html .= '</div>';
     return $html;
 }
+
+// =========================================================================
+// 1. ΕΛΕΓΧΟΣ ΚΟΥΠΟΝΙΟΥ ΚΑΙ ΜΕΓΑΛΟ, ΓΕΝΙΚΟ ΜΗΝΥΜΑ ΣΦΑΛΜΑΤΟΣ
+// =========================================================================
+// newsletter - welcome10 - user
+add_action( 'woocommerce_after_checkout_validation', 'ptl_restrict_coupon_by_strict_identity', 10, 2 );
+
+function ptl_restrict_coupon_by_strict_identity( $data, $errors ) {
+    // ΒΑΛΕ ΕΔΩ ΤΟ ΟΝΟΜΑ ΤΟΥ ΚΟΥΠΟΝΙΟΥ ΣΟΥ (με μικρά γράμματα)
+    $newsletter_coupon = 'welcome10'; 
+
+    $applied_coupons = WC()->cart->get_applied_coupons();
+    
+    if ( ! in_array( $newsletter_coupon, $applied_coupons ) ) {
+        return;
+    }
+
+    global $wpdb;
+
+    $address   = isset( $data['billing_address_1'] ) ? strtolower( trim( $data['billing_address_1'] ) ) : '';
+    $last_name = isset( $data['billing_last_name'] ) ? strtolower( trim( $data['billing_last_name'] ) ) : '';
+    $raw_phone = isset( $data['billing_phone'] ) ? preg_replace( '/[^0-9]/', '', $data['billing_phone'] ) : '';
+    $phone_10  = strlen( $raw_phone ) >= 10 ? substr( $raw_phone, -10 ) : '';
+
+    $is_duplicate = false;
+
+    // Έλεγχος Α: Ίδια Διεύθυνση + Ίδιο Επίθετο
+    if ( ! empty( $address ) && ! empty( $last_name ) ) {
+        $match_address_name = $wpdb->get_var( $wpdb->prepare( "
+            SELECT p.ID FROM {$wpdb->prefix}posts AS p
+            INNER JOIN {$wpdb->prefix}woocommerce_order_items AS oi ON p.ID = oi.order_id
+            INNER JOIN {$wpdb->prefix}postmeta AS pm_address ON p.ID = pm_address.post_id AND pm_address.meta_key = '_billing_address_1'
+            INNER JOIN {$wpdb->prefix}postmeta AS pm_lastname ON p.ID = pm_lastname.post_id AND pm_lastname.meta_key = '_billing_last_name'
+            WHERE p.post_type = 'shop_order' 
+            AND p.post_status IN ('wc-completed', 'wc-processing', 'wc-on-hold')
+            AND oi.order_item_type = 'coupon'
+            AND oi.order_item_name = %s
+            AND LOWER(pm_address.meta_value) = %s
+            AND LOWER(pm_lastname.meta_value) = %s
+            LIMIT 1
+        ", $newsletter_coupon, $address, $last_name ) );
+
+        if ( $match_address_name ) { $is_duplicate = true; }
+    }
+
+    // Έλεγχος Β: Ίδιο Τηλέφωνο
+    if ( ! $is_duplicate && ! empty( $phone_10 ) ) {
+        $match_phone = $wpdb->get_var( $wpdb->prepare( "
+            SELECT p.ID FROM {$wpdb->prefix}posts AS p
+            INNER JOIN {$wpdb->prefix}woocommerce_order_items AS oi ON p.ID = oi.order_id
+            INNER JOIN {$wpdb->prefix}postmeta AS pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_billing_phone'
+            WHERE p.post_type = 'shop_order' 
+            AND p.post_status IN ('wc-completed', 'wc-processing', 'wc-on-hold')
+            AND oi.order_item_type = 'coupon'
+            AND oi.order_item_name = %s
+            AND pm_phone.meta_value LIKE %s
+            LIMIT 1
+        ", $newsletter_coupon, '%' . $wpdb->esc_like( $phone_10 ) . '%' ) );
+
+        if ( $match_phone ) { $is_duplicate = true; }
+    }
+
+    // Αν πιαστεί από οποιονδήποτε έλεγχο, βγάζουμε το γενικό μήνυμα
+    if ( $is_duplicate ) {
+        $error_message = '<span class="ptl-coupon-error" style="font-size: 18px; font-weight: bold; line-height: 1.5; display: block;">Η έκπτωση νέας εγγραφής έχει ήδη αξιοποιηθεί.<br>Παρακαλώ αφαιρέστε το κουπόνι για να μπορέσετε να ολοκληρώσετε την πληρωμή σας.</span>';
+        $errors->add( 'coupon_error', $error_message );
+    }
+}
+
+// =========================================================================
+// 2. ΕΜΦΑΝΙΣΗ ΤΟΥ ΜΗΝΥΜΑΤΟΣ ΚΑΤΩ ΑΠΟ ΤΟ ΚΟΥΜΠΙ ΠΛΗΡΩΜΗΣ
+// =========================================================================
+add_action('woocommerce_review_order_after_submit', 'ptl_add_error_box_under_button');
+function ptl_add_error_box_under_button() {
+    // Δημιουργούμε ένα κρυφό κουτί κάτω από το κουμπί
+    echo '<div id="ptl-bottom-error-box" style="display:none; margin-top:15px; padding:15px; background-color:#ffe6e6; border-left:4px solid #d63638; color:#d63638; border-radius:4px;"></div>';
+}
+
+add_action('wp_footer', 'ptl_checkout_error_js_script');
+function ptl_checkout_error_js_script() {
+    if ( is_checkout() && ! is_wc_endpoint_url() ) {
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            // Μόλις το WooCommerce βγάλει error στο checkout...
+            $(document.body).on('checkout_error', function() {
+                // Ψάχνουμε αν μέσα στα errors υπάρχει το δικό μας "ptl-coupon-error"
+                var couponError = $('.woocommerce-error .ptl-coupon-error').html();
+                
+                if (couponError) {
+                    // Αν υπάρχει, το εμφανίζουμε ΚΑΙ κάτω από το κουμπί της πληρωμής
+                    $('#ptl-bottom-error-box').html(couponError).slideDown();
+                } else {
+                    $('#ptl-bottom-error-box').slideUp();
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+}
