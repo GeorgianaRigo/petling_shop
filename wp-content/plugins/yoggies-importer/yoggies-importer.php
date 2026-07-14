@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Yoggies XML Importer (v5.15 - Added Weight Support)
- * Description: Αυτόματη εισαγωγή και ενημέρωση προϊόντων Yoggies με πλήρη υποστήριξη για το βάρος (weight) της συσκευασίας.
- * Version: 5.15
+ * Plugin Name: Yoggies XML Importer (v5.16 - Fixed Stock Availability)
+ * Description: Αυτόματη εισαγωγή και ενημέρωση προϊόντων Yoggies με πλήρη υποστήριξη για το βάρος (weight) και διορθωμένο έλεγχο in_stock.
+ * Version: 5.16
  * Author: Georgiana
  */
 
@@ -21,13 +21,13 @@ add_action('admin_menu', function () {
 function yoggies_render_admin_page() {
     ?>
     <div class="wrap">
-        <h1>📦 Yoggies XML Importer (v5.15)</h1>
+        <h1>📦 Yoggies XML Importer (v5.16)</h1>
         
         <div style="background: #fff; border-left: 4px solid #00a0d2; padding: 12px; margin-bottom: 20px; margin-top: 15px;">
             <p style="margin: 0;"><strong>🔗 Πηγή XML:</strong> <code><?php echo esc_html(YOGGIES_XML_URL); ?></code></p>
         </div>
 
-        <p>Λειτουργία: <b>Full Sync</b> (Διορθωμένη ανάγνωση Custom Tabs JSON, Cron Images & Βάρους Προϊόντος).</p>
+        <p>Λειτουργία: <b>Full Sync</b> (Διορθωμένη ανάγνωση Custom Tabs JSON, Cron Images, Βάρους & Διαθεσιμότητας in_stock).</p>
         
         <button id="yg-btn-import" class="button button-primary">Εισαγωγή Νέων (Draft)</button>
         <button id="yg-btn-update" class="button" style="margin-left:10px;">Ενημέρωση Υπαρχόντων</button>
@@ -112,6 +112,10 @@ add_action('wp_ajax_yg_init_xml', function() {
         $regular_price = yoggies_parse_price($item->price);
         $sale_price = yoggies_parse_price($item->sales_price);
         $weight = yoggies_parse_weight($item->weight);
+        
+        // ΔΙΟΡΘΩΣΗ: Έλεγχος και για "in_stock" και για "in stock"
+        $availability = strtolower(trim((string)$item->availability));
+        $is_in_stock = in_array($availability, ['in_stock', 'in stock']);
 
         $extracted_tabs = yoggies_extract_custom_tabs((string)$item->custom_tabs);
 
@@ -122,7 +126,7 @@ add_action('wp_ajax_yg_init_xml', function() {
             'reg_price'  => $regular_price,
             'sale_price' => ($sale_price > 0 && $sale_price < $regular_price) ? $sale_price : '',
             'weight'     => $weight,
-            'stock'      => (trim((string)$item->availability) === 'in stock'),
+            'stock'      => $is_in_stock,
             'img'        => (string)$item->image_link,
             'desc'       => (string)$item->html_description, 
             'short_desc' => (string)$item->short_description,
@@ -158,7 +162,7 @@ add_action('wp_ajax_yg_process_batch', function() {
                     $product = wc_get_product($product_id);
                     $product->set_regular_price($data['reg_price']);
                     $product->set_sale_price($data['sale_price']);
-                    $product->set_weight($data['weight']); // Ενημέρωση Βάρους
+                    $product->set_weight($data['weight']); 
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
                     
                     $product->set_description($data['desc']);
@@ -186,7 +190,7 @@ add_action('wp_ajax_yg_process_batch', function() {
                     
                     $product->set_regular_price($data['reg_price']);
                     $product->set_sale_price($data['sale_price']);
-                    $product->set_weight($data['weight']); // Εισαγωγή Βάρους
+                    $product->set_weight($data['weight']);
                     
                     $product->set_description($data['desc']);
                     $product->set_short_description($data['short_desc']);
@@ -250,11 +254,15 @@ function yoggies_xml_run_automated_sync() {
         
         $reg = yoggies_parse_price($item->price);
         $sale = yoggies_parse_price($item->sales_price);
-        $weight = yoggies_parse_weight($item->weight); // Ανάγνωση Βάρους στο Cron
+        $weight = yoggies_parse_weight($item->weight); 
         $slug = yoggies_get_slug_from_link($item->link);
         $desc = (string)$item->html_description;
         $short_desc = (string)$item->short_description;
         $image_link = (string)$item->image_link;
+        
+        // ΔΙΟΡΘΩΣΗ CRON
+        $availability = strtolower(trim((string)$item->availability));
+        $is_in_stock = in_array($availability, ['in_stock', 'in stock']);
         
         $extracted_tabs = yoggies_extract_custom_tabs((string)$item->custom_tabs);
 
@@ -262,8 +270,8 @@ function yoggies_xml_run_automated_sync() {
             $p = wc_get_product($product_id);
             $p->set_regular_price($reg);
             $p->set_sale_price(($sale > 0 && $sale < $reg) ? $sale : '');
-            $p->set_weight($weight); // Αυτόματη ενημέρωση βάρους στο υπάρχον προϊόν
-            $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
+            $p->set_weight($weight); 
+            $p->set_stock_status($is_in_stock ? 'instock' : 'outofstock');
             
             $p->set_description($desc);
             $p->set_short_description($short_desc);
@@ -283,12 +291,12 @@ function yoggies_xml_run_automated_sync() {
             if (!empty($slug)) $p->set_slug($slug);
             $p->set_regular_price($reg);
             $p->set_sale_price(($sale > 0 && $sale < $reg) ? $sale : '');
-            $p->set_weight($weight); // Ορισμός βάρους στο νέο προϊόν
+            $p->set_weight($weight); 
             
             $p->set_description($desc);
             $p->set_short_description($short_desc);
 
-            $p->set_stock_status((trim((string)$item->availability) === 'in stock') ? 'instock' : 'outofstock');
+            $p->set_stock_status($is_in_stock ? 'instock' : 'outofstock');
             $p->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
             $new_id = $p->save();
 
