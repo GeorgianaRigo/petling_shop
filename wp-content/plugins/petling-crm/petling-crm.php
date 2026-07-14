@@ -69,7 +69,25 @@ register_deactivation_hook( __FILE__, 'petling_crm_deactivate' );
  */
 add_action( 'admin_menu', 'petling_crm_admin_menu' );
 function petling_crm_admin_menu() {
-    add_menu_page( 'Petling CRM', '🐾 Petling CRM', 'manage_options', 'petling-crm-settings', 'petling_crm_settings_page', 'dashicons-pets', 56 );
+    // Ελέγχουμε αν υπάρχει ήδη το κεντρικό μενού "Petling" (Η Πατούσα)
+    if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
+        // Αν δεν υπάρχει, τη φτιάχνουμε
+        add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'petling_crm_settings_page', 'dashicons-pets', 55 );
+        // Και βάζουμε το CRM ως 1ο υπομενού
+        add_submenu_page( 'petling-main', 'CRM', 'CRM', 'manage_options', 'petling-crm-settings', 'petling_crm_settings_page' );
+        // Κρύβουμε το διπλό "Petling"
+        remove_submenu_page( 'petling-main', 'petling-main' );
+    } else {
+        // Αν υπάρχει η Πατούσα, κουμπώνουμε το CRM από κάτω!
+        add_submenu_page(
+            'petling-main',               // Parent (Η πατούσα)
+            'CRM',                // Τίτλος σελίδας
+            'CRM',             // Ονομασία στο Dropdown
+            'manage_options',             // Δικαιώματα
+            'petling-crm-settings',       // Το Slug σου (έμεινε ίδιο!)
+            'petling_crm_settings_page'   // Η function σου
+        );
+    }
 }
 
 function petling_crm_settings_page() {

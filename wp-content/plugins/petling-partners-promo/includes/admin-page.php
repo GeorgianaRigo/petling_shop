@@ -10,7 +10,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'admin_menu', 'petling_promo_admin_menu' );
 function petling_promo_admin_menu() {
-    add_menu_page( 'Ρυθμίσεις Petling Promo', 'Petling Promo', 'manage_options', 'petling-partners-promo', 'petling_promo_settings_page', 'dashicons-pets', 56 );
+    
+    // Ελέγχουμε αν υπάρχει ήδη το κεντρικό μενού "Petling" (π.χ. από το VIP plugin)
+    if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
+        // Αν το VIP είναι κλειστό, φτιάχνουμε εμείς την Πατούσα
+        add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'petling_promo_settings_page', 'dashicons-pets', 55 );
+        
+        // Και βάζουμε το Promo ως 1ο υπομενού
+        add_submenu_page( 'petling-main', 'Petling Partners Promo', 'Promo Συνεργατών', 'manage_options', 'petling-partners-promo', 'petling_promo_settings_page' );
+        
+        // Κρύβουμε το διπλό "Petling" που βγάζει το WordPress by default
+        remove_submenu_page( 'petling-main', 'petling-main' );
+    } else {
+        // Αν η Πατούσα υπάρχει (το πιο πιθανό), απλά "κουμπώνουμε" το Promo από κάτω!
+        add_submenu_page(
+            'petling-main',               // Parent (Η πατούσα)
+            'Petling Partners Promo',     // Τίτλος σελίδας
+            'Promo Συνεργατών',           // Ονομασία στο Dropdown
+            'manage_options',             // Δικαιώματα
+            'petling-partners-promo',     // Το Slug σου (έμεινε ίδιο για να μη χαλάσουν τα links)
+            'petling_promo_settings_page' // Η function σου
+        );
+    }
 }
 
 add_action( 'admin_init', 'petling_promo_handle_admin_actions' );

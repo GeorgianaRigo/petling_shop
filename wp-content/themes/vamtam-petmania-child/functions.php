@@ -835,3 +835,26 @@ function ptl_checkout_error_js_script() {
         <?php
     }
 }
+
+// =========================================================================
+// ΚΡΥΒΕΙ ΤΟ ΔΙΠΛΟ ΥΠΟΜΕΝΟΥ & ΚΑΝΕΙ REDIRECT ΤΗΝ "ΠΑΤΟΥΣΑ" ΣΤΟ ΠΡΩΤΟ ΕΡΓΑΛΕΙΟ
+// =========================================================================
+
+// 1. Εξαφάνιση του διπλού υπομενού "Petling" (τρέχει στο τέλος, priority 999)
+add_action( 'admin_menu', 'petling_clean_up_main_menu', 999 );
+function petling_clean_up_main_menu() {
+    remove_submenu_page( 'petling-main', 'petling-main' );
+}
+
+// 2. Ανακατεύθυνση από την άδεια σελίδα στο "Quiz Leads"
+add_action( 'admin_init', 'petling_redirect_main_paw_icon' );
+function petling_redirect_main_paw_icon() {
+    // Ελέγχουμε αν ο χρήστης πάτησε ακριβώς το κεντρικό 'petling-main'
+    if ( isset( $_GET['page'] ) && $_GET['page'] === 'petling-main' ) {
+        
+        // Τον στέλνουμε κατευθείαν στο Quiz Leads (ώστε να μη βλέπει άδεια σελίδα)
+        // Αν προτιμάς να ανοίγει άλλο πρώτο, πες μου να αλλάξουμε το URL!
+        wp_redirect( admin_url( 'edit.php?post_type=ptl_quiz_lead' ) );
+        exit;
+    }
+}

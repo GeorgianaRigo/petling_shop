@@ -10,6 +10,20 @@ Author: Petling
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // =========================================================================
+// 0. ΕΞΑΣΦΑΛΙΣΗ ΚΕΝΤΡΙΚΟΥ ΜΕΝΟΥ PETLING 🐾
+// =========================================================================
+add_action( 'admin_menu', 'ptl_quiz_ensure_admin_menu', 9 );
+function ptl_quiz_ensure_admin_menu() {
+    // Ελέγχουμε αν υπάρχει ήδη η "Πατούσα" (από τα άλλα plugins). Αν όχι, τη φτιάχνουμε!
+    if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
+        add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'ptl_quiz_fallback_page', 'dashicons-pets', 55 );
+    }
+}
+function ptl_quiz_fallback_page() {
+    echo '<div class="wrap"><h1 style="color:#43282F;"><span class="dashicons dashicons-pets" style="font-size:32px; width:32px; height:32px;"></span> Petling Control Panel</h1><p>Επιλέξτε ένα εργαλείο από το μενού στα αριστερά.</p></div>';
+}
+
+// =========================================================================
 // 1. ΤΑ ΔΕΔΟΜΕΝΑ ΜΑΣ (Ο "ΕΓΚΕΦΑΛΟΣ")
 // =========================================================================
 function ptl_get_yoggies_data() {
@@ -99,9 +113,15 @@ function ptl_get_yoggies_data() {
 add_action('init', 'ptl_register_leads_cpt');
 function ptl_register_leads_cpt() {
     register_post_type('ptl_quiz_lead', array(
-        'labels' => array( 'name' => 'Leads Quiz', 'singular_name' => 'Lead Quiz' ),
-        'public' => false, 'show_ui' => true, 'menu_icon' => 'dashicons-email-alt',
-        'supports' => array('title'), 'menu_position' => 56
+        'labels' => array( 
+            'name' => 'Quiz Leads', 
+            'singular_name' => 'Quiz Lead',
+            'all_items' => 'Quiz Leads' // Το όνομα που θα φαίνεται στο Dropdown
+        ),
+        'public' => false, 
+        'show_ui' => true, 
+        'show_in_menu' => 'petling-main', // <--- ΤΟ ΜΥΣΤΙΚΟ! Κουμπώνει κάτω από την πατούσα
+        'supports' => array('title')
     ));
 }
 
