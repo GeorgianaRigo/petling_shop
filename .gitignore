@@ -19,6 +19,7 @@ wp-content/plugins/*
 !wp-content/plugins/yoggies-importer
 !petling-nutrition-advisor
 !petling-vip
+!petling-min-order
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
 !wp-content/plugins/elementor-pro/
