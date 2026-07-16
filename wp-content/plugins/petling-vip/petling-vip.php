@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Petling VIP Club & Referrals
+Plugin Name: Petling VIP Club
 Plugin URI: https://petling.gr
-Description: Δυναμικό σύστημα εκπτώσεων VIP, Referral με Μοναδικούς Κωδικούς, Gamification και Επεξεργάσιμα Κείμενα. (Συνδεδεμένο με το Global Min Order).
-Version: 2.7
+Description: Δυναμικό σύστημα εκπτώσεων VIP (Tiers: Απλό Μέλος, Silver, Gold). Το welcome10 μπλοκάρεται για τα εγγεγραμμένα μέλη με σχετικό μήνυμα.
+Version: 5.2
 Author: Petling
 */
 
@@ -16,9 +16,9 @@ add_action( 'admin_menu', 'ptl_vip_admin_menu' );
 function ptl_vip_admin_menu() {
     if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
         add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'ptl_vip_admin_page_html', 'dashicons-pets', 55 );
-        add_submenu_page( 'petling-main', 'Petling VIP & Referrals', 'VIP & Referrals', 'manage_options', 'petling-main', 'ptl_vip_admin_page_html' );
+        add_submenu_page( 'petling-main', 'Petling VIP Club', 'VIP Club', 'manage_options', 'petling-main', 'ptl_vip_admin_page_html' );
     } else {
-        add_submenu_page( 'petling-main', 'Petling VIP & Referrals', 'VIP & Referrals', 'manage_options', 'petling-vip-rules', 'ptl_vip_admin_page_html' );
+        add_submenu_page( 'petling-main', 'Petling VIP Club', 'VIP Club', 'manage_options', 'petling-vip-rules', 'ptl_vip_admin_page_html' );
     }
 }
 
@@ -32,8 +32,6 @@ function ptl_vip_admin_page_html() {
         update_option( 'ptl_vip_silver_discount', floatval( $_POST['ptl_vip_silver_discount'] ) );
         update_option( 'ptl_vip_gold_spend', floatval( $_POST['ptl_vip_gold_spend'] ) );
         update_option( 'ptl_vip_gold_discount', floatval( $_POST['ptl_vip_gold_discount'] ) );
-        update_option( 'ptl_vip_referral_discount', floatval( $_POST['ptl_vip_referral_discount'] ) );
-        update_option( 'ptl_vip_referral_rules_text', wp_kses_post( wp_unslash( $_POST['ptl_vip_referral_rules_text'] ) ) );
         echo '<div class="notice notice-success is-dismissible"><p>Οι ρυθμίσεις αποθηκεύτηκαν δυναμικά!</p></div>';
     }
 
@@ -56,7 +54,7 @@ function ptl_vip_admin_page_html() {
     <div class="wrap">
         <h1 style="color: #43282F; display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
             <span class="dashicons dashicons-star-filled" style="font-size: 28px; width: 28px; height: 28px; color: #C7B297;"></span> 
-            Petling VIP Club & Referrals
+            Petling VIP Club
         </h1>
         <h2 class="nav-tab-wrapper" style="margin-bottom: 20px;">
             <a href="?page=<?php echo isset($_GET['page']) ? esc_attr($_GET['page']) : 'petling-vip-rules'; ?>&tab=settings" class="nav-tab <?php echo 'settings' === $active_tab ? 'nav-tab-active' : ''; ?>">Ρυθμίσεις & Κανόνες</a>
@@ -76,16 +74,13 @@ function ptl_vip_render_settings_tab() {
     $silver_disc = get_option( 'ptl_vip_silver_discount', 7 );
     $gold_spnd   = get_option( 'ptl_vip_gold_spend', 2000 );
     $gold_disc   = get_option( 'ptl_vip_gold_discount', 10 );
-    $ref_disc    = get_option( 'ptl_vip_referral_discount', 5 );
-    
-    $default_rules = "Το πρόγραμμα Referral δημιουργήθηκε με σκοπό να βοηθήσουμε τα Απλά Μέλη μας για αρχή, προσφέροντάς τους μια επιπλέον έκπτωση.\n\n⚠️ Σημαντικοί Κανόνες:\n• Το κουπόνι σύστασης ισχύει για παραγγελίες ίσες ή μεγαλύτερες της ελάχιστης παραγγελίας του καταστήματος.\n• Εάν έχετε ήδη φτάσει στο επίπεδο Silver ή Gold VIP, δεν δικαιούστε την έκπτωση του referral, καθώς απολαμβάνετε ήδη μεγαλύτερη μόνιμη έκπτωση στο καλάθι σας.\n• Το κουπόνι σύστασης δεν συνδυάζεται με άλλες εκπτώσεις ή προσφορές.";
-    $ref_rules = get_option( 'ptl_vip_referral_rules_text', $default_rules );
     ?>
     <form method="post" action="">
         <?php wp_nonce_field( 'ptl_vip_save_action', 'ptl_vip_nonce' ); ?>
         
         <div style="background: #fff; border: 1px solid #ccc; border-left: 4px solid #C7B297; padding: 20px; max-width: 800px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <h2 style="margin-top: 0; color: #2271b1;">1. Αυτόματες Εκπτώσεις VIP (Tiers)</h2>
+            <h2 style="margin-top: 0; color: #2271b1;">Αυτόματες Εκπτώσεις VIP (Tiers)</h2>
+            <p>Ορίστε τα ποσοστά έκπτωσης που θα εφαρμόζονται αυτόματα στο καλάθι των εγγεγραμμένων χρηστών, ανάλογα με τον συνολικό τζίρο τους.</p>
             <table class="form-table">
                 <tr>
                     <th style="width: 200px;">Απλό Μέλος (Εγγραφή)</th>
@@ -103,23 +98,6 @@ function ptl_vip_render_settings_tab() {
                     <td>
                         <span style="display:inline-flex; align-items:center; gap:8px; margin-right: 30px;">Τζίρος πάνω από: <input type="number" step="1" name="ptl_vip_gold_spend" value="<?php echo esc_attr($gold_spnd); ?>" style="width:80px;"> €</span>
                         <span style="display:inline-flex; align-items:center; gap:8px;">Έκπτωση: <input type="number" step="0.1" name="ptl_vip_gold_discount" value="<?php echo esc_attr($gold_disc); ?>" style="width:70px;"> %</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div style="background: #fff; border: 1px solid #ccc; border-left: 4px solid #5b9a68; padding: 20px; margin-top: 20px; max-width: 800px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <h2 style="margin-top: 0; color: #2271b1;">2. Σύστημα Referral (Σύστησε ένα φίλο)</h2>
-            <table class="form-table">
-                <tr>
-                    <th style="width: 200px;">Ανταμοιβή (Κουπόνι)</th>
-                    <td><span style="display:inline-flex; align-items:center; gap:8px;">Έκπτωση: <input type="number" step="0.1" name="ptl_vip_referral_discount" value="<?php echo esc_attr($ref_disc); ?>" style="width:70px;"> %</span></td>
-                </tr>
-                <tr>
-                    <th>Κείμενο Κανόνων<br><small>(Εμφανίζεται στο site)</small></th>
-                    <td>
-                        <textarea name="ptl_vip_referral_rules_text" rows="7" style="width: 100%; max-width: 500px; padding: 10px;"><?php echo esc_textarea( $ref_rules ); ?></textarea>
-                        <p class="description">Γράψτε εδώ τους περιορισμούς. Μπορείτε να κάνετε αλλαγές γραμμής (Enter).</p>
                     </td>
                 </tr>
             </table>
@@ -315,15 +293,12 @@ add_shortcode( 'petling_vip', 'ptl_vip_dynamic_shortcode' );
 function ptl_vip_dynamic_shortcode( $atts ) {
     $atts = shortcode_atts( array( 'field' => '' ), $atts );
     $field = $atts['field'];
-    $default_rules = "Το πρόγραμμα Referral δημιουργήθηκε με σκοπό να βοηθήσουμε τα Απλά Μέλη μας για αρχή, προσφέροντάς τους μια επιπλέον έκπτωση.\n\n⚠️ Σημαντικοί Κανόνες:\n• Το κουπόνι σύστασης ισχύει για παραγγελίες ίσες ή μεγαλύτερες της ελάχιστης παραγγελίας του καταστήματος.\n• Εάν έχετε ήδη φτάσει στο επίπεδο Silver ή Gold VIP, δεν δικαιούστε την έκπτωση του referral, καθώς απολαμβάνετε ήδη μεγαλύτερη μόνιμη έκπτωση στο καλάθι σας.\n• Το κουπόνι σύστασης δεν συνδυάζεται με άλλες εκπτώσεις ή προσφορές.";
 
     if ( $field === 'base_discount' ) return get_option( 'ptl_vip_base_discount', 3 );
     if ( $field === 'silver_spend' ) return get_option( 'ptl_vip_silver_spend', 1000 );
     if ( $field === 'silver_discount' ) return get_option( 'ptl_vip_silver_discount', 7 );
     if ( $field === 'gold_spend' ) return get_option( 'ptl_vip_gold_spend', 2000 );
     if ( $field === 'gold_discount' ) return get_option( 'ptl_vip_gold_discount', 10 );
-    if ( $field === 'referral_discount' ) return get_option( 'ptl_vip_referral_discount', 5 );
-    if ( $field === 'referral_rules' ) return wp_kses_post( nl2br( get_option( 'ptl_vip_referral_rules_text', $default_rules ) ) );
     return '';
 }
 
@@ -334,12 +309,6 @@ function ptl_vip_rules_shortcode() {
     $silver_disc = get_option( 'ptl_vip_silver_discount', 7 );
     $gold_spnd   = get_option( 'ptl_vip_gold_spend', 2000 );
     $gold_disc   = get_option( 'ptl_vip_gold_discount', 10 );
-    $ref_disc    = get_option( 'ptl_vip_referral_discount', 5 );
-    // Διαβάζει το όριο από το νέο plugin Global Min Order
-    $ref_min     = get_option( 'ptl_global_min_order_amount', 20 );
-    
-    $default_rules = "Το πρόγραμμα Referral δημιουργήθηκε με σκοπό να βοηθήσουμε τα Απλά Μέλη μας για αρχή, προσφέροντάς τους μια επιπλέον έκπτωση.\n\n⚠️ Σημαντικοί Κανόνες:\n• Το κουπόνι σύστασης ισχύει για παραγγελίες ίσες ή μεγαλύτερες της ελάχιστης παραγγελίας του καταστήματος.\n• Εάν έχετε ήδη φτάσει στο επίπεδο Silver ή Gold VIP, δεν δικαιούστε την έκπτωση του referral, καθώς απολαμβάνετε ήδη μεγαλύτερη μόνιμη έκπτωση στο καλάθι σας.\n• Το κουπόνι σύστασης δεν συνδυάζεται με άλλες εκπτώσεις ή προσφορές.";
-    $ref_rules = get_option( 'ptl_vip_referral_rules_text', $default_rules );
 
     $html = '<div class="ptl-vip-rules-container" style="background: #fff; padding: 25px; border-radius: 8px; border: 2px dashed #C7B297;">';
     $html .= '<h3 style="color: #43282F; margin-top: 0;">🌟 Petling VIP Club</h3>';
@@ -349,16 +318,13 @@ function ptl_vip_rules_shortcode() {
     $html .= '<li style="margin-bottom: 10px;">🥈 <strong>Silver VIP:</strong> ' . $silver_disc . '% μόνιμη έκπτωση (για συνολικό τζίρο άνω των ' . $silver_spnd . '€)</li>';
     $html .= '<li style="margin-bottom: 10px;">👑 <strong>Gold VIP:</strong> ' . $gold_disc . '% μόνιμη έκπτωση (για συνολικό τζίρο άνω των ' . $gold_spnd . '€)</li>';
     $html .= '</ul>';
-    $html .= '<h3 style="color: #43282F; margin-top: 25px;">🎁 Πρόγραμμα "Σύστησε ένα Φίλο"</h3>';
-    $html .= '<p style="color: #555;">Μοιραστείτε τον μοναδικό σας σύνδεσμο (τον οποίο θα βρείτε στον λογαριασμό σας) με τους φίλους σας. Μόλις ο φίλος σας ολοκληρώσει την πρώτη του παραγγελία <strong>άνω των '. $ref_min .'€</strong>, εσείς θα λάβετε αυτόματα στο email σας ένα κουπόνι έκπτωσης <strong>' . $ref_disc . '%</strong>.</p>';
-    $html .= '<div style="background: #F5EDE3; border-left: 4px solid #C7B297; padding: 15px; margin-top: 15px; color: #555; font-size: 14px;">';
-    $html .= wp_kses_post( nl2br( $ref_rules ) ) . '</div></div>';
+    $html .= '</div>';
 
     return $html;
 }
 
 // =========================================================================
-// Α. ΣΥΣΤΗΜΑ VIP TIERS (ΑΥΤΟΜΑΤΗ ΕΚΠΤΩΣΗ ΣΤΟ ΚΑΛΑΘΙ)
+// 3. ΣΥΣΤΗΜΑ VIP TIERS (ΑΥΤΟΜΑΤΗ ΕΚΠΤΩΣΗ ΣΤΟ ΚΑΛΑΘΙ)
 // =========================================================================
 add_action( 'woocommerce_cart_calculate_fees', 'ptl_apply_vip_club_discount', 10, 1 );
 function ptl_apply_vip_club_discount( $cart ) {
@@ -394,154 +360,20 @@ function ptl_apply_vip_club_discount( $cart ) {
 }
 
 // =========================================================================
-// Β. REFERRAL SYSTEM & GAMIFICATION
+// 4. ΜΠΛΟΚΑΡΙΣΜΑ ΤΟΥ "WELCOME10" ΓΙΑ ΤΑ ΕΓΓΕΓΡΑΜΜΕΝΑ ΜΕΛΗ
 // =========================================================================
-function ptl_get_user_referral_code( $user_id ) {
-    $code = get_user_meta( $user_id, '_ptl_referral_code', true );
-    if ( empty( $code ) ) {
-        $code = substr( str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 6 );
-        while ( ! empty( get_users( array( 'meta_key' => '_ptl_referral_code', 'meta_value' => $code, 'fields' => 'ID' ) ) ) ) {
-            $code = substr( str_shuffle("0123456789abcdefghijklmnopqrstuvwxyz"), 0, 6 );
-        }
-        update_user_meta( $user_id, '_ptl_referral_code', $code );
-    }
-    return $code;
-}
-
-add_action( 'init', 'ptl_track_referral_link' );
-function ptl_track_referral_link() {
-    if ( isset( $_GET['ref'] ) && ! empty( $_GET['ref'] ) ) {
-        $ref_val = sanitize_text_field( $_GET['ref'] );
-        $referrer_id = 0;
-        $users = get_users( array( 'meta_key' => '_ptl_referral_code', 'meta_value' => $ref_val, 'number' => 1, 'fields' => 'ID' ) );
-        if ( ! empty( $users ) ) { $referrer_id = $users[0]; }
-        elseif ( is_numeric( $ref_val ) ) {
-            $user_obj = get_userdata( intval( $ref_val ) );
-            if ( $user_obj ) $referrer_id = $user_obj->ID;
-        }
-        if ( $referrer_id > 0 ) setcookie( 'petling_ref_id', $referrer_id, time() + (30 * DAY_IN_SECONDS), '/' );
-    }
-}
-
-add_action( 'woocommerce_account_dashboard', 'ptl_show_referral_link_in_my_account' );
-function ptl_show_referral_link_in_my_account() {
-    $user_id = get_current_user_id();
-    $ref_link = home_url( '/?ref=' . ptl_get_user_referral_code( $user_id ) );
-    $ref_disc = get_option( 'ptl_vip_referral_discount', 5 );
-    // Διαβάζει το όριο από το νέο plugin
-    $ref_min  = get_option( 'ptl_global_min_order_amount', 20 );
-    ?>
-    <div style="background: #F5EDE3; padding: 20px; border: 2px dashed #C7B297; border-radius: 8px; margin-bottom: 25px; text-align: center;">
-        <h3 style="margin-top: 0; color: #43282F;">🎁 Πρόγραμμα "Σύστησε ένα Φίλο"</h3>
-        <p style="margin-bottom: 10px;">Μοιραστείτε τον παρακάτω σύνδεσμο με τους φίλους σας. Μόλις εγγραφούν και ολοκληρώσουν την πρώτη τους παραγγελία <strong>άνω των <?php echo esc_html($ref_min); ?>€</strong>, εσείς <strong>θα λάβετε ένα κουπόνι έκπτωσης <?php echo esc_html($ref_disc); ?>%!</strong></p>
-        <input type="text" value="<?php echo esc_url( $ref_link ); ?>" readonly style="width: 100%; max-width: 400px; padding: 10px; text-align: center; font-weight: bold; color: #5b9a68; border: 1px solid #C7B297; border-radius: 4px;" onclick="this.select();">
-    </div>
-    <?php
-}
-
-add_action( 'user_register', 'ptl_save_referrer_on_registration' );
-function ptl_save_referrer_on_registration( $user_id ) {
-    if ( isset( $_COOKIE['petling_ref_id'] ) ) {
-        $referrer_id = intval( $_COOKIE['petling_ref_id'] );
-        if ( $referrer_id !== $user_id ) update_user_meta( $user_id, '_petling_referred_by', $referrer_id );
-    }
-}
-
-// ΜΗΝΥΜΑΤΑ GAMIFICATION ΣΤΟ ΚΑΛΑΘΙ
-add_action( 'woocommerce_before_cart', 'ptl_show_referral_status_in_cart' );
-add_action( 'woocommerce_before_checkout_form', 'ptl_show_referral_status_in_cart' );
-function ptl_show_referral_status_in_cart() {
-    if ( is_admin() || is_null( WC()->cart ) ) return;
-    
-    $user_id = get_current_user_id();
-    $referrer_id = 0;
-    
-    if ( $user_id ) {
-        $referrer_id = get_user_meta( $user_id, '_petling_referred_by', true );
-        if ( get_user_meta( $user_id, '_petling_referral_rewarded', true ) ) return; 
-    } elseif ( isset( $_COOKIE['petling_ref_id'] ) ) {
-        $referrer_id = intval( $_COOKIE['petling_ref_id'] );
-    }
-    
-    if ( $referrer_id ) {
-        // Διαβάζει το όριο από το νέο plugin
-        $ref_min = get_option( 'ptl_global_min_order_amount', 20 );
-        $subtotal = WC()->cart->get_subtotal();
-        
-        echo '<div style="background: #F5EDE3; border-left: 4px solid #C7B297; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #43282F; font-size: 15px;">';
-        if ( $subtotal < $ref_min ) {
-            $diff = $ref_min - $subtotal;
-            echo '🎁 <strong>Ήρθατε μέσω σύστασης!</strong> Προσθέστε ακόμα <strong>' . number_format($diff, 2, ',', '.') . '€</strong> στο καλάθι σας για να ενεργοποιηθεί αυτόματα η επιβράβευση του φίλου που σας σύστησε!';
-        } else {
-            echo '🎁 <strong>Πρόγραμμα Σύστασης:</strong> Η παραγγελία σας πληροί τις προϋποθέσεις! Η επιβράβευση του φίλου σας θα ενεργοποιηθεί αυτόματα μόλις ολοκληρώσετε την αγορά.';
-        }
-        echo '</div>';
-    }
-}
-
-// ΔΗΜΙΟΥΡΓΙΑ ΚΟΥΠΟΝΙΟΥ ΜΕΤΑ ΤΗΝ ΠΑΡΑΓΓΕΛΙΑ
-add_action( 'woocommerce_order_status_completed', 'ptl_reward_referrer_with_coupon' );
-function ptl_reward_referrer_with_coupon( $order_id ) {
-    $order = wc_get_order( $order_id );
-    $customer_id = $order->get_customer_id();
-    if ( ! $customer_id ) return;
-
-    $referrer_id = get_user_meta( $customer_id, '_petling_referred_by', true );
-    if ( $referrer_id && ! get_user_meta( $customer_id, '_petling_referral_rewarded', true ) ) {
-        
-        // Διαβάζει το όριο από το νέο plugin
-        $ref_min = get_option( 'ptl_global_min_order_amount', 20 );
-        if ( $order->get_subtotal() < $ref_min ) return; // Πρέπει να ξεπερνά το κεντρικό όριο
-
-        $referrer_user = get_userdata( $referrer_id );
-        if ( $referrer_user ) {
-            $ref_disc = get_option( 'ptl_vip_referral_discount', 5 );
-            $coupon_code = 'ref-' . strtolower(substr(md5(uniqid(rand(), true)), 0, 6));
-            
-            $coupon = new WC_Coupon();
-            $coupon->set_code( $coupon_code );
-            $coupon->set_discount_type( 'percent' ); 
-            $coupon->set_amount( $ref_disc ); 
-            $coupon->set_usage_limit( 1 );
-            $coupon->set_minimum_amount( $ref_min ); // Το κουπόνι εξαργυρώνεται μόνο πάνω από αυτό το ποσό
-            $coupon->set_email_restrictions( array( $referrer_user->user_email ) ); 
-            $coupon->set_description( 'Ανταμοιβή Referral για: ' . $referrer_user->user_email );
-            $coupon->save();
-
-            update_user_meta( $customer_id, '_petling_referral_rewarded', 'yes' );
-
-            $subject = "🎉 Έχετε ένα νέο δώρο από το Petling!";
-            $message = "Γεια σας!\n\nΈνας φίλος που καλέσατε, μόλις ολοκλήρωσε την πρώτη του αγορά στο Petling!\n\nΓια να σας ανταμείψουμε, σας κάνουμε δώρο $ref_disc% έκπτωση για την επόμενη παραγγελία σας.\n\nΟ μοναδικός σας κωδικός είναι: " . strtoupper($coupon_code) . "\n\n(Ο κωδικός ισχύει για 1 χρήση, για παραγγελίες άνω των {$ref_min}€ και λειτουργεί μόνο εφόσον δεν έχετε φτάσει στην έκπτωση Silver/Gold VIP).\n\nΣας ευχαριστούμε!";
-            wp_mail( $referrer_user->user_email, $subject, $message, array('Content-Type: text/plain; charset=UTF-8', 'From: Petling <info@petling.gr>') );
-        }
-    }
-}
-
-// ΕΛΕΓΧΟΣ ΚΟΥΠΟΝΙΟΥ (Να μην συνδυάζεται με Silver/Gold)
-add_filter( 'woocommerce_coupon_is_valid', 'ptl_restrict_referral_coupon_for_vips', 10, 3 );
-function ptl_restrict_referral_coupon_for_vips( $valid, $coupon, $discount ) {
+add_filter( 'woocommerce_coupon_is_valid', 'ptl_restrict_welcome10_for_vips', 10, 3 );
+function ptl_restrict_welcome10_for_vips( $valid, $coupon, $discount ) {
     if ( ! $valid ) return $valid;
     
-    if ( strpos( strtolower( $coupon->get_code() ), 'ref-' ) === 0 ) {
-        // Διαβάζει το όριο από το νέο plugin
-        $ref_min = get_option( 'ptl_global_min_order_amount', 20 );
-        if ( WC()->cart && WC()->cart->get_subtotal() < $ref_min ) {
-            throw new Exception( sprintf( 'Το κουπόνι σύστασης ισχύει μόνο για παραγγελίες άνω των %g€.', $ref_min ) );
-        }
+    // Αν το κουπόνι είναι το welcome10
+    if ( strtolower( $coupon->get_code() ) === 'welcome10' ) {
+        
+        // Και ο πελάτης έχει κάνει σύνδεση (άρα είναι VIP και παίρνει μόνιμη έκπτωση)
         if ( is_user_logged_in() ) {
-            $user_id = get_current_user_id();
-            $manual_tier = get_user_meta( $user_id, '_ptl_manual_vip_tier', true );
-            $total_spent = wc_get_customer_total_spent( $user_id );
-            $silver_spnd = get_option( 'ptl_vip_silver_spend', 1000 );
-            
-            $is_vip = false;
-            if ( $manual_tier === 'gold' || $manual_tier === 'silver' ) $is_vip = true;
-            elseif ( $manual_tier !== 'none' && $manual_tier !== 'base' && $total_spent >= $silver_spnd ) $is_vip = true;
-            
-            if ( $is_vip ) {
-                throw new Exception( 'Δεν μπορείτε να χρησιμοποιήσετε το κουπόνι σύστασης, καθώς απολαμβάνετε ήδη μεγαλύτερη μόνιμη έκπτωση (Silver/Gold VIP) στο καλάθι σας!' );
-            }
+            throw new Exception( 'Είστε ήδη μέλος του Petling VIP Club! Το κουπόνι welcome10 αφορά μόνο νέους επισκέπτες, καθώς εσείς απολαμβάνετε ήδη τις δικές σας μόνιμες εκπτώσεις και προνόμια στο καλάθι.' );
         }
     }
+    
     return $valid;
 }
