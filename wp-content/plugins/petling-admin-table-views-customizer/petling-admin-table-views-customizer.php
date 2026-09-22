@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Petling Admin Table Views Customizer
- * Description: Διαχείριση και εξατομίκευση των πινάκων στο διαχειριστικό (π.χ. προσθήκη στήλης Προμηθευτή και φίλτρων).
- * Version: 1.1
+ * Description: Διαχείριση και εξατομίκευση των πινάκων στο διαχειριστικό (π.χ. δυναμική προσθήκη στήλης Προμηθευτή και φίλτρων).
+ * Version: 1.2
  * Author: Georgiana
  */
 
@@ -53,22 +53,31 @@ function petling_admin_populate_supplier_column( $column, $postid ) {
 // Δημιουργία του μενού επιλογής (Dropdown) πάνω από τον πίνακα
 add_action( 'restrict_manage_posts', 'petling_admin_add_supplier_filter_dropdown', 999 );
 function petling_admin_add_supplier_filter_dropdown() {
-    global $typenow;
+    global $typenow, $wpdb;
     if ( $typenow == 'product' ) {
         $current_supplier = isset( $_GET['filter_supplier'] ) ? sanitize_text_field( $_GET['filter_supplier'] ) : '';
         
-        // Λίστα προμηθευτών (μπορείς να προσθέσεις κι άλλους εδώ στο μέλλον)
-        $suppliers = array( 'Petmenu', 'Yoggies', 'Georgiana' );
+        // Δυναμική άντληση των προμηθευτών από τη βάση δεδομένων
+        $suppliers = $wpdb->get_col("
+            SELECT DISTINCT meta_value 
+            FROM {$wpdb->postmeta} 
+            WHERE meta_key = '_supplier_name' 
+            AND meta_value != '' 
+            ORDER BY meta_value ASC
+        ");
         
         echo '<select name="filter_supplier" id="filter_supplier">';
         echo '<option value="">Όλοι οι Προμηθευτές</option>';
-        foreach ( $suppliers as $s ) {
-            printf(
-                '<option value="%s" %s>%s</option>',
-                esc_attr( $s ),
-                selected( $current_supplier, $s, false ),
-                esc_html( $s )
-            );
+        
+        if ( ! empty( $suppliers ) ) {
+            foreach ( $suppliers as $s ) {
+                printf(
+                    '<option value="%s" %s>%s</option>',
+                    esc_attr( $s ),
+                    selected( $current_supplier, $s, false ),
+                    esc_html( $s )
+                );
+            }
         }
         echo '</select>';
     }
