@@ -101,3 +101,31 @@ function petling_admin_apply_supplier_filter_query( $query ) {
         $query->set( 'meta_query', $meta_query );
     }
 }
+
+/**
+ * 3. ΑΠΟΚΡΥΨΗ ΑΔΕΙΩΝ TABS (ΕΝΑΛΛΑΓΗΣ) ΣΤΟ ELEMENTOR
+ * Εξαφανίζει τις καρτέλες (Περιγραφή, Δοσολογία κ.λπ.) αν το πεδίο είναι κενό.
+ */
+add_action( 'wp_footer', 'petling_hide_empty_elementor_toggles' );
+function petling_hide_empty_elementor_toggles() {
+    // Θέλουμε να τρέχει ΜΟΝΟ στις σελίδες των προϊόντων για να μην βαραίνει το υπόλοιπο site
+    if ( ! is_product() ) return;
+    ?>
+    <script>
+    jQuery(document).ready(function($) {
+        // Ψάχνει όλα τα στοιχεία "Εναλλαγής" (Toggles) και "Ακορντεόν" στη σελίδα
+        $('.elementor-toggle-item, .elementor-accordion-item').each(function() {
+            
+            // Παίρνει το καθαρό κείμενο μέσα από το περιεχόμενο της καρτέλας
+            var content = $(this).find('.elementor-tab-content').text().trim();
+            
+            // Αν το περιεχόμενο είναι εντελώς κενό (ή έχει λιγότερους από 2 χαρακτήρες)
+            if (content.length < 2) {
+                // Εξαφανίζει ολόκληρη την καρτέλα (Μαζί με τον Τίτλο της)
+                $(this).hide(); 
+            }
+        });
+    });
+    </script>
+    <?php
+}
