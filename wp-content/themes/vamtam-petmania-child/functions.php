@@ -636,139 +636,141 @@ function petling_save_custom_product_fields_editor( $post_id ) {
 }
 
 // =========================================================================
-// ΝΕΟ SHORTCODE: Πίνακας Ελέγχου Κτηνιάτρου (Απλοποιημένο)
-// Χρήση: [petling_vet_dashboard prefix="VET"]
-// =========================================================================
-// =========================================================================
 // SHORTCODE: Πίνακας Ελέγχου Κτηνιάτρου (Με Αναδιπλούμενο Ιατρικό Ιστορικό)
 // Χρήση: [petling_vet_dashboard prefix="VET"]
 // =========================================================================
-add_shortcode('petling_vet_dashboard', 'ptl_vet_dashboard_shortcode');
-function ptl_vet_dashboard_shortcode($atts) {
-    global $wpdb;
-    $atts = shortcode_atts(array('prefix' => 'VET'), $atts);
-    $prefix = sanitize_text_field($atts['prefix']);
-    $promo_table = $wpdb->prefix . 'petling_partner_leads';
-    
-    $html = '<style>
-        .ptl-dash-container { max-width: 800px; margin: 40px auto; background: #fffaf1; padding: 30px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; }
-        .ptl-dash-container h3 { color: #43282F; text-align: center; margin-top:0; }
-        .ptl-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .ptl-table th, .ptl-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .ptl-table th { background: #C7B297; color: #43282F; font-weight: bold; }
-        .ptl-btn-redeem { background: #5b9a68; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .ptl-btn-redeem:hover { background: #4a8255; }
-        .ptl-search-bar { width: 100%; padding: 12px 15px; border: 2px solid #C7B297; border-radius: 8px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; }
+if ( ! function_exists( 'ptl_vet_dashboard_shortcode' ) ) {
+    add_shortcode('petling_vet_dashboard', 'ptl_vet_dashboard_shortcode');
+    function ptl_vet_dashboard_shortcode($atts) {
+        global $wpdb;
+        $atts = shortcode_atts(array('prefix' => 'VET'), $atts);
+        $prefix = sanitize_text_field($atts['prefix']);
+        $promo_table = $wpdb->prefix . 'petling_partner_leads';
         
-        /* ΝΕΑ ΣΤΥΛ ΓΙΑ ΤΟ ΙΣΤΟΡΙΚΟ (Accordion) */
-        .ptl-vet-notes-btn { background: #fff3f3; color: #d63638; border: 1px solid #d63638; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px; }
-        .ptl-vet-notes-btn:hover { background: #d63638; color: #fff; }
-        .ptl-vet-notes-content { display: none; background: #fffaf1; padding: 15px; border-left: 4px solid #d63638; margin-top: 10px; font-size: 13px; border-radius: 0 4px 4px 0; }
-        .ptl-vet-notes-content strong { color: #43282F; display: block; margin-bottom: 5px; }
-    </style>';
-
-    $html .= '<div class="ptl-dash-container">';
-
-    if (isset($_POST['ptl_redeem_id'])) {
-        $redeem_id = intval($_POST['ptl_redeem_id']);
-        $wpdb->update(
-            $promo_table, 
-            array('status' => 'redeemed', 'redeemed_at' => current_time('mysql')), 
-            array('id' => $redeem_id)
-        );
-        $html .= '<div style="background:#eef7ee; color:#5b9a68; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #5b9a68; text-align:center; font-weight:bold;">Ο κωδικός διαγράφηκε (εξαργυρώθηκε) επιτυχώς!</div>';
-    }
-
-    $active_codes = $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM $promo_table WHERE partner_prefix = %s AND status = 'active' ORDER BY created_at DESC", 
-        $prefix
-    ));
-
-    $html .= '<h3>📋 Λίστα Ενεργών Κωδικών (' . esc_html($prefix) . ')</h3>';
-    $html .= '<p style="color:#666; font-size:14px; text-align:center;">Εδώ βλέπετε όλους τους πελάτες που έλαβαν κωδικό.</p>';
-    
-    $html .= '<input type="text" id="ptl-search-input" class="ptl-search-bar" placeholder="🔍 Αναζήτηση με email, κωδικό ή ημερομηνία..." onkeyup="ptlFilterTable()">';
-
-    if (empty($active_codes)) {
-        $html .= '<p style="text-align:center; padding:30px; background:#fff; border-radius:8px;">Δεν υπάρχουν ενεργοί κωδικοί αυτή τη στιγμή.</p>';
-    } else {
-        $html .= '<table class="ptl-table" id="ptl-codes-table">';
-        $html .= '<thead><tr><th>Κωδικός</th><th>Email & Στοιχεία Πελάτη</th><th>Ημερομηνία</th><th>Ενέργεια</th></tr></thead>';
-        $html .= '<tbody>';
-        
-        foreach ($active_codes as $row) {
-            $date = date('d/m/Y H:i', strtotime($row->created_at));
+        $html = '<style>
+            .ptl-dash-container { max-width: 950px; margin: 40px auto; background: #fffaf1; padding: 30px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; }
+            .ptl-dash-container h3 { color: #43282F; text-align: center; margin-top:0; }
+            .ptl-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+            .ptl-table th, .ptl-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; vertical-align: middle; }
+            .ptl-table th { background: #C7B297; color: #43282F; font-weight: bold; }
             
-            // --- ΝΕΟ: Ψάρεμα Ιατρικού Ιστορικού από το CRM (βάσει email) ---
-            $medical_html = '';
-            $quiz_post = get_page_by_title($row->email, OBJECT, 'ptl_quiz_lead');
-            if ($quiz_post) {
-                $condition = get_post_meta($quiz_post->ID, 'ptl_health_condition', true);
-                $notes = get_post_meta($quiz_post->ID, 'ptl_health_notes', true);
-                
-                if (!empty($condition) || !empty($notes)) {
-                    $medical_html = '<button type="button" class="ptl-vet-notes-btn" onclick="ptlToggleNotes(\'notes-' . $row->id . '\')">📝 Ιστορικό</button>';
-                    $medical_html .= '<div id="notes-' . $row->id . '" class="ptl-vet-notes-content">';
-                    if (!empty($condition)) $medical_html .= '<strong>🩺 Πάθηση:</strong> ' . esc_html($condition) . '<br>';
-                    if (!empty($notes)) $medical_html .= '<strong style="margin-top:8px;">📝 Σημειώσεις:</strong> ' . nl2br(esc_html($notes));
-                    $medical_html .= '</div>';
-                }
-            }
+            /* Κουμπί Εξαργύρωσης (Μικρότερο, Μπεζ/Καφέ, Χωρίς Icon) */
+            .ptl-btn-redeem { background: #C7B297 !important; color: #fff !important; border: none !important; padding: 5px 12px !important; border-radius: 4px !important; cursor: pointer !important; font-weight: bold !important; font-size: 12px !important; display: inline-block !important; height: auto !important; line-height: 1.5 !important; min-height: 0 !important; transition: 0.2s; }
+            .ptl-btn-redeem:hover { background: #43282F !important; }
+            
+            /* Απενεργοποιημένο Κουμπί Εξαργύρωσης */
+            .ptl-btn-disabled { background: #e0d5c1 !important; color: #888 !important; border: none !important; padding: 5px 12px !important; border-radius: 4px !important; font-weight: bold !important; font-size: 12px !important; display: inline-block !important; cursor: not-allowed !important; height: auto !important; line-height: 1.5 !important; min-height: 0 !important; }
+            
+            .ptl-search-bar { width: 100%; padding: 12px 15px; border: 2px solid #C7B297; border-radius: 8px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; }
+            
+            /* Flex layout για το κελί του email (Σπρώχνει το κουμπί τέρμα δεξιά) */
+            .ptl-email-cell { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+            
+            /* Διακριτικό Κουμπί Ιστορικού (Μικρότερο & Καθαρό) */
+            .ptl-vet-notes-btn { background: #ffffff !important; color: #555555 !important; border: 1px solid #cccccc !important; padding: 2px 8px !important; border-radius: 4px !important; font-size: 11px !important; font-weight: normal !important; cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 4px !important; white-space: nowrap !important; height: auto !important; min-height: 0 !important; line-height: 1.5 !important; }
+            .ptl-vet-notes-btn:hover { background: #f5f5f5 !important; border-color: #aaaaaa !important; }
+        </style>';
 
-            $html .= '<tr>';
-            $html .= '<td style="font-weight:bold; color:#43282F;">' . esc_html($row->coupon_code) . '</td>';
-            // Εδώ προσθέτουμε το κουμπί δίπλα στο email
-            $html .= '<td>' . esc_html($row->email) . $medical_html . '</td>'; 
-            $html .= '<td style="font-size:13px; color:#777;">' . $date . '</td>';
-            $html .= '<td>
-                        <form method="post" style="margin:0;" onsubmit="return confirm(\'Σίγουρα θέλετε να σβήσετε (εξαργυρώσετε) αυτόν τον κωδικό;\');">
-                            <input type="hidden" name="ptl_redeem_id" value="' . $row->id . '">
-                            <button type="submit" class="ptl-btn-redeem">✔️ Εξαργύρωση</button>
-                        </form>
-                      </td>';
-            $html .= '</tr>';
+        $html .= '<div class="ptl-dash-container">';
+
+        if (isset($_POST['ptl_redeem_id'])) {
+            $redeem_id = intval($_POST['ptl_redeem_id']);
+            $wpdb->update($promo_table, array('status' => 'redeemed', 'redeemed_at' => current_time('mysql')), array('id' => $redeem_id));
+            $html .= '<div style="background:#eef7ee; color:#5b9a68; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #5b9a68; text-align:center; font-weight:bold;">Ο κωδικός εξαργυρώθηκε επιτυχώς!</div>';
         }
-        $html .= '</tbody></table>';
-    }
 
-    $html .= '<script>
-    function ptlFilterTable() {
-        var input, filter, table, tr, td, i, j, txtValue;
-        input = document.getElementById("ptl-search-input");
-        filter = input.value.toUpperCase();
-        table = document.getElementById("ptl-codes-table");
-        if(!table) return;
-        tr = table.getElementsByTagName("tr");
-        for (i = 1; i < tr.length; i++) {
-            tr[i].style.display = "none";
-            td = tr[i].getElementsByTagName("td");
-            for (j = 0; j < td.length - 1; j++) {
-                if (td[j]) {
-                    txtValue = td[j].textContent || td[j].innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                        break;
+        $active_codes = $wpdb->get_results($wpdb->prepare("SELECT * FROM $promo_table WHERE partner_prefix = %s ORDER BY created_at DESC", $prefix));
+
+        $html .= '<h3>📋 Λίστα Κωδικών (' . esc_html($prefix) . ')</h3>';
+        $html .= '<p style="color:#666; font-size:14px; text-align:center;">Αναζητήστε και εξαργυρώστε κωδικούς πελατών.</p>';
+        $html .= '<input type="text" id="ptl-search-input" class="ptl-search-bar" placeholder="🔍 Αναζήτηση με email, κωδικό ή ημερομηνία..." onkeyup="ptlFilterTable()">';
+
+        if (empty($active_codes)) {
+            $html .= '<p style="text-align:center; padding:30px; background:#fff; border-radius:8px;">Δεν υπάρχουν κωδικοί αυτή τη στιγμή.</p>';
+        } else {
+            $html .= '<table class="ptl-table" id="ptl-codes-table">';
+            $html .= '<thead><tr><th style="width:18%;">Κωδικός</th><th style="width:42%;">Email & Στοιχεία Πελάτη</th><th style="width:20%;">Ημερομηνία</th><th style="width:20%;">Ενέργεια</th></tr></thead><tbody>';
+            
+            foreach ($active_codes as $row) {
+                $date = date('d/m/Y H:i', strtotime($row->created_at));
+                $is_redeemed = ($row->status === 'redeemed');
+                // Πιο έντονο (αλλά ξεκούραστο) πράσινο background αν είναι εξαργυρωμένο
+                $row_style = $is_redeemed ? 'background-color: #e6f2e6;' : ''; 
+                
+                $medical_btn = '';
+                $medical_row = '';
+                
+                $quiz_post = get_page_by_title($row->email, OBJECT, 'ptl_quiz_lead');
+                if ($quiz_post) {
+                    $condition = get_post_meta($quiz_post->ID, 'ptl_health_condition', true);
+                    $notes = get_post_meta($quiz_post->ID, 'ptl_health_notes', true);
+                    
+                    if (!empty($condition) || !empty($notes)) {
+                        $medical_btn = '<button type="button" class="ptl-vet-notes-btn" onclick="ptlToggleNotes(\'notes-' . $row->id . '\')">📝 Ιστορικό</button>';
+                        
+                        // Block κείμενο (το ένα κάτω από το άλλο)
+                        $block_text = '';
+                        if (!empty($condition)) {
+                            $block_text .= '<div style="margin-bottom: 6px;"><strong style="color:#d63638;">🩺 Πάθηση:</strong> ' . esc_html($condition) . '</div>';
+                        }
+                        if (!empty($notes)) {
+                            $block_text .= '<div><strong>📝 Σημειώσεις:</strong> ' . nl2br(esc_html($notes)) . '</div>';
+                        }
+                        
+                        $medical_row = '<tr id="notes-' . $row->id . '" style="display:none; background-color:#fffaf1;"><td colspan="4" style="padding:15px; border-left:4px solid #d63638; font-size:13px; line-height:1.5;">' . $block_text . '</td></tr>';
+                    }
+                }
+
+                $html .= '<tr class="ptl-main-row" style="' . $row_style . '">';
+                $html .= '<td style="font-weight:bold; color:#43282F;">' . esc_html($row->coupon_code) . '</td>';
+                // Το Email αριστερά και το Κουμπί Ιστορικού τέρμα δεξιά
+                $html .= '<td><div class="ptl-email-cell"><span style="word-break: break-all;">' . esc_html($row->email) . '</span>' . $medical_btn . '</div></td>'; 
+                $html .= '<td style="font-size:13px; color:#777;">' . $date . '</td>';
+                $html .= '<td>';
+                
+                if ($is_redeemed) {
+                    $html .= '<button type="button" class="ptl-btn-disabled" disabled>Εξαργυρώθηκε</button>';
+                } else {
+                    $html .= '<form method="post" style="margin:0;" onsubmit="return confirm(\'Σίγουρα θέλετε να εξαργυρώσετε αυτόν τον κωδικό;\');"><input type="hidden" name="ptl_redeem_id" value="' . $row->id . '"><button type="submit" class="ptl-btn-redeem">Εξαργύρωση</button></form>';
+                }
+                
+                $html .= '</td></tr>';
+                $html .= $medical_row; 
+            }
+            $html .= '</tbody></table>';
+        }
+
+        $html .= '<script>
+        function ptlFilterTable() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("ptl-search-input"); 
+            filter = input.value.toUpperCase(); 
+            table = document.getElementById("ptl-codes-table");
+            if(!table) return; 
+            tr = table.getElementsByClassName("ptl-main-row"); 
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none"; 
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length - 1; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) { 
+                            tr[i].style.display = ""; 
+                            break; 
+                        }
                     }
                 }
             }
         }
-    }
-    
-    // ΝΕΟ: Εμφάνιση / Απόκρυψη ιατρικών σημειώσεων (Accordion)
-    function ptlToggleNotes(id) {
-        var el = document.getElementById(id);
-        if (el.style.display === "block") {
-            el.style.display = "none";
-        } else {
-            el.style.display = "block";
+        function ptlToggleNotes(id) { 
+            var el = document.getElementById(id); 
+            el.style.display = (el.style.display === "table-row") ? "none" : "table-row"; 
         }
+        </script></div>';
+        
+        return $html;
     }
-    </script>';
-    
-    $html .= '</div>';
-    return $html;
 }
-
 // =========================================================================
 // 1. ΕΛΕΓΧΟΣ ΚΟΥΠΟΝΙΟΥ ΚΑΙ ΜΕΓΑΛΟ, ΓΕΝΙΚΟ ΜΗΝΥΜΑ ΣΦΑΛΜΑΤΟΣ
 // =========================================================================
