@@ -3,7 +3,7 @@
 Plugin Name: Petling Nutrition Advisor
 Plugin URI: https://petling.gr
 Description: Διαδραστικός Διατροφικός Σύμβουλος (Quiz). ΣΗΜΑΝΤΙΚΟ: Για να αποθηκεύονται οι VET κωδικοί κτηνιάτρου κεντρικά και να λειτουργεί η σελίδα εξαργύρωσης, πρέπει να είναι ΕΝΕΡΓΟΠΟΙΗΜΕΝΟ και το plugin "Petling Partners Promo".
-Version: 1.7
+Version: 1.8
 Author: Petling
 */
 
@@ -116,15 +116,16 @@ function ptl_register_leads_cpt() {
         'labels' => array( 
             'name' => 'Quiz Leads', 
             'singular_name' => 'Quiz Lead',
-            'all_items' => 'Quiz Leads' // Το όνομα που θα φαίνεται στο Dropdown
+            'all_items' => 'Quiz Leads'
         ),
         'public' => false, 
         'show_ui' => true, 
-        'show_in_menu' => 'petling-main', // <--- ΤΟ ΜΥΣΤΙΚΟ! Κουμπώνει κάτω από την πατούσα
+        'show_in_menu' => 'petling-main',
         'supports' => array('title')
     ));
 }
 
+// Προσθήκη νέας στήλης Κατάστασης (ptl_status)
 add_filter('manage_ptl_quiz_lead_posts_columns', 'ptl_set_custom_lead_columns');
 function ptl_set_custom_lead_columns($columns) {
     return array(
@@ -133,26 +134,30 @@ function ptl_set_custom_lead_columns($columns) {
         'ptl_name' => 'Όνομα',
         'ptl_type' => 'Κατηγορία (Συνεργάτης)',
         'ptl_result' => 'Αποτέλεσμα / Κωδικός',
+        'ptl_status' => 'Κατάσταση', // ΝΕΑ ΣΤΗΛΗ
         'date' => $columns['date']
     );
 }
 
+// Συμπλήρωση των στηλών
 add_action('manage_ptl_quiz_lead_posts_custom_column', 'ptl_custom_lead_column', 10, 2);
 function ptl_custom_lead_column($column, $post_id) {
     switch ($column) {
         case 'ptl_name':
             echo esc_html(get_post_meta($post_id, 'ptl_lead_name', true));
             break;
+            
         case 'ptl_type':
             $type = get_post_meta($post_id, 'ptl_lead_type', true);
             if ($type === 'VET_MANOLAKOU') { echo '<span style="color: #d63638; font-weight:bold;">Δρ. Μανωλάκου (VET)</span>'; } 
             elseif ($type === 'HOME_COOKED_RECIPE') { echo '<span style="color: #46b450; font-weight:bold;">Μαγειρευτή Συνταγή</span>'; }
             else { echo '<span style="color: #2271b1; font-weight:bold;">Πρόταση Τροφής (Yoggies)</span>'; }
             break;
+            
         case 'ptl_result':
             echo esc_html(get_post_meta($post_id, 'ptl_lead_result', true));
             
-            // --- ΝΕΟ: Εμφάνιση Ιατρικού Ιστορικού στο Διαχειριστικό ---
+            // --- Εμφάνιση Ιατρικού Ιστορικού ---
             $condition = get_post_meta($post_id, 'ptl_health_condition', true);
             $notes = get_post_meta($post_id, 'ptl_health_notes', true);
             if (!empty($condition) || !empty($notes)) {
@@ -160,6 +165,27 @@ function ptl_custom_lead_column($column, $post_id) {
                 if (!empty($condition)) echo '<strong>🩺 Πάθηση:</strong> ' . esc_html($condition) . '<br>';
                 if (!empty($notes)) echo '<strong style="display:inline-block; margin-top:4px;">📝 Ιστορικό:</strong><br>' . nl2br(esc_html($notes));
                 echo '</div>';
+            }
+            break;
+            
+        case 'ptl_status':
+            // --- ΝΕΑ ΣΤΗΛΗ: ΕΛΕΓΧΟΣ ΕΞΑΡΓΥΡΩΣΗΣ ---
+            global $wpdb;
+            $email = get_the_title($post_id);
+            $promo_table = $wpdb->prefix . 'petling_partner_leads';
+            $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table);
+            
+            if ($table_exists) {
+                $promo = $wpdb->get_row($wpdb->prepare("SELECT status FROM $promo_table WHERE email = %s ORDER BY created_at DESC LIMIT 1", $email));
+                if ($promo) {
+                    if ($promo->status === 'redeemed') {
+                        echo '<span style="display:inline-block; padding:4px 8px; background:#f0f0f0; color:#555; border-radius:4px; font-size:11px; border:1px solid #ccc;">✔️ Εξαργυρώθηκε</span>';
+                    } else {
+                        echo '<span style="display:inline-block; padding:4px 8px; background:#eef7ee; color:#5b9a68; border-radius:4px; font-size:11px; border:1px solid #5b9a68;">🟢 Ενεργό Κουπόνι</span>';
+                    }
+                } else {
+                    echo '<span style="color:#999;">-</span>';
+                }
             }
             break;
     }
@@ -305,17 +331,12 @@ function ptl_process_nutrition_ajax() {
 
     $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>');
 
-    // ==========================================
-    // ΣΕΝΑΡΙΟ Α: ΕΧΕΙ ΠΡΟΒΛΗΜΑ ΥΓΕΙΑΣ (VET)
-    // ==========================================
     if ( $health_issue === 'yes' ) {
-        
         global $wpdb;
         $promo_table = $wpdb->prefix . 'petling_partner_leads';
         $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table);
         $dynamic_code = '';
         
-        // --- ΕΛΕΓΧΟΣ 24 ΩΡΩΝ ΑΠΕΥΘΕΙΑΣ ΣΤΟ PROMO DB ---
         if ( $table_exists ) {
             $recent_code = $wpdb->get_var( $wpdb->prepare(
                 "SELECT coupon_code FROM $promo_table WHERE email = %s AND partner_prefix = 'VET' AND status = 'active' AND created_at >= %s ORDER BY created_at DESC LIMIT 1",
@@ -327,10 +348,8 @@ function ptl_process_nutrition_ajax() {
             }
         }
         
-        // Αν δεν υπάρχει κωδικός τις τελευταίες 24h (ή το plugin Promo είναι κλειστό), φτιάχνουμε νέο
         if ( empty($dynamic_code) ) {
             $dynamic_code = 'VET-' . strtoupper(substr(md5(uniqid()), 0, 6));
-            
             if ( $table_exists ) {
                 $wpdb->insert( $promo_table, array(
                     'email'          => $user_email,
@@ -343,11 +362,6 @@ function ptl_process_nutrition_ajax() {
             }
         }
 
-        // Το γράφουμε και στο τοπικό Quiz CRM για δική σου ευκολία απεικόνισης
-        // οι πελάτες της Μανωλάκου δεν εμφανιζονται στο quiz.!
-        // ptl_save_quiz_lead_data($user_email, $user_name, 'VET_MANOLAKOU', $dynamic_code);
-
-        // HTML Response
         $html = '<h3>🩺 Απαιτείται Κτηνιατρική Συμβουλή</h3>';
         $html .= '<p class="ptl-desc">Επειδή το ζωάκι σας έχει διαγνωσμένο πρόβλημα υγείας, η επιλογή τροφής πρέπει να γίνει εξατομικευμένα.</p>';
         $html .= '<div class="ptl-result-box">';
@@ -356,7 +370,6 @@ function ptl_process_nutrition_ajax() {
         $html .= '<div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; margin:20px 0; border:2px dashed #C7B297;">' . $dynamic_code . '</div>';
         $html .= '<p style="font-size:13px; color:#666;">Σας έχουμε στείλει τον κωδικό και στο email σας.</p></div>';
 
-        // Email
         if ( is_email( $user_email ) ) {
             $subject = 'Ο κωδικός έκπτωσης σας από τον Διατροφικό Σύμβουλο Petling';
             $message = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #fffaf1; padding: 30px; border-radius: 8px; border: 2px solid #C7B297;">';
@@ -373,9 +386,6 @@ function ptl_process_nutrition_ajax() {
         exit;
     }
 
-    // ==========================================
-    // ΣΕΝΑΡΙΟ Β: ΥΓΙΕΣ (ΠΡΟΤΑΣΗ ΤΡΟΦΗΣ)
-    // ==========================================
     $all_products = ptl_get_yoggies_data();
     $available_products = $all_products[$pet_type];
     
@@ -433,12 +443,15 @@ function ptl_process_nutrition_ajax() {
     wp_send_json_success($html);
 }
 
-// Προσθήκη Dropdown Φίλτρου στο "Leads Quiz"
+// =========================================================================
+// ΦΙΛΤΡΑ ΔΙΑΧΕΙΡΙΣΤΙΚΟΥ
+// =========================================================================
 add_action('restrict_manage_posts', 'ptl_quiz_add_admin_filters');
 function ptl_quiz_add_admin_filters($post_type) {
     if ($post_type !== 'ptl_quiz_lead') return;
 
     $selected_type = isset($_GET['ptl_filter_type']) ? sanitize_text_field($_GET['ptl_filter_type']) : '';
+    $selected_status = isset($_GET['ptl_filter_status']) ? sanitize_text_field($_GET['ptl_filter_status']) : '';
     ?>
     <select name="ptl_filter_type">
         <option value="">Όλες οι Κατηγορίες</option>
@@ -446,14 +459,20 @@ function ptl_quiz_add_admin_filters($post_type) {
         <option value="FOOD_YOGGIES" <?php selected($selected_type, 'FOOD_YOGGIES'); ?>>Πρόταση Τροφής (Yoggies)</option>
         <option value="HOME_COOKED_RECIPE" <?php selected($selected_type, 'HOME_COOKED_RECIPE'); ?>>Μαγειρευτή Συνταγή</option>
     </select>
+    
+    <select name="ptl_filter_status">
+        <option value="">Κατάσταση: Όλα</option>
+        <option value="active" <?php selected($selected_status, 'active'); ?>>🟢 Ενεργά</option>
+        <option value="redeemed" <?php selected($selected_status, 'redeemed'); ?>>✔️ Εξαργυρωμένα</option>
+    </select>
     <?php
 }
 
-// Εφαρμογή του Φίλτρου στο Query του WordPress
 add_filter('pre_get_posts', 'ptl_quiz_filter_by_type');
 function ptl_quiz_filter_by_type($query) {
-    global $pagenow;
+    global $pagenow, $wpdb;
     if ( is_admin() && $pagenow === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'ptl_quiz_lead' && $query->is_main_query() ) {
+        
         if (!empty($_GET['ptl_filter_type'])) {
             $query->set('meta_query', array(
                 array(
@@ -463,17 +482,40 @@ function ptl_quiz_filter_by_type($query) {
                 )
             ));
         }
+        
+        if (!empty($_GET['ptl_filter_status'])) {
+            $status = sanitize_text_field($_GET['ptl_filter_status']);
+            $promo_table = $wpdb->prefix . 'petling_partner_leads';
+            $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table);
+            
+            if ($table_exists) {
+                $emails = $wpdb->get_col($wpdb->prepare("SELECT email FROM $promo_table WHERE status = %s", $status));
+                if (!empty($emails)) {
+                    $escaped_emails = array_map('esc_sql', $emails);
+                    $emails_list = "'" . implode("','", $escaped_emails) . "'";
+                    $post_ids = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_title IN ($emails_list) AND post_type = 'ptl_quiz_lead'");
+                    
+                    if (empty($post_ids)) {
+                        $query->set('post__in', array(0));
+                    } else {
+                        $current_in = $query->get('post__in');
+                        if (!empty($current_in)) {
+                            $post_ids = array_intersect($current_in, $post_ids);
+                            if (empty($post_ids)) $post_ids = array(0);
+                        }
+                        $query->set('post__in', $post_ids);
+                    }
+                } else {
+                    $query->set('post__in', array(0));
+                }
+            }
+        }
     }
 }
 
-// =========================================================================
-// ΕΝΗΜΕΡΩΤΙΚΟ ΜΗΝΥΜΑ ΣΤΟ ΔΙΑΧΕΙΡΙΣΤΙΚΟ (ΜΟΝΟ ΣΤΗ ΣΕΛΙΔΑ ΤΟΥ QUIZ)
-// =========================================================================
 add_action('admin_notices', 'ptl_quiz_admin_notice');
 function ptl_quiz_admin_notice() {
     global $typenow;
-    
-    // Εμφάνιση μόνο όταν βρισκόμαστε στο μενού "Leads Quiz"
     if ( $typenow === 'ptl_quiz_lead' ) {
         ?>
         <div class="notice notice-info" style="border-left-color: #C7B297; padding: 10px;">
