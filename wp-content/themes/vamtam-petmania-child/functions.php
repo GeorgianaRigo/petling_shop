@@ -639,6 +639,10 @@ function petling_save_custom_product_fields_editor( $post_id ) {
 // ΝΕΟ SHORTCODE: Πίνακας Ελέγχου Κτηνιάτρου (Απλοποιημένο)
 // Χρήση: [petling_vet_dashboard prefix="VET"]
 // =========================================================================
+// =========================================================================
+// SHORTCODE: Πίνακας Ελέγχου Κτηνιάτρου (Με Αναδιπλούμενο Ιατρικό Ιστορικό)
+// Χρήση: [petling_vet_dashboard prefix="VET"]
+// =========================================================================
 add_shortcode('petling_vet_dashboard', 'ptl_vet_dashboard_shortcode');
 function ptl_vet_dashboard_shortcode($atts) {
     global $wpdb;
@@ -655,11 +659,16 @@ function ptl_vet_dashboard_shortcode($atts) {
         .ptl-btn-redeem { background: #5b9a68; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .ptl-btn-redeem:hover { background: #4a8255; }
         .ptl-search-bar { width: 100%; padding: 12px 15px; border: 2px solid #C7B297; border-radius: 8px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; }
+        
+        /* ΝΕΑ ΣΤΥΛ ΓΙΑ ΤΟ ΙΣΤΟΡΙΚΟ (Accordion) */
+        .ptl-vet-notes-btn { background: #fff3f3; color: #d63638; border: 1px solid #d63638; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px; }
+        .ptl-vet-notes-btn:hover { background: #d63638; color: #fff; }
+        .ptl-vet-notes-content { display: none; background: #fffaf1; padding: 15px; border-left: 4px solid #d63638; margin-top: 10px; font-size: 13px; border-radius: 0 4px 4px 0; }
+        .ptl-vet-notes-content strong { color: #43282F; display: block; margin-bottom: 5px; }
     </style>';
 
     $html .= '<div class="ptl-dash-container">';
 
-    // 1. Έλεγχος αν πατήθηκε το κουμπί Εξαργύρωσης
     if (isset($_POST['ptl_redeem_id'])) {
         $redeem_id = intval($_POST['ptl_redeem_id']);
         $wpdb->update(
@@ -670,30 +679,46 @@ function ptl_vet_dashboard_shortcode($atts) {
         $html .= '<div style="background:#eef7ee; color:#5b9a68; padding:10px; border-radius:5px; margin-bottom:15px; border:1px solid #5b9a68; text-align:center; font-weight:bold;">Ο κωδικός διαγράφηκε (εξαργυρώθηκε) επιτυχώς!</div>';
     }
 
-    // 2. Λήψη όλων των ενεργών κωδικών από τη βάση
     $active_codes = $wpdb->get_results($wpdb->prepare(
         "SELECT * FROM $promo_table WHERE partner_prefix = %s AND status = 'active' ORDER BY created_at DESC", 
         $prefix
     ));
 
     $html .= '<h3>📋 Λίστα Ενεργών Κωδικών (' . esc_html($prefix) . ')</h3>';
-    $html .= '<p style="color:#666; font-size:14px; text-align:center;">Εδώ βλέπετε όλους τους πελάτες που έλαβαν κωδικό. Πατήστε "Εξαργύρωση" για να τον σβήσετε από τη λίστα.</p>';
+    $html .= '<p style="color:#666; font-size:14px; text-align:center;">Εδώ βλέπετε όλους τους πελάτες που έλαβαν κωδικό.</p>';
     
-    // Μπάρα αναζήτησης
     $html .= '<input type="text" id="ptl-search-input" class="ptl-search-bar" placeholder="🔍 Αναζήτηση με email, κωδικό ή ημερομηνία..." onkeyup="ptlFilterTable()">';
 
-    // 3. Εμφάνιση του Πίνακα
     if (empty($active_codes)) {
         $html .= '<p style="text-align:center; padding:30px; background:#fff; border-radius:8px;">Δεν υπάρχουν ενεργοί κωδικοί αυτή τη στιγμή.</p>';
     } else {
         $html .= '<table class="ptl-table" id="ptl-codes-table">';
-        $html .= '<thead><tr><th>Κωδικός</th><th>Email Πελάτη</th><th>Ημερομηνία</th><th>Ενέργεια</th></tr></thead>';
+        $html .= '<thead><tr><th>Κωδικός</th><th>Email & Στοιχεία Πελάτη</th><th>Ημερομηνία</th><th>Ενέργεια</th></tr></thead>';
         $html .= '<tbody>';
+        
         foreach ($active_codes as $row) {
             $date = date('d/m/Y H:i', strtotime($row->created_at));
+            
+            // --- ΝΕΟ: Ψάρεμα Ιατρικού Ιστορικού από το CRM (βάσει email) ---
+            $medical_html = '';
+            $quiz_post = get_page_by_title($row->email, OBJECT, 'ptl_quiz_lead');
+            if ($quiz_post) {
+                $condition = get_post_meta($quiz_post->ID, 'ptl_health_condition', true);
+                $notes = get_post_meta($quiz_post->ID, 'ptl_health_notes', true);
+                
+                if (!empty($condition) || !empty($notes)) {
+                    $medical_html = '<button type="button" class="ptl-vet-notes-btn" onclick="ptlToggleNotes(\'notes-' . $row->id . '\')">📝 Ιστορικό</button>';
+                    $medical_html .= '<div id="notes-' . $row->id . '" class="ptl-vet-notes-content">';
+                    if (!empty($condition)) $medical_html .= '<strong>🩺 Πάθηση:</strong> ' . esc_html($condition) . '<br>';
+                    if (!empty($notes)) $medical_html .= '<strong style="margin-top:8px;">📝 Σημειώσεις:</strong> ' . nl2br(esc_html($notes));
+                    $medical_html .= '</div>';
+                }
+            }
+
             $html .= '<tr>';
             $html .= '<td style="font-weight:bold; color:#43282F;">' . esc_html($row->coupon_code) . '</td>';
-            $html .= '<td>' . esc_html($row->email) . '</td>';
+            // Εδώ προσθέτουμε το κουμπί δίπλα στο email
+            $html .= '<td>' . esc_html($row->email) . $medical_html . '</td>'; 
             $html .= '<td style="font-size:13px; color:#777;">' . $date . '</td>';
             $html .= '<td>
                         <form method="post" style="margin:0;" onsubmit="return confirm(\'Σίγουρα θέλετε να σβήσετε (εξαργυρώσετε) αυτόν τον κωδικό;\');">
@@ -706,7 +731,6 @@ function ptl_vet_dashboard_shortcode($atts) {
         $html .= '</tbody></table>';
     }
 
-    // JS για τη Ζωντανή Αναζήτηση
     $html .= '<script>
     function ptlFilterTable() {
         var input, filter, table, tr, td, i, j, txtValue;
@@ -727,6 +751,16 @@ function ptl_vet_dashboard_shortcode($atts) {
                     }
                 }
             }
+        }
+    }
+    
+    // ΝΕΟ: Εμφάνιση / Απόκρυψη ιατρικών σημειώσεων (Accordion)
+    function ptlToggleNotes(id) {
+        var el = document.getElementById(id);
+        if (el.style.display === "block") {
+            el.style.display = "none";
+        } else {
+            el.style.display = "block";
         }
     }
     </script>';

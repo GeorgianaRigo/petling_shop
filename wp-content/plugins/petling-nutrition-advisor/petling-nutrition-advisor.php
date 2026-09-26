@@ -146,10 +146,21 @@ function ptl_custom_lead_column($column, $post_id) {
         case 'ptl_type':
             $type = get_post_meta($post_id, 'ptl_lead_type', true);
             if ($type === 'VET_MANOLAKOU') { echo '<span style="color: #d63638; font-weight:bold;">Δρ. Μανωλάκου (VET)</span>'; } 
+            elseif ($type === 'HOME_COOKED_RECIPE') { echo '<span style="color: #46b450; font-weight:bold;">Μαγειρευτή Συνταγή</span>'; }
             else { echo '<span style="color: #2271b1; font-weight:bold;">Πρόταση Τροφής (Yoggies)</span>'; }
             break;
         case 'ptl_result':
             echo esc_html(get_post_meta($post_id, 'ptl_lead_result', true));
+            
+            // --- ΝΕΟ: Εμφάνιση Ιατρικού Ιστορικού στο Διαχειριστικό ---
+            $condition = get_post_meta($post_id, 'ptl_health_condition', true);
+            $notes = get_post_meta($post_id, 'ptl_health_notes', true);
+            if (!empty($condition) || !empty($notes)) {
+                echo '<div style="margin-top:8px; padding:8px; background:#fff3f3; border-left:3px solid #d63638; font-size:12px; border-radius:4px;">';
+                if (!empty($condition)) echo '<strong>🩺 Πάθηση:</strong> ' . esc_html($condition) . '<br>';
+                if (!empty($notes)) echo '<strong style="display:inline-block; margin-top:4px;">📝 Ιστορικό:</strong><br>' . nl2br(esc_html($notes));
+                echo '</div>';
+            }
             break;
     }
 }
@@ -433,6 +444,7 @@ function ptl_quiz_add_admin_filters($post_type) {
         <option value="">Όλες οι Κατηγορίες</option>
         <option value="VET_MANOLAKOU" <?php selected($selected_type, 'VET_MANOLAKOU'); ?>>Δρ. Μανωλάκου (VET)</option>
         <option value="FOOD_YOGGIES" <?php selected($selected_type, 'FOOD_YOGGIES'); ?>>Πρόταση Τροφής (Yoggies)</option>
+        <option value="HOME_COOKED_RECIPE" <?php selected($selected_type, 'HOME_COOKED_RECIPE'); ?>>Μαγειρευτή Συνταγή</option>
     </select>
     <?php
 }
