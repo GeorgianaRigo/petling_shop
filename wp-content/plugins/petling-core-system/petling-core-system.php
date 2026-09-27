@@ -54,9 +54,9 @@ add_action('init', 'ptl_register_leads_cpt');
 function ptl_register_leads_cpt() {
     register_post_type('ptl_quiz_lead', array(
         'labels' => array( 
-            'name' => 'Λίστα Πελατών', 
+            'name' => 'Συνεργάτης - Κουπιάνια', 
             'singular_name' => 'Lead', 
-            'all_items' => 'Λίστα Πελατών' 
+            'all_items' => 'Συνεργάτης - Κουπιάνια' 
         ),
         'public' => false, 
         'show_ui' => true, 
@@ -77,20 +77,10 @@ function petling_core_unified_admin_menu() {
     if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
         // Αν δεν υπάρχει, την δημιουργούμε
         add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'petling_core_settings_page', 'dashicons-pets', 55 );
+    
+        // Κρεμάμε τη Συνεργάτης - Κουπιάνια (Quiz Leads)
+        add_submenu_page( 'petling-main', 'Συνεργάτης - Κουπιάνια', 'Συνεργάτης - Κουπιάνια', 'manage_options', 'edit.php?post_type=ptl_quiz_lead' );
         
-        // Κρεμάμε τις ρυθμίσεις (Τα Tabs: CRM, Promo, QR κτλ)
-        add_submenu_page( 'petling-main', 'CRM & Εργαλεία', 'CRM & Εργαλεία', 'manage_options', 'petling-crm-settings', 'petling_core_settings_page' );
-        
-        // Κρεμάμε τη Λίστα Πελατών (Quiz Leads)
-        add_submenu_page( 'petling-main', 'Λίστα Πελατών', 'Λίστα Πελατών', 'manage_options', 'edit.php?post_type=ptl_quiz_lead' );
-        
-        // Αφαιρούμε το διπλό "Petling"
-        remove_submenu_page( 'petling-main', 'petling-main' );
-        
-    } else {
-        // Αν η ομπρέλα ΥΠΑΡΧΕΙ (π.χ. φτιάχτηκε από το Mass Mailer), απλά κρεμάμε τα δικά μας από κάτω
-        add_submenu_page( 'petling-main', 'CRM & Εργαλεία', 'CRM & Εργαλεία', 'manage_options', 'petling-crm-settings', 'petling_core_settings_page' );
-        add_submenu_page( 'petling-main', 'Λίστα Πελατών', 'Λίστα Πελατών', 'manage_options', 'edit.php?post_type=ptl_quiz_lead' );
     }
 }
 
