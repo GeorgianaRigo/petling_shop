@@ -22,6 +22,7 @@ wp-content/plugins/*
 !petling-min-order
 !petling-mass-mailer
 !bugalugs-importer
+!petling-core-system
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
 !wp-content/plugins/elementor-pro/

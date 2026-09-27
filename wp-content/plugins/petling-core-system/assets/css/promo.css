@@ -1,0 +1,147 @@
+/* Petling Partners Promo - frontend styles
+ * Καλύπτει και τα δύο shortcodes: [petling_partner_promo] και [petling_partner_redeem]
+ */
+
+.ptl-promo-container,
+.ptl-redeem-container {
+    max-width: 400px;
+    margin: 30px auto;
+    background: #fffaf1;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px dashed #C7B297;
+    text-align: center;
+    font-family: sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    position: relative;
+}
+
+.ptl-promo-container h3,
+.ptl-redeem-container h3 {
+    color: #43282F;
+    margin-top: 0;
+    font-size: 20px;
+}
+
+.ptl-promo-container p,
+.ptl-redeem-container p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.ptl-promo-form input[type="email"],
+.ptl-promo-form input[type="text"],
+.ptl-redeem-form input[type="text"],
+.ptl-redeem-form input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.ptl-promo-form input:focus,
+.ptl-redeem-form input:focus {
+    outline: none;
+    border-color: #C7B297;
+    box-shadow: 0 0 5px rgba(199, 178, 151, 0.3);
+}
+
+.ptl-checkbox {
+    display: flex;
+    align-items: flex-start;
+    text-align: left;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 20px;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.ptl-btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #5b9a68;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+.ptl-btn-submit:hover {
+    background: #4a8255;
+}
+
+.ptl-btn-redeem {
+    background: #43282F;
+}
+
+.ptl-btn-redeem:hover {
+    background: #2a191d;
+}
+
+.ptl-alert {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.ptl-error {
+    background: #fdf2f2;
+    border: 1px solid #f8b4b4;
+    color: #e62121;
+    font-size: 14px;
+}
+
+.ptl-success {
+    background: #eef7ee;
+    border: 1px solid #5b9a68;
+    color: #333;
+    text-align: center;
+}
+
+.ptl-coupon-box {
+    font-size: 24px;
+    font-weight: bold;
+    color: #43282F;
+    background: #fff;
+    padding: 10px;
+    border: 2px dashed #43282F;
+    display: inline-block;
+    margin: 15px 0;
+    letter-spacing: 2px;
+}
+
+.ptl-btn-shop {
+    display: inline-block;
+    background: #43282F;
+    color: #fff !important;
+    padding: 14px 25px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.ptl-btn-shop:hover {
+    background: #2a191d;
+    color: #fff !important;
+}
+
+.ptl-loader {
+    display: none;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #5b9a68;
+    font-size: 15px;
+}
