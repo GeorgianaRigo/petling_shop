@@ -465,8 +465,21 @@ function ptl_process_recipe_ajax() {
     
     ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', $recipe_summary_text);
     
-    $html = '<h3>👨‍🍳 Η Συνταγή σου είναι έτοιμη!</h3><div class="ptl-result-box"><p>Συνταγή για 10kg σκύλο (Σύνολο 300γρ):</p><ul><li>🥩 150γρ ' . $p1 . '</li><li>🥚 15γρ ' . $p2 . '</li><li>🌾 45γρ ' . $c1 . '</li><li>🥔 30γρ ' . $c2 . '</li><li>🥦 39γρ ' . $veg_str . '</li><li>🍎 15γρ ' . $fruit . '</li><li>🫒 6γρ ' . $oil . '</li></ul><div style="margin-top:20px; background:#F5EDE3; padding:15px; text-align:center;">Κωδικός 10% VET: <strong>' . $dynamic_code . '</strong></div></div>';
-    if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Η Συνταγή σας', $html, $headers ); }
+    // Το κείμενο της σημαντικής σημείωσης
+    $disclaimer = '<div style="margin-top:20px; background:#fff3f3; border-left:4px solid #d63638; padding:15px; font-size:13px; color:#333; line-height:1.5;">
+    <strong>⚠️ Σημαντική Σημείωση:</strong> Οι ποσότητες είναι ενδεικτικές και ίσως χρειαστούν προσαρμογή (λίγο πάνω ή λίγο κάτω) ανάλογα με τον μεταβολισμό και τη δραστηριότητα του σκύλου σας.<br><br>
+    Η συγκεκριμένη διατροφή <strong>δεν είναι για πάντα</strong>. Για να είναι πλήρως ισορροπημένη και να μην υπάρξουν ελλείψεις σε βιταμίνες και ιχνοστοιχεία, πρέπει να επανεξετάζεται από διατροφολόγο και να αλλάζει.<br><br>
+    <em>* Οι συνταγές φέρουν την υπογραφή της Κτηνιάτρου Διατροφής, Δρ. Σταυριάννας Μανωλάκου.</em>
+    </div>';
+
+    $html = '<h3>👨‍🍳 Η Συνταγή σου είναι έτοιμη!</h3><div class="ptl-result-box"><p>Συνταγή για 10kg σκύλο (Σύνολο 300γρ):</p><ul><li>🥩 150γρ ' . $p1 . '</li><li>🥚 15γρ ' . $p2 . '</li><li>🌾 45γρ ' . $c1 . '</li><li>🥔 30γρ ' . $c2 . '</li><li>🥦 39γρ ' . $veg_str . '</li><li>🍎 15γρ ' . $fruit . '</li><li>🫒 6γρ ' . $oil . '</li></ul>' . $disclaimer . '<div style="margin-top:20px; background:#F5EDE3; padding:15px; text-align:center;">Για το απόλυτα δικό σας πρόγραμμα! Κωδικός 10% VET: <strong>' . $dynamic_code . '</strong></div></div>';
+
+    if ( is_email( $user_email ) ) { 
+    // Προσθήκη έξτρα περιτυλίγματος για να φαίνεται όμορφο και στο email
+    $email_html = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #fffaf1; padding: 30px; border-radius: 8px; border: 2px solid #C7B297;">' . $html . '</div>';
+    wp_mail( $user_email, 'Η Συνταγή σας από το Petling', $email_html, $headers ); 
+    }
+
     wp_send_json_success($html);
 }
 
