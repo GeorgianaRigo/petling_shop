@@ -14,10 +14,7 @@ wp-content/plugins/*
 !wp-content/plugins/supplier-shipping-rules
 !wp-content/plugins/petling-user-pets
 !wp-content/plugins/petling-admin-table-views-customizer
-!wp-content/plugins/petling-crm
-!wp-content/plugins/petling-partners-promo
 !wp-content/plugins/yoggies-importer
-!petling-nutrition-advisor
 !petling-vip
 !petling-min-order
 !petling-mass-mailer

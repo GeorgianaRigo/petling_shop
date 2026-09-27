@@ -412,27 +412,58 @@ add_action('wp_ajax_ptl_process_recipe', 'ptl_process_recipe_ajax');
 add_action('wp_ajax_nopriv_ptl_process_recipe', 'ptl_process_recipe_ajax');
 function ptl_process_recipe_ajax() {
     check_ajax_referer('ptl_recipe_nonce', 'security');
-    $health_issue = sanitize_text_field($_POST['health_issue'] ?? 'no'); $health_condition = sanitize_text_field($_POST['health_condition'] ?? ''); $health_notes = sanitize_textarea_field($_POST['health_notes'] ?? ''); $user_name = sanitize_text_field($_POST['user_name'] ?? ''); $user_email = sanitize_email($_POST['user_email'] ?? '');
+    $health_issue = sanitize_text_field($_POST['health_issue'] ?? 'no'); 
+    $health_condition = sanitize_text_field($_POST['health_condition'] ?? ''); 
+    $health_notes = sanitize_textarea_field($_POST['health_notes'] ?? ''); 
+    $user_name = sanitize_text_field($_POST['user_name'] ?? ''); 
+    $user_email = sanitize_email($_POST['user_email'] ?? '');
     
-    global $wpdb; $promo_table = $wpdb->prefix . 'petling_partner_leads'; $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table); $dynamic_code = 'VET-' . strtoupper(substr(md5(uniqid()), 0, 6));
-    if ( $table_exists ) { $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); }
+    global $wpdb; 
+    $promo_table = $wpdb->prefix . 'petling_partner_leads'; 
+    $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table); 
+    $dynamic_code = 'VET-' . strtoupper(substr(md5(uniqid()), 0, 6));
+    
+    if ( $table_exists ) { 
+        $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); 
+    }
     
     $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>');
     
-    // ΔΙΟΡΘΩΣΗ ΚΑΤΑΓΡΑΦΗΣ: Αν έχει πάθηση αποθηκεύεται!
     if ( $health_issue === 'yes' ) {
         $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', 'VET (Πάθηση: ' . $health_condition . ')');
-        if ($pid) { update_post_meta($pid, 'ptl_health_condition', $health_condition); update_post_meta($pid, 'ptl_health_notes', $health_notes); }
+        if ($pid) { 
+            update_post_meta($pid, 'ptl_health_condition', $health_condition); 
+            update_post_meta($pid, 'ptl_health_notes', $health_notes); 
+        }
         
         $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Ο κωδικός σας για <strong>10% έκπτωση</strong> είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
         if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Κλινική Δίαιτα', $html, $headers ); }
-        wp_send_json_success($html); exit;
+        wp_send_json_success($html); 
+        exit;
     }
     
-    $p1 = isset($_POST['protein_1']) ? sanitize_text_field($_POST['protein_1']) : ''; $p2 = isset($_POST['protein_2']) ? sanitize_text_field($_POST['protein_2']) : ''; $c1 = isset($_POST['carb_1']) ? sanitize_text_field($_POST['carb_1']) : ''; $c2 = isset($_POST['carb_2']) ? sanitize_text_field($_POST['carb_2']) : ''; $fruit = isset($_POST['fruit']) ? sanitize_text_field($_POST['fruit']) : ''; $oil = isset($_POST['oil']) ? sanitize_text_field($_POST['oil']) : ''; $veggies = isset($_POST['veggies']) ? array_map('sanitize_text_field', $_POST['veggies']) : []; $veg_str = implode(' & ', $veggies);
-    $total_g = 300; $g_p1 = round($total_g * 0.50); $g_p2 = round($total_g * 0.05); $g_c1 = round($total_g * 0.15); $g_c2 = round($total_g * 0.10); $g_veg = round($total_g * 0.13); $g_fruit = round($total_g * 0.05); $g_oil = round($total_g * 0.02);
+    $p1 = isset($_POST['protein_1']) ? sanitize_text_field($_POST['protein_1']) : ''; 
+    $p2 = isset($_POST['protein_2']) ? sanitize_text_field($_POST['protein_2']) : ''; 
+    $c1 = isset($_POST['carb_1']) ? sanitize_text_field($_POST['carb_1']) : ''; 
+    $c2 = isset($_POST['carb_2']) ? sanitize_text_field($_POST['carb_2']) : ''; 
+    $fruit = isset($_POST['fruit']) ? sanitize_text_field($_POST['fruit']) : ''; 
+    $oil = isset($_POST['oil']) ? sanitize_text_field($_POST['oil']) : ''; 
+    $veggies = isset($_POST['veggies']) ? array_map('sanitize_text_field', $_POST['veggies']) : []; 
+    $veg_str = implode(' & ', $veggies);
+    
+    $total_g = 300; 
+    $g_p1 = round($total_g * 0.50); 
+    $g_p2 = round($total_g * 0.05); 
+    $g_c1 = round($total_g * 0.15); 
+    $g_c2 = round($total_g * 0.10); 
+    $g_veg = round($total_g * 0.13); 
+    $g_fruit = round($total_g * 0.05); 
+    $g_oil = round($total_g * 0.02);
 
-    ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', "10kg - $p1 / $c1 / " . (!empty($veggies) ? $veggies[0] : ''));
+    // ΑΛΛΑΓΗ: Προσθήκη όλων των υλικών με τα γραμμάριά τους σε μία inline σειρά
+    $recipe_summary_text = "{$g_p1}γρ {$p1} / {$g_p2}γρ {$p2} / {$g_c1}γρ {$c1} / {$g_c2}γρ {$c2} / {$g_veg}γρ {$veg_str} / {$g_fruit}γρ {$fruit} / {$g_oil}γρ {$oil}";
+    
+    ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', $recipe_summary_text);
     
     $html = '<h3>👨‍🍳 Η Συνταγή σου είναι έτοιμη!</h3><div class="ptl-result-box"><p>Συνταγή για 10kg σκύλο (Σύνολο 300γρ):</p><ul><li>🥩 150γρ ' . $p1 . '</li><li>🥚 15γρ ' . $p2 . '</li><li>🌾 45γρ ' . $c1 . '</li><li>🥔 30γρ ' . $c2 . '</li><li>🥦 39γρ ' . $veg_str . '</li><li>🍎 15γρ ' . $fruit . '</li><li>🫒 6γρ ' . $oil . '</li></ul><div style="margin-top:20px; background:#F5EDE3; padding:15px; text-align:center;">Κωδικός 10% VET: <strong>' . $dynamic_code . '</strong></div></div>';
     if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Η Συνταγή σας', $html, $headers ); }
