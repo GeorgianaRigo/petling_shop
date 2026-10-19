@@ -90,18 +90,21 @@ function petling_vet_history_endpoint_content() {
     <form method="post" action="" class="petling-crm-form" id="petling-main-form">
         <?php wp_nonce_field( 'petling_save_pets_action', 'petling_save_pets_nonce' ); ?>
         
-        <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
-            <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾</label>
-            <p style="font-size: 0.95em; color: #555; margin-bottom: 15px;">Επιλέξτε κάθε πότε θέλετε να σας θυμίζουμε να ανανεώσετε τα αποθέματα σας:</p>
-            <select name="petling_order_reminder_interval" id="petling_reminder_dropdown" style="max-width: 300px; margin: 0 auto; display: block;">
-                <option value="no" <?php selected($reminder_interval, 'no'); ?>>Όχι, ευχαριστώ</option>
-                <option value="15" <?php selected($reminder_interval, '15'); ?>>Κάθε 15 μέρες</option>
-                <option value="30" <?php selected($reminder_interval, '30'); ?>>Κάθε 1 Μήνα (30 μέρες)</option>
-                <option value="45" <?php selected($reminder_interval, '45'); ?>>Κάθε 1.5 Μήνα (45 μέρες)</option>
-                <option value="60" <?php selected($reminder_interval, '60'); ?>>Κάθε 2 Μήνες (60 μέρες)</option>
-            </select>
-            <div id="reminder-save-warning" style="display:none; color:#d63638; font-size:13px; font-weight:bold; margin-top:10px;">⚠️ Μην ξεχάσετε να πατήσετε 'Αποθήκευση' στο κάτω μέρος!</div>
-        </div>
+        <?php if ( current_user_can( 'manage_options' ) ) : ?>
+            <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
+                <p>Φαίνενται μόνο στον ADMIN - check κωδικα</p>
+                <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾</label>
+                <p style="font-size: 0.95em; color: #555; margin-bottom: 15px;">Επιλέξτε κάθε πότε θέλετε να σας θυμίζουμε να ανανεώσετε τα αποθέματα σας:</p>
+                <select name="petling_order_reminder_interval" id="petling_reminder_dropdown" style="max-width: 300px; margin: 0 auto; display: block;">
+                    <option value="no" <?php selected($reminder_interval, 'no'); ?>>Όχι, ευχαριστώ</option>
+                    <option value="15" <?php selected($reminder_interval, '15'); ?>>Κάθε 15 μέρες</option>
+                    <option value="30" <?php selected($reminder_interval, '30'); ?>>Κάθε 1 Μήνα (30 μέρες)</option>
+                    <option value="45" <?php selected($reminder_interval, '45'); ?>>Κάθε 1.5 Μήνα (45 μέρες)</option>
+                    <option value="60" <?php selected($reminder_interval, '60'); ?>>Κάθε 2 Μήνες (60 μέρες)</option>
+                </select>
+                <div id="reminder-save-warning" style="display:none; color:#d63638; font-size:13px; font-weight:bold; margin-top:10px;">⚠️ Μην ξεχάσετε να πατήσετε 'Αποθήκευση' στο κάτω μέρος!</div>
+            </div>
+        <?php endif; ?>
 
         <h2 style="color: #43282F; margin-bottom: 10px;">Τα Κατοικίδιά μου 🐾</h2>
         
@@ -119,7 +122,7 @@ function petling_vet_history_endpoint_content() {
         
         <div id="pet-repeater-container">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
-                $p_id      = $pet['id'] ?? uniqid('pet_');
+                $p_id      = $pet['id'] ?? '';
                 $p_name    = $pet['name'] ?? '';
                 $p_type    = $pet['type'] ?? 'dog';
                 $p_bday    = $pet['birthday'] ?? '';
@@ -129,7 +132,7 @@ function petling_vet_history_endpoint_content() {
                 $p_dfood   = $pet['daily_food'] ?? '';
                 $p_calc    = $pet['calc_food'] ?? 'no';
                 $p_neut    = $pet['neutered'] ?? 'no';
-                $p_ndate   = $pet['neutered_date'] ?? ''; // <-- ΝΕΟ: Ημ/νια Στείρωσης
+                $p_ndate   = $pet['neutered_date'] ?? ''; 
                 $p_health  = (isset($pet['health']) && is_array($pet['health'])) ? $pet['health'] : [];
                 $p_notes   = $pet['health_notes'] ?? '';
                 $p_breed   = $pet['breed'] ?? '';
@@ -138,6 +141,13 @@ function petling_vet_history_endpoint_content() {
             ?>
                 <div class="pet-block" id="pet-block-<?php echo $index; ?>" style="display: <?php echo $display_style; ?>;">
                     <div class="pet-block-header">
+                    <?php if ( !empty($p_id) ) : 
+                        $medical_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $p_id ), wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
+                    ?>
+                        <div class="petling-medical-btn-wrapper">
+                            <a href="<?php echo esc_url($medical_url); ?>" class="btn-petling btn-green no-loader" style="width: 100%; max-width: 300px; margin: 0 auto; display: block;">💉 Ιατρικό Ιστορικό & Εμβόλια &rarr;</a>
+                        </div>
+                    <?php endif; ?>
                         <h4 class="pet-block-title">Κατοικίδιο: <?php echo esc_html($p_name); ?></h4>
                         <button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button>
                     </div>
@@ -167,7 +177,6 @@ function petling_vet_history_endpoint_content() {
                         </div>
                     </div>
                     
-                    <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
                     <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
                         <label style="width: 100%;">
                             <input type="hidden" name="pet_neutered[<?php echo $index; ?>]" value="no">
@@ -194,14 +203,6 @@ function petling_vet_history_endpoint_content() {
                         <textarea name="pet_health_notes[]" rows="2"><?php echo esc_textarea( $p_notes ); ?></textarea>
                     </div>
 
-                    <?php if ( !empty($p_id) && strpos($p_id, 'pet_') !== false ) : 
-                        $medical_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $p_id ), wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
-                    ?>
-                        <div class="petling-medical-btn-wrapper" style="border-top: 1px dashed #C7B297; padding-top: 20px; margin-top: 10px;">
-                            <a href="<?php echo esc_url($medical_url); ?>" class="btn-petling btn-green no-loader" style="width: 100%; max-width: 300px; margin: 0 auto; display: block;">💉 Ιατρικό Ιστορικό & Εμβόλια &rarr;</a>
-                        </div>
-                    <?php endif; ?>
-
                 </div>
             <?php endforeach; endif; ?>
         </div>
@@ -212,7 +213,6 @@ function petling_vet_history_endpoint_content() {
         <button type="submit" class="btn-petling btn-brown" name="save_pets_data" value="Save" style="width: 100%; font-size: 18px; padding: 15px;">Αποθήκευση Αλλαγών</button>
     </form>
     
-    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT -->
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[]" value="">
         <div class="petling-grid">
@@ -237,7 +237,6 @@ function petling_vet_history_endpoint_content() {
             </div>
         </div>
 
-        <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
         <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
             <label style="width: 100%;">
                 <input type="hidden" name="pet_neutered[__INDEX__]" value="no">
@@ -287,14 +286,21 @@ function petling_vet_history_save_data() {
         $user_id = get_current_user_id();
         if ( ! petling_vet_history_has_access( $user_id ) ) return;
 
-        update_user_meta( $user_id, 'petling_order_reminder_interval', sanitize_text_field( $_POST['petling_order_reminder_interval'] ?? 'no' ) );
+        if ( current_user_can( 'manage_options' ) && isset($_POST['petling_order_reminder_interval']) ) {
+            update_user_meta( $user_id, 'petling_order_reminder_interval', sanitize_text_field( $_POST['petling_order_reminder_interval'] ) );
+        }
 
         $pets_data = [];
         if ( ! empty( $_POST['pet_name'] ) && is_array( $_POST['pet_name'] ) ) {
             foreach ( $_POST['pet_name'] as $index => $name ) {
                 if ( empty( trim( $name ) ) ) continue;
+                
+                // ΔΙΟΡΘΩΣΗ ΓΙΑ ΤΟ ID:
+                $posted_id = sanitize_text_field( $_POST['pet_id'][$index] ?? '' );
+                $final_id  = !empty($posted_id) ? $posted_id : uniqid('pet_');
+
                 $pets_data[] = [
-                    'id'            => sanitize_text_field( $_POST['pet_id'][$index] ?? uniqid('pet_') ),
+                    'id'            => $final_id,
                     'name'          => sanitize_text_field( $name ),
                     'type'          => sanitize_text_field( $_POST['pet_type'][ $index ] ?? '' ),
                     'birthday'      => sanitize_text_field( $_POST['pet_birthday'][ $index ] ?? '' ),
@@ -305,7 +311,7 @@ function petling_vet_history_save_data() {
                     'daily_food'    => sanitize_text_field( $_POST['pet_daily_food'][ $index ] ?? '' ),
                     'calc_food'     => sanitize_text_field( $_POST['pet_calc_food'][ $index ] ?? 'no' ),
                     'neutered'      => sanitize_text_field( $_POST['pet_neutered'][ $index ] ?? 'no' ), 
-                    'neutered_date' => sanitize_text_field( $_POST['pet_neutered_date'][ $index ] ?? '' ), // <-- Αποθήκευση Νέου Πεδίου
+                    'neutered_date' => sanitize_text_field( $_POST['pet_neutered_date'][ $index ] ?? '' ),
                     'health'        => isset( $_POST['pet_health'][ $index ] ) ? array_map( 'sanitize_text_field', (array) $_POST['pet_health'][ $index ] ) : [],
                     'health_notes'  => sanitize_textarea_field( $_POST['pet_health_notes'][ $index ] ?? '' ),
                 ];

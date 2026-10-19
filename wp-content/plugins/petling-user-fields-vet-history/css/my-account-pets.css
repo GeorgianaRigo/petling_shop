@@ -134,7 +134,7 @@ details.petling-accordion .accordion-content { padding: 20px; animation: fadeSli
     .petling-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
     .health-issues-container { grid-template-columns: 1fr 1fr; }
     .pet-block { padding: 30px !important; }
-    .petling-medical-btn-wrapper { text-align: right !important; }
+    .petling-medical-btn-wrapper { text-align: center!important; }
     .weight-form { flex-wrap: nowrap !important; }
 }
 
