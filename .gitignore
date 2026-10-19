@@ -19,6 +19,7 @@ wp-content/plugins/*
 !petling-min-order
 !petling-mass-mailer
 !bugalugs-importer
+!petling-user-fields-vet-history
 !petling-core-system
 
 # Εξαιρέσεις - συμπερίλαβε τον custom φάκελο και τα περιεχόμενά του
