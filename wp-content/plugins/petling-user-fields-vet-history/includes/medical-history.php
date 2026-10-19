@@ -67,7 +67,17 @@ add_action( 'template_redirect', 'petling_crm_handle_vet_notes' );
 function petling_crm_handle_vet_notes() {
     global $wpdb;
     if ( isset( $_POST['petling_vet_note_nonce'] ) && wp_verify_nonce( $_POST['petling_vet_note_nonce'], 'petling_add_vet_note' ) ) {
-        $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 'pet_unique_id' => sanitize_text_field($_POST['pet_unique_id']), 'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 'next_exam_date'=> sanitize_text_field($_POST['next_exam_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'status' => 'draft', 'created_by' => 'owner' ), array( '%s', '%s', '%s', '%s', '%s', '%s' ) );
+        $incident_date = !empty($_POST['incident_date']) ? sanitize_text_field($_POST['incident_date']) . ' ' . date('H:i:s', current_time('timestamp')) : current_time('mysql');
+        
+        $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 
+            'pet_unique_id' => sanitize_text_field($_POST['pet_unique_id']), 
+            'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 
+            'next_exam_date'=> sanitize_text_field($_POST['next_exam_date']), 
+            'vet_name' => sanitize_text_field($_POST['vet_name']), 
+            'status' => 'draft', 
+            'created_by' => 'owner',
+            'created_at' => $incident_date
+        ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
         wp_safe_redirect( add_query_arg( array( 'view' => 'medical', 'pet_id' => sanitize_text_field($_POST['pet_unique_id']) ), wc_get_endpoint_url( 'my-pets' ) ) ); exit;
     }
     if ( isset( $_POST['petling_weight_nonce'] ) && wp_verify_nonce( $_POST['petling_weight_nonce'], 'petling_log_weight' ) ) {
@@ -131,6 +141,31 @@ function petling_crm_render_medical_history( $pet ) {
 
     $min_future_date = date('Y-m-d'); 
 
+    // Υπολογισμός Ηλικίας
+    $age_str = '';
+    if ( !empty($pet['birthday']) ) {
+        try {
+            $bday = new DateTime($pet['birthday']);
+            $today = new DateTime('today');
+            $diff = $bday->diff($today);
+            if ( $diff->y > 0 ) {
+                $age_str = $diff->y . ' ετών';
+            } elseif ( $diff->m > 0 ) {
+                $age_str = $diff->m . ' μηνών';
+            } else {
+                $age_str = 'Νεογέννητο';
+            }
+        } catch (Exception $e) {
+            $age_str = '';
+        }
+    }
+
+    // Υπολογισμός κειμένου Στείρωσης
+    $neutered_text = '-';
+    if ( isset($pet['neutered']) && $pet['neutered'] === 'yes' ) {
+        $neutered_text = !empty($pet['neutered_date']) ? date('d/m/Y', strtotime($pet['neutered_date'])) : 'Ναι (Άγνωστη Ημ/νία)';
+    }
+
     echo '<a href="' . esc_url( remove_query_arg( array( 'view', 'pet_id', 'saved' ) ) ) . '" class="no-loader" style="display:inline-block; margin-bottom:20px; font-weight:bold; color:#8B6139; text-decoration:none;">&larr; Πίσω στα Κατοικίδιά μου</a>';
     
     ?>
@@ -139,8 +174,10 @@ function petling_crm_render_medical_history( $pet ) {
         <p>Αποθήκευση...</p>
     </div>
 
+    <div class="petling-toast-notification" id="petling-toast" style="display: none;">✅ Η αλλαγή αποθηκεύτηκε επιτυχώς!</div>
+
     <div style="background: #eef7ee; border: 1px solid #5b9a68; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #333; line-height: 1.5;">
-        <strong>ℹ️ Πώς λειτουργεί:</strong> Προσθέστε εμβόλια και σημειώσεις ως <em>προσχέδιο</em>. Ανοίξτε το Vet Pass (QR Code) στον κτηνίατρο. Ο ιατρός θα μπορεί να τα διορθώσει, να τα επιβεβαιώσει και να τα κλειδώσει μόνιμα στο ιστορικό από το κινητό του.
+        <strong>ℹ️ Πώς λειτουργεί:</strong> Προσθέστε εμβόλια και ιατρικές σημειώσεις ως <em>προσχέδιο</em>. Ανοίξτε το Vet Pass (QR Code) στον κτηνίατρο. Ο ιατρός θα μπορεί να τα διορθώσει, να τα επιβεβαιώσει και να τα κλειδώσει μόνιμα στο ιστορικό από το κινητό του.
     </div>
 
     <details style="background: linear-gradient(135deg, #43282F 0%, #2a191d 100%); border-radius: 12px; padding: 15px 20px; margin-bottom: 30px; color: #fff; box-shadow: 0 5px 15px rgba(67, 40, 47, 0.2);">
@@ -148,8 +185,18 @@ function petling_crm_render_medical_history( $pet ) {
         
         <div class="qr-flex-container" style="margin-top: 15px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 10px;">
             <div style="flex: 1; min-width: 0; text-align: left;">
-                <h3 style="margin: 0; color: #fff; font-size: 20px; word-wrap: break-word;"><?php echo esc_html($pet['name']); ?></h3>
-                <p style="margin: 5px 0 0 0; color: #e0e0e0; font-size: 14px;"><?php echo ($pet['type'] === 'dog' ? 'Σκύλος 🐶' : 'Γάτα 🐱'); ?></p>
+                
+                <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+                    <h3 style="margin: 0; color: #fff; font-size: 20px; word-wrap: break-word;">
+                        <?php echo ($pet['type'] === 'dog' ? '🐶' : '🐱') . ' ' . esc_html($pet['name']); ?>
+                        <?php if (!empty($age_str)) echo '<span style="font-size: 15px; color: #e0e0e0; font-weight: normal; margin-left: 5px;">(' . $age_str . ')</span>'; ?>
+                    </h3>
+                </div>
+                
+                <p style="margin: 5px 0 0 0; color: #5b9a68; font-size: 13px; font-weight: bold;">
+                    Στειρωμένο: <span style="color:#eef7ee; font-weight:normal;"><?php echo $neutered_text; ?></span>
+                </p>
+
                 <?php if(!empty($pet['microchip'])): ?>
                     <div style="margin-top: 12px; background: rgba(255,255,255,0.1); padding: 8px 10px; border-radius: 6px; display: inline-block;">
                         <span style="color: #C7B297; font-size: 10px; display:block;">MICROCHIP</span>
@@ -321,24 +368,23 @@ function petling_crm_render_medical_history( $pet ) {
         </details>
 
         <details class="petling-accordion petling-crm-form">
-            <summary>🩺 Σημειώσεις & Επανεξετάσεις</summary>
+            <summary>🩺 Παθήσεις, Αγωγές & Σημειώσεις</summary>
             <div class="accordion-content">
                 <?php if ( $vet_notes ) : ?>
                     <div style="margin-bottom:25px;">
                     <?php foreach ( $vet_notes as $note ) : 
-                        if (!empty($note->weight) && empty($note->vet_comment)) continue; 
+                        if ( empty($note->vet_comment) || strpos($note->vet_comment, 'Τακτική Ζύγιση') !== false ) continue;
                         $is_verified = ($note->status === 'verified');
                     ?>
                         <div style="background:#fdfdfd; border:1px solid #eee; padding:15px; border-radius:8px; margin-bottom:15px; border-left:5px solid <?php echo ($is_verified ? '#5b9a68' : '#e6a23c'); ?>;">
                             <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
                                 <div style="font-size:13px; color:#666; line-height:1.6;">
                                     <span style="display:inline-block; margin-right:15px;"><strong>Ημ/νία:</strong> <?php echo date('d/m/Y', strtotime($note->created_at)); ?></span>
-                                    <?php if (!empty($note->vet_name)) { echo '<span style="display:inline-block; margin-right:15px;"><strong>Γιατρός:</strong> ' . esc_html($note->vet_name) . '</span>'; } ?>
+                                    <?php if (!empty($note->vet_name)) { echo '<span style="display:inline-block; margin-right:15px;"><strong>Ιατρός/Επικοινωνία:</strong> ' . esc_html($note->vet_name) . '</span>'; } ?>
                                     <?php echo ($is_verified ? '<span style="color:#5b9a68; font-weight:bold;">✅ Verified</span>' : '<span style="color:#e6a23c; font-weight:bold;">⏳ Draft</span>'); ?>
                                 </div>
-                                <?php if ( !$is_verified ) : 
-                                    $delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_note', 'note_id' => $note->id ) ), 'del_note_' . $note->id );
-                                    echo '<a href="' . esc_url($delete_url) . '" class="no-loader" onclick="if(confirm(\'Διαγραφή σημείωσης;\')) { sessionStorage.setItem(\'petling_saved\', \'1\'); return true; } else { return false; }" style="color:#e62121; font-size:18px; margin-left:10px;">🗑️</a>';
+                                <?php if ( !$is_verified ) :$delete_url = wp_nonce_url( add_query_arg( array( 'action' => 'del_note', 'note_id' => $note->id ) ), 'del_note_' . $note->id );
+                                    echo '<a href="' . esc_url($delete_url) . '" class="no-loader" onclick="if(confirm(\'Διαγραφή εγγραφής;\')) { sessionStorage.setItem(\'petling_saved\', \'1\'); return true; } else { return false; }" style="color:#e62121; font-size:18px; margin-left:10px;">🗑️</a>';
                                 else : echo '<span style="font-size:18px;">🔒</span>'; endif; ?>
                             </div>
                             <p style="margin:0; font-size:15px; color:#333; line-height:1.5;"><?php echo nl2br(esc_html($note->vet_comment)); ?></p>
@@ -354,7 +400,7 @@ function petling_crm_render_medical_history( $pet ) {
                     <?php endforeach; ?>
                     </div>
                 <?php else : ?>
-                    <p style="font-style:italic; color:#666; margin-bottom:25px; font-size:14px;">Δεν υπάρχουν ακόμα ιατρικές σημειώσεις.</p>
+                    <p style="font-style:italic; color:#666; margin-bottom:25px; font-size:14px;">Δεν υπάρχουν ακόμα καταγραφές.</p>
                 <?php endif; ?>
 
                 <form method="post" action="" style="background:#fffaf1; padding:20px; border-radius:8px; border:1px dashed #C7B297;">
@@ -362,9 +408,10 @@ function petling_crm_render_medical_history( $pet ) {
                     <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
                     <h4 style="margin:0 0 15px 0; color:#43282F;">➕ Προετοιμασία Εγγραφής</h4>
                     <div class="petling-grid">
-                        <div><label>Όνομα Κλινικής (Προαιρετικό)</label><input type="text" name="vet_name"></div>
+                        <div><label>Ιατρός / Επικοινωνία (Προαιρετικό)</label><input type="text" name="vet_name" placeholder="π.χ. Τηλεφωνικά με Δρ. Παπαδόπουλο"></div>
+                        <div><label>Ημερομηνία Συμβάντος *</label><input type="date" name="incident_date" required value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>"></div>
                         <div><label>Επανεξέταση 📅</label><input type="date" name="next_exam_date" min="<?php echo $min_future_date; ?>"></div>
-                        <div class="petling-grid-full"><label>Σχόλια / Διάγνωση *</label><textarea name="vet_comment" required></textarea></div>
+                        <div class="petling-grid-full"><label>Πάθηση, Αγωγή & Σχόλια *</label><textarea name="vet_comment" required placeholder="π.χ. Ελαφριά ουρολοίμωξη. Προτάθηκε αντιβίωση (Synulox) για 7 ημέρες."></textarea></div>
                     </div>
                     <div style="text-align:right; margin-top:15px;"><button type="submit" class="btn-petling btn-brown" style="width:100%; max-width:200px;">Αποθήκευση</button></div>
                 </form>

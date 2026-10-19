@@ -30,7 +30,6 @@ function petling_vet_history_endpoint_content() {
         return;
     }
 
-    // ΠΡΟΣΘΗΚΗ: Έλεγχος αν ο χρήστης άνοιξε το Ιατρικό Ιστορικό (view=medical)
     if ( isset( $_GET['view'] ) && $_GET['view'] === 'medical' && ! empty( $_GET['pet_id'] ) ) {
         $target_pet_id = sanitize_text_field( $_GET['pet_id'] );
         $pets = get_user_meta( $user_id, 'petling_pets', true );
@@ -38,7 +37,7 @@ function petling_vet_history_endpoint_content() {
             foreach ( $pets as $pet ) {
                 if ( isset($pet['id']) && $pet['id'] === $target_pet_id ) { 
                     petling_crm_render_medical_history( $pet ); 
-                    return; // Σταματάμε εδώ για να μη δείξει τη λίστα των ζώων
+                    return; 
                 }
             }
         }
@@ -106,7 +105,6 @@ function petling_vet_history_endpoint_content() {
 
         <h2 style="color: #43282F; margin-bottom: 10px;">Τα Κατοικίδιά μου 🐾</h2>
         
-        <!-- ΜΠΑΡΑ ΜΕ ΤΑ TABS -->
         <div class="pet-tabs-nav">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
                 $tab_name = !empty($pet['name']) ? esc_html($pet['name']) : 'Ζώο ' . ($index + 1);
@@ -119,7 +117,6 @@ function petling_vet_history_endpoint_content() {
             <?php endforeach; endif; ?>
         </div>
         
-        <!-- ΠΕΡΙΕΧΟΜΕΝΟ ΚΑΤΟΙΚΙΔΙΩΝ -->
         <div id="pet-repeater-container">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
                 $p_id      = $pet['id'] ?? uniqid('pet_');
@@ -132,6 +129,7 @@ function petling_vet_history_endpoint_content() {
                 $p_dfood   = $pet['daily_food'] ?? '';
                 $p_calc    = $pet['calc_food'] ?? 'no';
                 $p_neut    = $pet['neutered'] ?? 'no';
+                $p_ndate   = $pet['neutered_date'] ?? ''; // <-- ΝΕΟ: Ημ/νια Στείρωσης
                 $p_health  = (isset($pet['health']) && is_array($pet['health'])) ? $pet['health'] : [];
                 $p_notes   = $pet['health_notes'] ?? '';
                 $p_breed   = $pet['breed'] ?? '';
@@ -169,12 +167,17 @@ function petling_vet_history_endpoint_content() {
                         </div>
                     </div>
                     
-                    <div class="custom-checkbox-wrapper">
-                        <label>
+                    <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
+                    <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
+                        <label style="width: 100%;">
                             <input type="hidden" name="pet_neutered[<?php echo $index; ?>]" value="no">
-                            <input type="checkbox" name="pet_neutered[<?php echo $index; ?>]" value="yes" <?php checked( $p_neut, 'yes' ); ?>> 
+                            <input type="checkbox" name="pet_neutered[<?php echo $index; ?>]" value="yes" class="pet-neutered-toggle" <?php checked( $p_neut, 'yes' ); ?>> 
                             Το κατοικίδιο είναι στειρωμένο
                         </label>
+                        <div class="neutered-date-box" style="width: 100%; display: <?php echo ($p_neut === 'yes') ? 'block' : 'none'; ?>; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
+                            <label style="font-size: 13px; color: #555;">Ημερομηνία Στείρωσης (Προαιρετικό)</label>
+                            <input type="date" name="pet_neutered_date[]" value="<?php echo esc_attr( $p_ndate ); ?>" max="<?php echo $today; ?>" style="max-width: 250px;">
+                        </div>
                     </div>
 
                     <div style="margin-bottom: 20px;">
@@ -191,9 +194,7 @@ function petling_vet_history_endpoint_content() {
                         <textarea name="pet_health_notes[]" rows="2"><?php echo esc_textarea( $p_notes ); ?></textarea>
                     </div>
 
-                    <?php 
-                    // ΠΡΟΣΘΗΚΗ: Το κουμπί για το Ιατρικό Ιστορικό εμφανίζεται ΜΟΝΟ αν το ζώο έχει αποθηκευτεί και έχει ID
-                    if ( !empty($p_id) && strpos($p_id, 'pet_') !== false ) : 
+                    <?php if ( !empty($p_id) && strpos($p_id, 'pet_') !== false ) : 
                         $medical_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $p_id ), wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
                     ?>
                         <div class="petling-medical-btn-wrapper" style="border-top: 1px dashed #C7B297; padding-top: 20px; margin-top: 10px;">
@@ -211,7 +212,7 @@ function petling_vet_history_endpoint_content() {
         <button type="submit" class="btn-petling btn-brown" name="save_pets_data" value="Save" style="width: 100%; font-size: 18px; padding: 15px;">Αποθήκευση Αλλαγών</button>
     </form>
     
-    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT (ΟΤΑΝ ΠΑΤΑΣ ΠΡΟΣΘΗΚΗ ΝΕΟΥ) -->
+    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT -->
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[]" value="">
         <div class="petling-grid">
@@ -236,12 +237,17 @@ function petling_vet_history_endpoint_content() {
             </div>
         </div>
 
-        <div class="custom-checkbox-wrapper">
-            <label>
+        <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
+        <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
+            <label style="width: 100%;">
                 <input type="hidden" name="pet_neutered[__INDEX__]" value="no">
-                <input type="checkbox" name="pet_neutered[__INDEX__]" value="yes"> 
+                <input type="checkbox" name="pet_neutered[__INDEX__]" value="yes" class="pet-neutered-toggle"> 
                 Το κατοικίδιο είναι στειρωμένο
             </label>
+            <div class="neutered-date-box" style="width: 100%; display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
+                <label style="font-size: 13px; color: #555;">Ημερομηνία Στείρωσης (Προαιρετικό)</label>
+                <input type="date" name="pet_neutered_date[]" max="<?php echo $today; ?>" style="max-width: 250px;">
+            </div>
         </div>
 
         <div style="margin-bottom: 20px;">
@@ -252,12 +258,25 @@ function petling_vet_history_endpoint_content() {
                 <?php endforeach; ?>
             </div>
         </div>
-        
         <div style="margin-bottom: 20px;">
             <label>Σημειώσεις</label>
             <textarea name="pet_health_notes[]" rows="2"></textarea>
         </div>
     </div>
+    
+    <!-- Script για την εμφάνιση/απόκρυψη της ημερομηνίας στείρωσης -->
+    <script>
+    jQuery(document).ready(function($) {
+        $(document).on('change', '.pet-neutered-toggle', function() {
+            var $box = $(this).closest('.custom-checkbox-wrapper').find('.neutered-date-box');
+            if( $(this).is(':checked') ) {
+                $box.slideDown(200);
+            } else {
+                $box.slideUp(200);
+            }
+        });
+    });
+    </script>
     <?php
 }
 
@@ -266,7 +285,6 @@ add_action( 'template_redirect', 'petling_vet_history_save_data' );
 function petling_vet_history_save_data() {
     if ( isset( $_POST['save_pets_data'] ) && isset( $_POST['petling_save_pets_nonce'] ) && wp_verify_nonce( $_POST['petling_save_pets_nonce'], 'petling_save_pets_action' ) ) {
         $user_id = get_current_user_id();
-        
         if ( ! petling_vet_history_has_access( $user_id ) ) return;
 
         update_user_meta( $user_id, 'petling_order_reminder_interval', sanitize_text_field( $_POST['petling_order_reminder_interval'] ?? 'no' ) );
@@ -276,19 +294,20 @@ function petling_vet_history_save_data() {
             foreach ( $_POST['pet_name'] as $index => $name ) {
                 if ( empty( trim( $name ) ) ) continue;
                 $pets_data[] = [
-                    'id'           => sanitize_text_field( $_POST['pet_id'][$index] ?? uniqid('pet_') ),
-                    'name'         => sanitize_text_field( $name ),
-                    'type'         => sanitize_text_field( $_POST['pet_type'][ $index ] ?? '' ),
-                    'birthday'     => sanitize_text_field( $_POST['pet_birthday'][ $index ] ?? '' ),
-                    'energy'       => sanitize_text_field( $_POST['pet_energy'][ $index ] ?? '' ),
-                    'breed'        => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ),
-                    'weight'       => sanitize_text_field( $_POST['pet_weight'][ $index ] ?? '' ),
-                    'microchip'    => sanitize_text_field( $_POST['pet_microchip'][ $index ] ?? '' ),
-                    'daily_food'   => sanitize_text_field( $_POST['pet_daily_food'][ $index ] ?? '' ),
-                    'calc_food'    => sanitize_text_field( $_POST['pet_calc_food'][ $index ] ?? 'no' ),
-                    'neutered'     => sanitize_text_field( $_POST['pet_neutered'][ $index ] ?? 'no' ), 
-                    'health'       => isset( $_POST['pet_health'][ $index ] ) ? array_map( 'sanitize_text_field', (array) $_POST['pet_health'][ $index ] ) : [],
-                    'health_notes' => sanitize_textarea_field( $_POST['pet_health_notes'][ $index ] ?? '' ),
+                    'id'            => sanitize_text_field( $_POST['pet_id'][$index] ?? uniqid('pet_') ),
+                    'name'          => sanitize_text_field( $name ),
+                    'type'          => sanitize_text_field( $_POST['pet_type'][ $index ] ?? '' ),
+                    'birthday'      => sanitize_text_field( $_POST['pet_birthday'][ $index ] ?? '' ),
+                    'energy'        => sanitize_text_field( $_POST['pet_energy'][ $index ] ?? '' ),
+                    'breed'         => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ),
+                    'weight'        => sanitize_text_field( $_POST['pet_weight'][ $index ] ?? '' ),
+                    'microchip'     => sanitize_text_field( $_POST['pet_microchip'][ $index ] ?? '' ),
+                    'daily_food'    => sanitize_text_field( $_POST['pet_daily_food'][ $index ] ?? '' ),
+                    'calc_food'     => sanitize_text_field( $_POST['pet_calc_food'][ $index ] ?? 'no' ),
+                    'neutered'      => sanitize_text_field( $_POST['pet_neutered'][ $index ] ?? 'no' ), 
+                    'neutered_date' => sanitize_text_field( $_POST['pet_neutered_date'][ $index ] ?? '' ), // <-- Αποθήκευση Νέου Πεδίου
+                    'health'        => isset( $_POST['pet_health'][ $index ] ) ? array_map( 'sanitize_text_field', (array) $_POST['pet_health'][ $index ] ) : [],
+                    'health_notes'  => sanitize_textarea_field( $_POST['pet_health_notes'][ $index ] ?? '' ),
                 ];
             }
         }
@@ -305,7 +324,6 @@ function petling_add_pets_column( $columns ) {
     $columns['petling_pets'] = 'Κατοικίδια';
     return $columns;
 }
-
 add_filter( 'manage_users_custom_column', 'petling_show_pets_column_content', 10, 3 );
 function petling_show_pets_column_content( $val, $column_name, $user_id ) {
     if ( 'petling_pets' === $column_name ) {
