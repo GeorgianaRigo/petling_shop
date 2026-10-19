@@ -30,6 +30,20 @@ function petling_vet_history_endpoint_content() {
         return;
     }
 
+    // ΠΡΟΣΘΗΚΗ: Έλεγχος αν ο χρήστης άνοιξε το Ιατρικό Ιστορικό (view=medical)
+    if ( isset( $_GET['view'] ) && $_GET['view'] === 'medical' && ! empty( $_GET['pet_id'] ) ) {
+        $target_pet_id = sanitize_text_field( $_GET['pet_id'] );
+        $pets = get_user_meta( $user_id, 'petling_pets', true );
+        if ( is_array($pets) ) {
+            foreach ( $pets as $pet ) {
+                if ( isset($pet['id']) && $pet['id'] === $target_pet_id ) { 
+                    petling_crm_render_medical_history( $pet ); 
+                    return; // Σταματάμε εδώ για να μη δείξει τη λίστα των ζώων
+                }
+            }
+        }
+    }
+
     if ( isset( $_GET['saved'] ) && $_GET['saved'] == '1' ) {
         echo '<div class="woocommerce-message" role="alert">Τα στοιχεία των κατοικιδίων αποθηκεύτηκαν επιτυχώς!</div>';
     }
@@ -176,6 +190,17 @@ function petling_vet_history_endpoint_content() {
                         <label>Σημειώσεις</label>
                         <textarea name="pet_health_notes[]" rows="2"><?php echo esc_textarea( $p_notes ); ?></textarea>
                     </div>
+
+                    <?php 
+                    // ΠΡΟΣΘΗΚΗ: Το κουμπί για το Ιατρικό Ιστορικό εμφανίζεται ΜΟΝΟ αν το ζώο έχει αποθηκευτεί και έχει ID
+                    if ( !empty($p_id) && strpos($p_id, 'pet_') !== false ) : 
+                        $medical_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $p_id ), wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
+                    ?>
+                        <div class="petling-medical-btn-wrapper" style="border-top: 1px dashed #C7B297; padding-top: 20px; margin-top: 10px;">
+                            <a href="<?php echo esc_url($medical_url); ?>" class="btn-petling btn-green no-loader" style="width: 100%; max-width: 300px; margin: 0 auto; display: block;">💉 Ιατρικό Ιστορικό & Εμβόλια &rarr;</a>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
             <?php endforeach; endif; ?>
         </div>
