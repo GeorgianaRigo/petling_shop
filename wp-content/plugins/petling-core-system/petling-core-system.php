@@ -74,7 +74,7 @@ function petling_core_unified_admin_menu() {
         remove_submenu_page( 'petling-main', 'petling-main' );
     }
     
-    // ΕΓΚΥΡΟΣ ΤΡΟΠΟΣ κρυφών σελίδων στο WordPress (Χωρίς Access Denied Error)
+    // Κρυφές σελίδες για τα Tabs
     add_submenu_page( null, 'Ρυθμίσεις Promo', 'Ρυθμίσεις', 'manage_options', 'ptl-promo-settings', 'ptl_render_settings_page' );
     add_submenu_page( null, 'QR Code', 'QR Code', 'manage_options', 'ptl-promo-qrcode', 'ptl_render_qrcode_page' );
 }
@@ -85,7 +85,7 @@ function ptl_core_fallback_page() {
 
 
 // =========================================================================
-// 3. TABS ΠΛΟΗΓΗΣΗΣ CRM (Στη σωστή θέση!)
+// 3. TABS ΠΛΟΗΓΗΣΗΣ CRM 
 // =========================================================================
 function ptl_render_admin_tabs( $active_tab = 'leads' ) {
     ?>
@@ -97,7 +97,6 @@ function ptl_render_admin_tabs( $active_tab = 'leads' ) {
     <?php
 }
 
-// Εισαγωγή των Tabs ΑΚΡΙΒΩΣ κάτω από τον τίτλο της λίστας πελατών
 add_filter( 'views_edit-ptl_quiz_lead', 'ptl_add_tabs_to_cpt_lead_views' );
 function ptl_add_tabs_to_cpt_lead_views( $views ) {
     ptl_render_admin_tabs('leads');
