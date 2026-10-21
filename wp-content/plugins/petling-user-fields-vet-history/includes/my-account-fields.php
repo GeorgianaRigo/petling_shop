@@ -92,7 +92,6 @@ function petling_vet_history_endpoint_content() {
         
         <?php if ( current_user_can( 'manage_options' ) ) : ?>
             <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
-                <p>Φαίνενται μόνο στον ADMIN - check κωδικα</p>
                 <label style="font-size: 1.1em; font-weight: bold; color: #333; display:block; margin-bottom: 10px; text-align:center;">🔔 Υπενθύμιση Αναπλήρωσης 🐾</label>
                 <p style="font-size: 0.95em; color: #555; margin-bottom: 15px;">Επιλέξτε κάθε πότε θέλετε να σας θυμίζουμε να ανανεώσετε τα αποθέματα σας:</p>
                 <select name="petling_order_reminder_interval" id="petling_reminder_dropdown" style="max-width: 300px; margin: 0 auto; display: block;">
@@ -122,7 +121,7 @@ function petling_vet_history_endpoint_content() {
         
         <div id="pet-repeater-container">
             <?php if ( ! empty( $pets ) ) : foreach ( $pets as $index => $pet ) : 
-                $p_id      = $pet['id'] ?? '';
+                $p_id      = $pet['id'] ?? uniqid('pet_');
                 $p_name    = $pet['name'] ?? '';
                 $p_type    = $pet['type'] ?? 'dog';
                 $p_bday    = $pet['birthday'] ?? '';
@@ -141,7 +140,7 @@ function petling_vet_history_endpoint_content() {
             ?>
                 <div class="pet-block" id="pet-block-<?php echo $index; ?>" style="display: <?php echo $display_style; ?>;">
                     <div class="pet-block-header">
-                    <?php if ( !empty($p_id) ) : 
+                    <?php if ( !empty($p_id) && strpos($p_id, 'pet_') !== false ) : 
                         $medical_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $p_id ), wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
                     ?>
                         <div class="petling-medical-btn-wrapper">
@@ -177,6 +176,7 @@ function petling_vet_history_endpoint_content() {
                         </div>
                     </div>
                     
+                    <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
                     <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
                         <label style="width: 100%;">
                             <input type="hidden" name="pet_neutered[<?php echo $index; ?>]" value="no">
@@ -213,6 +213,7 @@ function petling_vet_history_endpoint_content() {
         <button type="submit" class="btn-petling btn-brown" name="save_pets_data" value="Save" style="width: 100%; font-size: 18px; padding: 15px;">Αποθήκευση Αλλαγών</button>
     </form>
     
+    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT -->
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[]" value="">
         <div class="petling-grid">
@@ -263,7 +264,6 @@ function petling_vet_history_endpoint_content() {
         </div>
     </div>
     
-    <!-- Script για την εμφάνιση/απόκρυψη της ημερομηνίας στείρωσης -->
     <script>
     jQuery(document).ready(function($) {
         $(document).on('change', '.pet-neutered-toggle', function() {
@@ -295,7 +295,6 @@ function petling_vet_history_save_data() {
             foreach ( $_POST['pet_name'] as $index => $name ) {
                 if ( empty( trim( $name ) ) ) continue;
                 
-                // ΔΙΟΡΘΩΣΗ ΓΙΑ ΤΟ ID:
                 $posted_id = sanitize_text_field( $_POST['pet_id'][$index] ?? '' );
                 $final_id  = !empty($posted_id) ? $posted_id : uniqid('pet_');
 
@@ -346,4 +345,53 @@ function petling_show_pets_column_content( $val, $column_name, $user_id ) {
         return '<span style="color:#999;">Κανένα</span>';
     }
     return $val;
+}
+
+// =========================================================================
+// 6. ΜΗΧΑΝΙΣΜΟΣ ΥΠΕΝΘΥΜΙΣΕΩΝ (EMAILS)
+// =========================================================================
+if ( ! function_exists( 'petling_send_smart_reminder_email' ) ) {
+    function petling_send_smart_reminder_email( $to, $pet_names, $interval_days ) {
+        if ( empty($pet_names) ) {
+            $names_string = 'Τα φιλαράκια σου';
+            $emoji = '🐶🐱';
+        } else {
+            $names_string = implode( ' και ', $pet_names );
+            $emoji = '🐾';
+        }
+
+        $subject = 'Γουφ/Νιάου! Μήπως τελειώνουν οι λιχουδιές μας;'; 
+        $reorder_link = wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ); 
+        
+        $logo_id = get_theme_mod( 'custom_logo' );
+        $logo_img = wp_get_attachment_image_src( $logo_id, 'full' );
+        if ( $logo_img ) {
+            $logo_html = '<img src="' . esc_url( $logo_img[0] ) . '" alt="Petling Logo" style="max-width: 150px; height: auto; display: inline-block;">';
+        } else {
+            $logo_html = '<h1 style="color: #43282F; margin: 0; font-family: Georgia, serif;">Petling</h1>';
+        }
+
+        $message = '
+        <div style="background-color: #ffffff; padding: 20px 15px; font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;">
+            <div style="max-width: 550px; margin: 0 auto; background-color: #ffffff; padding: 20px; border: 1px solid #C7B297; border-radius: 8px; color: #333333;">
+                <div style="text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eef0f2;">' . $logo_html . '</div>
+                <p style="font-size: 1.05em; margin-top: 0; color: #333333;">Γεια σου!</p>
+                <p style="color: #333333; font-size: 1.05em; line-height: 1.6;">
+                    Είμαστε η <strong style="color: #43282F;">Ίρις</strong> και η <strong style="color: #43282F;">Ντάρσι</strong> ' . $emoji . '<br>
+                    Έχουν περάσει περίπου ' . $interval_days . ' μέρες από την τελευταία φορά που μας πήρες τα αγαπημένα μας πράγματα και νομίζουμε ότι το ντουλάπι μας αδειάζει!
+                </p>
+                <div style="background: rgba(199, 178, 151, 0.12); padding: 15px; border-left: 4px solid #43282F; font-style: italic; border-radius: 0 4px 4px 0; color: #43282F; font-weight: 500; margin: 25px 0; font-size: 1em; line-height: 1.5; text-align: center;">
+                    Η Ίρις και η Ντάρσι ανυπομονούν για την επόμενη παραγγελία σας! 🥺
+                </div>
+                <p style="color: #333333;">Μπορείς να δεις τι μας πήρες την τελευταία φορά και να επαναλάβεις την παραγγελία σου εύκολα και γρήγορα με ένα κλικ εδώ:</p>
+                <div style="text-align: center; margin: 35px 0;">
+                    <a href="' . esc_url( $reorder_link ) . '" style="background-color: #C7B297; color: #43282F; padding: 14px 35px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; font-size: 1.05em;">🛒 Επανάληψη Τελευταίας Παραγγελίας</a>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eef0f2; margin-top: 30px;" />
+                <p style="font-size: 0.85em; color: #8B6139; text-align: center; margin-bottom: 0; margin-top: 20px;">Με αγάπη,<br><strong style="color: #43282F;">Η ομάδα του Petling.gr</strong></p>
+            </div>
+        </div>';
+
+        wp_mail( $to, $subject, $message, array('Content-Type: text/html; charset=UTF-8') );
+    }
 }
