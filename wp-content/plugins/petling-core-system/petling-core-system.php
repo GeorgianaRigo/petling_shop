@@ -448,7 +448,6 @@ function ptl_process_nutrition_ajax() {
 // =========================================================================
 function ptl_get_dynamic_recipe_options() {
     return array(
-        // ΒΑΣΙΚΑ ΥΛΙΚΑ ΓΙΑ ΤΗ ΔΩΡΕΑΝ ΕΚΔΟΣΗ (Αυστηρά 3 κύριες πρωτεΐνες)
         'proteins_1' => array( 'Κοτόπουλο', 'Γαλοπούλα', 'Αρνί' ), 
         'proteins_2' => array( 'Αυγό (βραστό)', 'Γιαούρτι' ),
         'carbs_1'    => array( 'Ρύζι (Λευκό ή Ολικής)', 'Κοφτό μακαρονάκι' ),
@@ -456,8 +455,6 @@ function ptl_get_dynamic_recipe_options() {
         'veggies'    => array( 'Καρότο', 'Κολοκυθάκι', 'Αρακάς', 'Φασολάκια' ),
         'fruits'     => array( 'Μήλο', 'Μπανάνα', 'Αχλάδι' ),
         'oils'       => array( 'Εξαιρετικά παρθένο ελαιόλαδο' ),
-        
-        // ΔΙΑΧΩΡΙΣΜΟΣ ΥΓΕΙΑΣ (Απαραίτητα για να γεμίζουν τα νέα dropdowns)
         'mild_sensitivities'  => array( 'Τροφική Αλλεργία / Δερματικά', 'Ευαίσθητο Στομάχι / Αέρια', 'Ευαίσθητες Αρθρώσεις', 'Τάση για παχυσαρκία / Στειρωμένο' ),
         'clinical_conditions' => array( 'Γαστρεντερικά / ΙΦΝΕ', 'Νεφρική Ανεπάρκεια', 'Ηπατοπάθεια', 'Ουροποιητικό (Κρύσταλλοι/Πέτρες)', 'Σακχαρώδης Διαβήτης', 'Λεϊσμανίαση (Καλαζάρ)', 'Άλλο (Σοβαρό)' )
     );
@@ -471,7 +468,6 @@ function ptl_recipe_maker_shortcode() {
     
     $html .= '<div class="ptl-quiz-container" id="ptl-recipe-app"><form id="ptl-recipe-form">' . wp_nonce_field('ptl_recipe_nonce', 'security', true, false);
     
-    // ΒΗΜΑ 1 - ΟΛΙΣΤΙΚΗ ΕΡΩΤΗΣΗ ΥΓΕΙΑΣ
     $html .= '<div class="ptl-step active" id="rec-step-1"><h3>🩺 Θέματα Υγείας</h3><p class="ptl-desc">Ο σκύλος σας έχει κάποιες ειδικές ευαισθησίες ή κλινικές ανάγκες;</p>';
     $html .= '<div class="ptl-radio-group">';
     $html .= '<input type="radio" id="health_none" name="health_tier" value="none" checked><label for="health_none">Κανένα πρόβλημα (Είναι υγιέστατος!)</label>';
@@ -492,7 +488,6 @@ function ptl_recipe_maker_shortcode() {
 
     $html .= '<div class="ptl-quiz-nav" style="justify-content: flex-end;"><button type="button" class="ptl-btn-next" onclick="ptlrSmartNextStep(2)">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 2 - ΥΛΙΚΑ
     $html .= '<div class="ptl-step" id="rec-step-2"><h3>🍲 Υλικά Συνταγής</h3><label class="ptl-section-label">1. Κύρια Πρωτεΐνη (50% - 1 επιλογή)</label><select name="protein_1"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['proteins_1'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
     $html .= '</select><label class="ptl-section-label">2. Δευτερεύουσα Πρωτεΐνη (5% - 1 επιλογή)</label><select name="protein_2"><option value="" disabled selected>Επίλεξε...</option>';
@@ -511,7 +506,6 @@ function ptl_recipe_maker_shortcode() {
 
     $html .= '</select><div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(1)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep2()">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 3 - ΕΠΙΚΟΙΝΩΝΙΑ & ΚΩΔΙΚΟΣ (ΝΕΟ)
     $html .= '<div class="ptl-step" id="rec-step-3"><h3>📩 Στοιχεία & Αποθήκευση</h3>
         <p class="ptl-desc" style="margin-bottom:15px;">Συμπληρώστε τα στοιχεία σας για να αποθηκεύσουμε τη συνταγή στο προσωπικό σας προφίλ!</p>
         <label>Όνοματεπώνυμο:</label><input type="text" name="user_name" required>
@@ -520,7 +514,6 @@ function ptl_recipe_maker_shortcode() {
         <p style="font-size:12px; color:#666; margin-top:5px; line-height:1.4;">Δημιουργήστε έναν κωδικό. Αν έχετε ήδη λογαριασμό στο Petling, βάλτε τον κωδικό σας και θα συνδεθείτε αυτόματα!</p>
         <div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(2)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">Ολοκλήρωση!</button></div></div>';
     
-    // ΒΗΜΑ LOADING - Η ΨΥΧΟΛΟΓΙΚΗ ΑΝΑΜΟΝΗ
     $html .= '<div class="ptl-step" id="rec-step-loading" style="text-align:center; padding: 40px 10px;">
         <h3>⚙️ Ετοιμάζουμε τη συνταγή σας...</h3>
         <div style="width:100%; background:#e0d5c1; border-radius:10px; height:20px; overflow:hidden; margin:30px 0; border: 1px solid #C7B297;">
@@ -529,7 +522,6 @@ function ptl_recipe_maker_shortcode() {
         <p style="font-size: 14px; color: #888;">Παρακαλώ περιμένετε, η διαδικασία μπορεί να διαρκέσει λίγα δευτερόλεπτα.</p>
     </div>';
 
-    // ΒΗΜΑ 4 - ΑΠΟΤΕΛΕΣΜΑ
     $html .= '<div class="ptl-step" id="rec-step-result"><div id="ptl-recipe-content"></div><div style="text-align:center; margin-top:30px;"><button type="button" class="ptl-btn-prev" onclick="location.reload();">Επανεκκίνηση</button></div></div></form></div>';
     
     $ajax_url = admin_url( 'admin-ajax.php' );
@@ -601,7 +593,6 @@ function ptl_recipe_maker_shortcode() {
                         jQuery('#rec-step-result').addClass('active');
                         jQuery('#ptl-recipe-content').html(response.data); 
                     } else { 
-                        // Αν το password είναι λάθος, επιστρέφουμε στο Βήμα 3
                         jQuery('#rec-step-loading').removeClass('active');
                         jQuery('#rec-step-3').addClass('active');
                         alert(response.data); 
@@ -638,22 +629,18 @@ function ptl_process_recipe_ajax() {
         wp_send_json_error('Παρακαλώ εισάγετε κωδικό πρόσβασης.');
     }
 
-    // --- ΑΥΤΟΜΑΤΟ LOGIN / REGISTER ---
     $user_id = email_exists($user_email);
     $new_account = false;
 
     if ($user_id) {
         $user = get_user_by('email', $user_email);
         if ($user && wp_check_password($user_password, $user->user_pass, $user->ID)) {
-            // Σωστό email & password: Κάνουμε login
             wp_set_current_user($user->ID);
             wp_set_auth_cookie($user->ID);
         } else {
-            // Λάθος password
-            wp_send_json_error('Το email υπάρχει ήδη στο σύστημα. Παρακαλώ βάλτε τον σωστό κωδικό σας ή κάντε επαναφορά κωδικού από τη σελίδα "Ο Λογαριασμός Μου".');
+            wp_send_json_error('Το email υπάρχει ήδη στο σύστημα. Παρακαλώ βάλτε τον σωστό κωδικό σας ή κάντε επαναφορά κωδικού.');
         }
     } else {
-        // Νέος Χρήστης: Δημιουργία και Login
         $user_id = wp_create_user($user_email, $user_password, $user_email);
         if (is_wp_error($user_id)) {
             wp_send_json_error('Σφάλμα κατά τη δημιουργία λογαριασμού: ' . $user_id->get_error_message());
@@ -671,16 +658,17 @@ function ptl_process_recipe_ajax() {
     
     $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>');
     
-    // 1. ΔΙΑΧΕΙΡΙΣΗ ΚΛΙΝΙΚΗΣ ΠΑΘΗΣΗΣ
     if ( $health_tier === 'clinical' ) {
         if ( $table_exists ) { 
             $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); 
         }
-        $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', 'VET (Κλινική Πάθηση: ' . $health_condition . ')');
-        if ($pid) { 
-            update_post_meta($pid, 'ptl_health_condition', $health_condition); 
-            update_post_meta($pid, 'ptl_user_id', $user_id); // Συνδέουμε το lead με το user_id
-        }
+        // Λύση για να σώζει πάντα νέα συνταγή (δεν κάνει overwrite)
+        $pid = wp_insert_post(array('post_title' => $user_email . ' - Recipe ' . uniqid(), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
+        update_post_meta($pid, 'ptl_lead_name', sanitize_text_field($user_name));
+        update_post_meta($pid, 'ptl_lead_type', 'HOME_COOKED_RECIPE');
+        update_post_meta($pid, 'ptl_lead_result', 'VET (Κλινική Πάθηση: ' . $health_condition . ')');
+        update_post_meta($pid, 'ptl_health_condition', $health_condition); 
+        update_post_meta($pid, 'ptl_user_id', $user_id); 
         
         $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Η κατάσταση του σκύλου σας απαιτεί εξατομικευμένη ιατρική προσέγγιση. Ο κωδικός σας για <strong>10% έκπτωση</strong> στο ραντεβού είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
         if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Κωδικός Κλινικής Δίαιτας', $html, $headers ); }
@@ -688,7 +676,6 @@ function ptl_process_recipe_ajax() {
         exit;
     }
     
-    // 3. ΥΠΟΛΟΓΙΣΜΟΣ ΣΥΝΤΑΓΗΣ
     $p1 = isset($_POST['protein_1']) ? sanitize_text_field($_POST['protein_1']) : ''; 
     $p2 = isset($_POST['protein_2']) ? sanitize_text_field($_POST['protein_2']) : ''; 
     $c1 = isset($_POST['carb_1']) ? sanitize_text_field($_POST['carb_1']) : ''; 
@@ -699,6 +686,8 @@ function ptl_process_recipe_ajax() {
     $veg_str = implode(' & ', $veggies);
     
     $total_g = 300; 
+    
+    // Ασφαλής υπολογισμός (για να μην καταστρέφεται με το copy/paste)
     $g_p1 = round($total_g * 0.50); 
     $g_p2 = round($total_g * 0.05); 
     $g_c1 = round($total_g * 0.15); 
@@ -709,18 +698,19 @@ function ptl_process_recipe_ajax() {
 
     $recipe_summary_text = "{$g_p1}γρ {$p1} / {$g_p2}γρ {$p2} / {$g_c1}γρ {$c1} / {$g_c2}γρ {$c2} / {$g_veg}γρ {$veg_str} / {$g_fruit}γρ {$fruit} / {$g_oil}γρ {$oil}";
     
-    // Αποθήκευση στο CRM & Διασύνδεση με το User ID
-    $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', $recipe_summary_text);
-    if ($pid) {
-        update_post_meta($pid, 'ptl_user_id', $user_id);
-        if (!empty($health_condition)) update_post_meta($pid, 'ptl_health_condition', $health_condition);
-        
-        $recipe_data_array = array('p1' => $p1, 'p2' => $p2, 'c1' => $c1, 'c2' => $c2, 'veggies' => $veggies, 'fruit' => $fruit, 'oil' => $oil, 'total_g' => $total_g);
-        update_post_meta($pid, 'ptl_recipe_data', json_encode($recipe_data_array, JSON_UNESCAPED_UNICODE));
-    }
+    // Σώζουμε τη συνταγή ως νεα καταχώρηση (Λύση για το "δεν βλέπω 2η συνταγή")
+    $pid = wp_insert_post(array('post_title' => $user_email . ' - Recipe ' . uniqid(), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
+    update_post_meta($pid, 'ptl_lead_name', sanitize_text_field($user_name));
+    update_post_meta($pid, 'ptl_lead_type', 'HOME_COOKED_RECIPE');
+    update_post_meta($pid, 'ptl_lead_result', sanitize_text_field($recipe_summary_text));
+    update_post_meta($pid, 'ptl_user_id', $user_id);
+    if (!empty($health_condition)) update_post_meta($pid, 'ptl_health_condition', $health_condition);
     
-    // 4. ΕΜΦΑΝΙΣΗ (Οδήγηση στο Dashboard)
-    $dashboard_url = home_url('/my-account/'); 
+    $recipe_data_array = array('p1' => $p1, 'p2' => $p2, 'c1' => $c1, 'c2' => $c2, 'veggies' => $veggies, 'fruit' => $fruit, 'oil' => $oil, 'total_g' => $total_g);
+    update_post_meta($pid, 'ptl_recipe_data', json_encode($recipe_data_array, JSON_UNESCAPED_UNICODE));
+    
+    // Οδηγεί στο νέο Dashboard
+    $dashboard_url = home_url('/diatrofi/'); 
     
     $html = '<h3>🎉 Η Συνταγή σας είναι έτοιμη!</h3>';
     $html .= '<div class="ptl-result-box" style="text-align:left;">';
@@ -737,14 +727,11 @@ function ptl_process_recipe_ajax() {
 
     wp_send_json_success($html);
 }
-// =========================================================================
-// 9. USER DASHBOARD (WOOCOMMERCE MY ACCOUNT TAB)
-// =========================================================================
 
-add_action( 'init', 'ptl_add_recipes_endpoint' );
-function ptl_add_recipes_endpoint() {
-    add_rewrite_endpoint( 'diatrofi', EP_ROOT | EP_PAGES );
-}
+
+// =========================================================================
+// 9. WOOCOMMERCE ACCOUNT MENU LINK (DIRECT REDIRECT TO DASHBOARD)
+// =========================================================================
 
 add_filter( 'woocommerce_account_menu_items', 'ptl_recipes_menu_item' );
 function ptl_recipes_menu_item( $items ) {
@@ -752,21 +739,23 @@ function ptl_recipes_menu_item( $items ) {
     foreach ( $items as $key => $value ) {
         $new_items[ $key ] = $value;
         if ( 'dashboard' === $key ) {
-            $new_items['diatrofi'] = '👨‍🍳 Οι Συνταγές μου';
+            $new_items['diatrofi-link'] = '👨‍🍳 Οι Συνταγές μου';
         }
     }
-    if ( ! array_key_exists( 'diatrofi', $new_items ) ) {
-        $new_items['diatrofi'] = '👨‍🍳 Οι Συνταγές μου';
+    if ( ! array_key_exists( 'diatrofi-link', $new_items ) ) {
+        $new_items['diatrofi-link'] = '👨‍🍳 Οι Συνταγές μου';
     }
     return $new_items;
 }
 
-add_action( 'woocommerce_account_diatrofi_endpoint', 'ptl_recipes_endpoint_content' );
-function ptl_recipes_endpoint_content() {
-    echo '<h3 style="color:#43282F; margin-bottom: 20px;">Οι Συνταγές του Σκύλου μου 🐾</h3>';
-    echo '<p>Η διαχείριση της διατροφής μεταφέρθηκε στο νέο, αναβαθμισμένο περιβάλλον του Petling!</p>';
-    echo '<a href="'.home_url('/nutrition/').'" class="button" style="background:#43282F; color:#fff; padding:12px 25px; border-radius:6px; text-decoration:none;">Μετάβαση στο Πρόγραμμα Διατροφής &rarr;</a>';
+add_filter( 'woocommerce_get_endpoint_url', 'ptl_custom_recipes_link', 10, 4 );
+function ptl_custom_recipes_link( $url, $endpoint, $value, $permalink ) {
+    if ( $endpoint === 'diatrofi-link' ) {
+        $url = home_url( '/diatrofi/' ); 
+    }
+    return $url;
 }
+
 
 // =========================================================================
 // 10. CUSTOM USER DASHBOARD SHORTCODE (TABS & PDF GENERATION)
@@ -782,7 +771,6 @@ function ptl_custom_user_dashboard_shortcode() {
     $user_id = $current_user->ID;
     $user_email = $current_user->user_email;
 
-    // Παίρνουμε το λογότυπο του Petling για το PDF
     $logo_url = wp_get_attachment_image_url( get_theme_mod( 'custom_logo' ), 'full' );
     if (empty($logo_url)) { $logo_url = home_url('/wp-content/uploads/logo.png'); }
 
@@ -876,21 +864,15 @@ function ptl_custom_user_dashboard_shortcode() {
                             echo '<button class="button" style="background:#43282F; color:#fff; border:none;" onclick="ptlDownloadPDF(\'pdf-content-' . $recipe_counter . '\', this)">⬇️ Λήψη σε PDF</button>';
                             echo '</div>';
 
-                            // ΚΡΥΦΟ TEMPLATE ΓΙΑ ΤΟ PDF (Καθαρή Λίστα)
+                            // ΚΡΥΦΟ TEMPLATE ΓΙΑ ΤΟ PDF
                             echo '<div id="pdf-content-' . $recipe_counter . '" class="ptl-pdf-template">';
-                            
-                            // Header
                             echo '<div style="text-align:center; border-bottom:2px solid #C7B297; padding-bottom:15px; margin-bottom:20px;">';
                             echo '<img src="'.esc_url($logo_url).'" style="max-height:60px; margin-bottom:10px;" alt="Petling Logo">';
                             echo '<h2 style="color:#43282F; margin:0; font-size:22px;">Σπιτική Συνταγή Σκύλου</h2>';
                             echo '<p style="color:#666; margin:5px 0 0 0; font-size:13px;">Εξατομικευμένο πρόγραμμα από το Petling</p>';
                             echo '</div>';
-                            
-                            // Τίτλος & Γραμμάρια
                             echo '<h3 style="color:#43282F; margin-top:0;">Προτεινόμενο Γεύμα με ' . esc_html($data['p1']) . '</h3>';
                             echo '<p style="font-size:14px; font-weight:bold; margin-bottom: 15px;">Ημερήσια Ποσότητα: ' . $total_g . ' γραμμάρια</p>';
-                            
-                            // Καθαρή Λίστα 
                             echo '<ul style="list-style:none; padding:0; margin:0 0 30px 0; font-size:15px; color:#333;">';
                             echo '<li style="padding:8px 0; border-bottom:1px solid #eee;">🥩 <strong>'.$g_p1.'γρ</strong> '.esc_html($data['p1']).'</li>';
                             echo '<li style="padding:8px 0; border-bottom:1px solid #eee;">🥚 <strong>'.$g_p2.'γρ</strong> '.esc_html($data['p2']).'</li>';
@@ -900,20 +882,14 @@ function ptl_custom_user_dashboard_shortcode() {
                             echo '<li style="padding:8px 0; border-bottom:1px solid #eee;">🍎 <strong>'.$g_fruit.'γρ</strong> '.esc_html($data['fruit']).'</li>';
                             echo '<li style="padding:8px 0;">🫒 <strong>'.$g_oil.'γρ</strong> '.esc_html($data['oil']).'</li>';
                             echo '</ul>';
-                            
-                            // Disclaimer
                             echo '<div style="padding:15px; background:#fffaf1; border-left:4px solid #d63638; border-radius:4px; margin-bottom: 30px;">';
                             echo '<h4 style="margin-top:0; color:#d63638; font-size:15px;">⚠️ Σημαντική Επιστημονική Επισήμανση</h4>';
-                            echo '<p style="font-size:12px; line-height:1.5; color:#555; margin:0;">Οι ποσότητες είναι ενδεικτικές και ενδέχεται να χρειαστούν προσαρμογή ανάλογα με τον μεταβολισμό και τη δραστηριότητα του σκύλου σας. Η συγκεκριμένη διατροφή <strong>δεν πρέπει να εφαρμόζεται εφ’ όρου ζωής χωρίς επίβλεψη</strong>. Για να είναι πλήρως ισορροπημένη, πρέπει να εμπλουτίζεται σωστά και να επανεξετάζεται τακτικά.</p>';
+                            echo '<p style="font-size:12px; line-height:1.5; color:#555; margin:0;">Οι ποσότητες είναι ενδεικτικές και ενδέχεται να χρειαστούν προσαρμογή. Η συγκεκριμένη διατροφή <strong>δεν πρέπει να εφαρμόζεται εφ’ όρου ζωής χωρίς επίβλεψη</strong>.</p>';
                             echo '</div>';
-                            
-                            // Υπογραφή
                             echo '<div style="text-align:right;">';
                             echo '<p style="margin:0; font-size:14px; color:#333;"><strong>Δρ. Σταυριάννα Μανωλάκου</strong></p>';
-                            echo '<p style="margin:0; font-size:12px; color:#666;">Κτηνίατρος - Ειδική Διατροφολόγος Ζώων Συντροφιάς</p>';
-                            echo '</div>';
-                            
-                            echo '</div>'; // Κλείσιμο Κρυφού Template
+                            echo '<p style="margin:0; font-size:12px; color:#666;">Κτηνίατρος - Ειδική Διατροφολόγος</p>';
+                            echo '</div></div>';
                             
                             $recipe_counter++;
                         }
@@ -960,53 +936,52 @@ function ptl_custom_user_dashboard_shortcode() {
         </div>
     </div>
 
-    <!-- Ενσωμάτωση της βιβλιοθήκης html2pdf.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-    function ptlSwitchTab(tabName) {
-        document.querySelectorAll('.ptl-tab-pane').forEach(function(pane) { pane.classList.remove('active'); });
-        document.querySelectorAll('.ptl-tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
-        document.getElementById('tab-' + tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
+function ptlSwitchTab(tabName) {
+    document.querySelectorAll('.ptl-tab-pane').forEach(function(pane) { pane.classList.remove('active'); });
+    document.querySelectorAll('.ptl-tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
 
-    function ptlDownloadPDF(elementId, btnElement) {
-        var originalText = btnElement.innerHTML;
-        btnElement.innerHTML = '⏳ Δημιουργία PDF...';
-        btnElement.disabled = true;
+function ptlDownloadPDF(elementId, btnElement) {
+    var sourceElement = document.getElementById(elementId);
+    if (!sourceElement) return;
 
-        // 1. Παίρνουμε το περιεχόμενο της κρυφής συνταγής
-        var sourceElement = document.getElementById(elementId);
-        
-        // 2. Το βάζουμε σε ένα καθαρό, εικονικό div της Javascript. 
-        // Έτσι το html2pdf το διαβάζει 100% καθαρά, χωρίς να επηρεάζεται από CSS ή κρυφά z-index του site!
-        var virtualDiv = document.createElement('div');
-        virtualDiv.innerHTML = sourceElement.innerHTML;
-        virtualDiv.style.padding = '20px';
-        virtualDiv.style.background = '#fff';
-        virtualDiv.style.fontFamily = 'Helvetica, sans-serif';
-        virtualDiv.style.color = '#333';
+    var iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
 
-        // 3. Ρυθμίσεις (Το scrollY: 0 λύνει οριστικά το πρόβλημα του μεγάλου κενού στην κορυφή)
-        var opt = {
-            margin:       15,
-            filename:     'Petling_Syntagi.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, scrollY: 0, windowY: 0 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+    var doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Petling_Syntagi</title>');
+    doc.write('<style>');
+    doc.write('@page { size: A4 portrait; margin: 15mm; }');
+    doc.write('body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #333; margin: 0; padding: 0; }');
+    doc.write('h2 { color: #43282F; margin: 0 0 5px 0; font-size: 20px; }');
+    doc.write('h3 { color: #43282F; margin: 20px 0 10px 0; font-size: 16px; }');
+    doc.write('ul { list-style: none; padding: 0; margin: 0 0 20px 0; }');
+    doc.write('li { padding: 6px 0; border-bottom: 1px solid #eee; font-size: 14px; }');
+    doc.write('img { max-height: 60px; height: auto; }');
+    doc.write('</style></head><body>');
+    doc.write(sourceElement.innerHTML);
+    doc.write('</body></html>');
+    doc.close();
 
-        // 4. Παραγωγή PDF απευθείας από το εικονικό div!
-        html2pdf().set(opt).from(virtualDiv).save().then(function() {
-            btnElement.innerHTML = originalText;
-            btnElement.disabled = false;
-        }).catch(function(error) {
-            console.error('Σφάλμα δημιουργίας PDF:', error);
-            btnElement.innerHTML = originalText;
-            btnElement.disabled = false;
-        });
-    }
-    </script>
+    setTimeout(function() {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(function() {
+            document.body.removeChild(iframe);
+        }, 1000);
+    }, 300);
+}
+</script>
     <?php
     return ob_get_clean();
 }
