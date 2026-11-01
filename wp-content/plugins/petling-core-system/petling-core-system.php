@@ -467,7 +467,7 @@ add_shortcode('petling_recipe_maker', 'ptl_recipe_maker_shortcode');
 function ptl_recipe_maker_shortcode() {
     $r_data = ptl_get_dynamic_recipe_options();
 
-    $html = '<style>.ptl-quiz-container { max-width: 650px; margin: 40px auto; background: #fffaf1; padding: 40px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; box-shadow: 0 5px 20px rgba(0,0,0,0.05); } .ptl-step { display: none; animation: fadeIn 0.4s; } .ptl-step.active { display: block; } .ptl-quiz-container h3 { color: #43282F; margin-top: 0; font-size: 24px; text-align: center; margin-bottom:10px; } .ptl-quiz-container p.ptl-desc { color: #555; font-size: 15px; margin-bottom: 25px; text-align: center; line-height: 1.5; } .ptl-quiz-container label.ptl-section-label { display: block; font-weight: bold; color: #43282F; margin-bottom: 8px; margin-top: 20px; font-size: 16px; border-bottom: 1px solid #e0d5c1; padding-bottom: 5px; } .ptl-quiz-container select, .ptl-quiz-container input[type="text"], .ptl-quiz-container input[type="email"], .ptl-quiz-container textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 15px; margin-bottom: 10px; background: #fff; } .ptl-radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } .ptl-radio-group label { text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 15px; border-radius: 8px; cursor: pointer; } .ptl-radio-group input[type="radio"] { display: none; } .ptl-radio-group input[type="radio"]:checked + label { border-color: #C7B297; background: #F5EDE3; color: #43282F; font-weight: bold; } .ptl-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; } .ptl-checkbox-group label { flex: 1 1 calc(33% - 8px); text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 10px 5px; border-radius: 6px; cursor: pointer; font-size: 13px; margin:0; } .ptl-checkbox-group input[type="checkbox"] { display: none; } .ptl-checkbox-group input[type="checkbox"]:checked + label { border-color: #C7B297; background: #F5EDE3; font-weight: bold; } .ptl-quiz-nav { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; } .ptl-btn-prev { background: #e0d5c1; color: #43282F; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next, .ptl-btn-submit { background: #43282F; color: #fff; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next:hover, .ptl-btn-submit:hover { background: #C7B297; } .ptl-result-box { background:#fff; padding:25px; border-radius:8px; border:2px solid #C7B297; margin-top:20px; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>';
+    $html = '<style>.ptl-quiz-container { max-width: 650px; margin: 40px auto; background: #fffaf1; padding: 40px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; box-shadow: 0 5px 20px rgba(0,0,0,0.05); } .ptl-step { display: none; animation: fadeIn 0.4s; } .ptl-step.active { display: block; } .ptl-quiz-container h3 { color: #43282F; margin-top: 0; font-size: 24px; text-align: center; margin-bottom:10px; } .ptl-quiz-container p.ptl-desc { color: #555; font-size: 15px; margin-bottom: 25px; text-align: center; line-height: 1.5; } .ptl-quiz-container label.ptl-section-label { display: block; font-weight: bold; color: #43282F; margin-bottom: 8px; margin-top: 20px; font-size: 16px; border-bottom: 1px solid #e0d5c1; padding-bottom: 5px; } .ptl-quiz-container select, .ptl-quiz-container input[type="text"], .ptl-quiz-container input[type="email"], .ptl-quiz-container input[type="password"], .ptl-quiz-container textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 15px; margin-bottom: 10px; background: #fff; } .ptl-radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } .ptl-radio-group label { text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 15px; border-radius: 8px; cursor: pointer; } .ptl-radio-group input[type="radio"] { display: none; } .ptl-radio-group input[type="radio"]:checked + label { border-color: #C7B297; background: #F5EDE3; color: #43282F; font-weight: bold; } .ptl-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; } .ptl-checkbox-group label { flex: 1 1 calc(33% - 8px); text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 10px 5px; border-radius: 6px; cursor: pointer; font-size: 13px; margin:0; } .ptl-checkbox-group input[type="checkbox"] { display: none; } .ptl-checkbox-group input[type="checkbox"]:checked + label { border-color: #C7B297; background: #F5EDE3; font-weight: bold; } .ptl-quiz-nav { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; } .ptl-btn-prev { background: #e0d5c1; color: #43282F; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next, .ptl-btn-submit { background: #43282F; color: #fff; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next:hover, .ptl-btn-submit:hover { background: #C7B297; } .ptl-result-box { background:#fff; padding:25px; border-radius:8px; border:2px solid #C7B297; margin-top:20px; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>';
     
     $html .= '<div class="ptl-quiz-container" id="ptl-recipe-app"><form id="ptl-recipe-form">' . wp_nonce_field('ptl_recipe_nonce', 'security', true, false);
     
@@ -479,23 +479,20 @@ function ptl_recipe_maker_shortcode() {
     $html .= '<input type="radio" id="health_clinical" name="health_tier" value="clinical"><label for="health_clinical">Ιατρική/Κλινική Πάθηση (π.χ. Νεφρά, Διαβήτης)</label>';
     $html .= '</div>';
     
-    // Κρυφό dropdown για τις ήπιες ευαισθησίες
     $html .= '<div id="ptl-health-mild-box" style="display:none; background:#fff; padding:20px; border-radius:8px; border:1px solid #ddd; margin-bottom:20px;"><label class="ptl-section-label" style="border:none; margin-top:0;">Τι είδους ευαισθησία;</label><select name="health_condition_mild"><option value="" disabled selected>Επιλέξτε...</option>';
     foreach($r_data['mild_sensitivities'] as $cond) { $html .= '<option value="'.esc_attr($cond).'">'.esc_html($cond).'</option>'; }
     $html .= '</select></div>';
 
-    // Κρυφό dropdown για τις κλινικές παθήσεις (Θα σταματάει τον Wizard)
     $html .= '<div id="ptl-health-clinical-box" style="display:none; background:#fff3f3; padding:20px; border-radius:8px; border:1px solid #d63638; margin-bottom:20px;"><label class="ptl-section-label" style="border:none; margin-top:0; color:#d63638;">Κλινική Πάθηση:</label><select name="health_condition_clinical"><option value="" disabled selected>Επιλέξτε...</option>';
     foreach($r_data['clinical_conditions'] as $cond) { $html .= '<option value="'.esc_attr($cond).'">'.esc_html($cond).'</option>'; }
     $html .= '</select></div>';
     
-    // Κρυφό (legacy) πεδίο για να μη σπάσει η AJAX PHP σου που περιμένει το 'health_issue'
     $html .= '<input type="hidden" name="health_issue" id="legacy_health_issue" value="no">';
     $html .= '<input type="hidden" name="health_condition" id="legacy_health_condition" value="">';
 
     $html .= '<div class="ptl-quiz-nav" style="justify-content: flex-end;"><button type="button" class="ptl-btn-next" onclick="ptlrSmartNextStep(2)">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 2 - ΥΛΙΚΑ (Όπως ήταν)
+    // ΒΗΜΑ 2 - ΥΛΙΚΑ
     $html .= '<div class="ptl-step" id="rec-step-2"><h3>🍲 Υλικά Συνταγής</h3><label class="ptl-section-label">1. Κύρια Πρωτεΐνη (50% - 1 επιλογή)</label><select name="protein_1"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['proteins_1'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
     $html .= '</select><label class="ptl-section-label">2. Δευτερεύουσα Πρωτεΐνη (5% - 1 επιλογή)</label><select name="protein_2"><option value="" disabled selected>Επίλεξε...</option>';
@@ -514,8 +511,14 @@ function ptl_recipe_maker_shortcode() {
 
     $html .= '</select><div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(1)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep2()">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 3 - ΕΠΙΚΟΙΝΩΝΙΑ
-    $html .= '<div class="ptl-step" id="rec-step-3"><h3>📩 Στοιχεία Επικοινωνίας</h3><label>Όνοματεπώνυμο:</label><input type="text" name="user_name" required><label>Email:</label><input type="email" name="user_email" required><div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(2)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">Ολοκλήρωση!</button></div></div>';
+    // ΒΗΜΑ 3 - ΕΠΙΚΟΙΝΩΝΙΑ & ΚΩΔΙΚΟΣ (ΝΕΟ)
+    $html .= '<div class="ptl-step" id="rec-step-3"><h3>📩 Στοιχεία & Αποθήκευση</h3>
+        <p class="ptl-desc" style="margin-bottom:15px;">Συμπληρώστε τα στοιχεία σας για να αποθηκεύσουμε τη συνταγή στο προσωπικό σας προφίλ!</p>
+        <label>Όνοματεπώνυμο:</label><input type="text" name="user_name" required>
+        <label>Email:</label><input type="email" name="user_email" required>
+        <label>Κωδικός Πρόσβασης:</label><input type="password" name="user_password" required>
+        <p style="font-size:12px; color:#666; margin-top:5px; line-height:1.4;">Δημιουργήστε έναν κωδικό. Αν έχετε ήδη λογαριασμό στο Petling, βάλτε τον κωδικό σας και θα συνδεθείτε αυτόματα!</p>
+        <div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(2)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">Ολοκλήρωση!</button></div></div>';
     
     // ΒΗΜΑ LOADING - Η ΨΥΧΟΛΟΓΙΚΗ ΑΝΑΜΟΝΗ
     $html .= '<div class="ptl-step" id="rec-step-loading" style="text-align:center; padding: 40px 10px;">
@@ -531,25 +534,17 @@ function ptl_recipe_maker_shortcode() {
     
     $ajax_url = admin_url( 'admin-ajax.php' );
     $html .= "<script>
-        // Διαχείριση των νέων Radio Buttons Υγείας
         jQuery('#ptl-recipe-app input[name=\"health_tier\"]').on('change', function(){ 
             var val = jQuery(this).val();
             if (val === 'mild') {
-                jQuery('#ptl-health-mild-box').slideDown();
-                jQuery('#ptl-health-clinical-box').slideUp();
-                jQuery('#legacy_health_issue').val('no'); // Ήπιες = Δίνουμε συνταγή κανονικά
+                jQuery('#ptl-health-mild-box').slideDown(); jQuery('#ptl-health-clinical-box').slideUp(); jQuery('#legacy_health_issue').val('no'); 
             } else if (val === 'clinical') {
-                jQuery('#ptl-health-mild-box').slideUp();
-                jQuery('#ptl-health-clinical-box').slideDown();
-                jQuery('#legacy_health_issue').val('yes'); // Κλινικές = Routing στην Κτηνίατρο
+                jQuery('#ptl-health-mild-box').slideUp(); jQuery('#ptl-health-clinical-box').slideDown(); jQuery('#legacy_health_issue').val('yes'); 
             } else {
-                jQuery('#ptl-health-mild-box').slideUp();
-                jQuery('#ptl-health-clinical-box').slideUp();
-                jQuery('#legacy_health_issue').val('no'); // Υγιής = Δίνουμε συνταγή κανονικά
+                jQuery('#ptl-health-mild-box').slideUp(); jQuery('#ptl-health-clinical-box').slideUp(); jQuery('#legacy_health_issue').val('no'); 
             }
         });
 
-        // Ενημερώνουμε το κρυφό legacy πεδίο πάθησης ανάλογα με το τι διάλεξε (για να μπει στο CRM/Email)
         jQuery('select[name=\"health_condition_mild\"], select[name=\"health_condition_clinical\"]').on('change', function() {
             jQuery('#legacy_health_condition').val(jQuery(this).val());
         });
@@ -560,15 +555,12 @@ function ptl_recipe_maker_shortcode() {
             var tier = jQuery('#ptl-recipe-app input[name=\"health_tier\"]:checked').val(); 
             if (tier === 'mild' && !jQuery('select[name=\"health_condition_mild\"]').val()) { alert('Επιλέξτε την ευαισθησία.'); return; }
             if (tier === 'clinical' && !jQuery('select[name=\"health_condition_clinical\"]').val()) { alert('Επιλέξτε την κλινική πάθηση.'); return; }
-            
-            // Αν είναι κλινική πάθηση, ΠΡΟΣΠΕΡΝΑΕΙ τα υλικά και πάει κατευθείαν στα στοιχεία επικοινωνίας
             if (step === 2 && tier === 'clinical') { step = 3; } 
             ptlrNextStep(step); 
         }
 
         function ptlrSmartPrevStep(step) { 
             var tier = jQuery('#ptl-recipe-app input[name=\"health_tier\"]:checked').val(); 
-            // Αν πατήσει πίσω από τα Στοιχεία και έχει Κλινική Πάθηση, τον γυρνάμε στο Βήμα 1 (γιατί το Βήμα 2 το πήδηξε)
             if (step === 2 && tier === 'clinical') { step = 1; } 
             ptlrNextStep(step); 
         }
@@ -584,41 +576,42 @@ function ptl_recipe_maker_shortcode() {
             ptlrNextStep(3); 
         }
 
-        // AJAX ME ΨΥΧΟΛΟΓΙΚΗ ΑΝΑΜΟΝΗ
         jQuery('#ptl-recipe-form').on('submit', function(e){
             e.preventDefault(); 
             var formData = jQuery(this).serialize(); 
             
-            // Κρύβουμε βήματα & Δείχνουμε το Loading
             jQuery('#ptl-recipe-app .ptl-step').removeClass('active'); 
             jQuery('#rec-step-loading').addClass('active');
             
-            // Στέλνουμε το αίτημα στο server αμέσως
             var ajaxCall = jQuery.post('{$ajax_url}', formData + '&action=ptl_process_recipe');
             
-            // Μπάρα Φόρτωσης
             var progress = 0;
             var progressInterval = setInterval(function() {
                 progress += 20; 
                 if(progress <= 100) { jQuery('#ptl-loading-progress').css('width', progress + '%'); }
             }, 800); 
             
-            // Μόλις περάσουν 4-5 δευτερόλεπτα αναμονής
             setTimeout(function() {
                 clearInterval(progressInterval);
                 jQuery('#ptl-loading-progress').css('width', '100%');
                 
                 ajaxCall.done(function(response) {
-                    jQuery('#rec-step-loading').removeClass('active');
-                    jQuery('#rec-step-result').addClass('active');
-                    if(response.success) { jQuery('#ptl-recipe-content').html(response.data); } 
-                    else { jQuery('#ptl-recipe-content').html('<p style=\"color:red;\">' + response.data + '</p>'); }
+                    if(response.success) { 
+                        jQuery('#rec-step-loading').removeClass('active');
+                        jQuery('#rec-step-result').addClass('active');
+                        jQuery('#ptl-recipe-content').html(response.data); 
+                    } else { 
+                        // Αν το password είναι λάθος, επιστρέφουμε στο Βήμα 3
+                        jQuery('#rec-step-loading').removeClass('active');
+                        jQuery('#rec-step-3').addClass('active');
+                        alert(response.data); 
+                    }
                 }).fail(function() { 
                     jQuery('#rec-step-loading').removeClass('active');
-                    jQuery('#rec-step-result').addClass('active');
-                    jQuery('#ptl-recipe-content').html('<p style=\"color:red;\">Υπήρξε σφάλμα.</p>'); 
+                    jQuery('#rec-step-3').addClass('active');
+                    alert('Υπήρξε σφάλμα σύνδεσης. Δοκιμάστε ξανά.'); 
                 });
-            }, 4500); 
+            }, 4000); 
         });
     </script>";
     return $html;
@@ -628,36 +621,74 @@ add_action('wp_ajax_ptl_process_recipe', 'ptl_process_recipe_ajax');
 add_action('wp_ajax_nopriv_ptl_process_recipe', 'ptl_process_recipe_ajax');
 function ptl_process_recipe_ajax() {
     check_ajax_referer('ptl_recipe_nonce', 'security');
-    $health_issue = sanitize_text_field($_POST['health_issue'] ?? 'no'); 
-    $health_condition = sanitize_text_field($_POST['health_condition'] ?? ''); 
-    $health_notes = sanitize_textarea_field($_POST['health_notes'] ?? ''); 
+    
+    $health_tier = sanitize_text_field($_POST['health_tier'] ?? 'none'); 
+    $health_condition = '';
+    if ($health_tier === 'clinical') {
+        $health_condition = sanitize_text_field($_POST['health_condition_clinical'] ?? '');
+    } elseif ($health_tier === 'mild') {
+        $health_condition = sanitize_text_field($_POST['health_condition_mild'] ?? '');
+    }
+    
     $user_name = sanitize_text_field($_POST['user_name'] ?? ''); 
     $user_email = sanitize_email($_POST['user_email'] ?? '');
+    $user_password = isset($_POST['user_password']) ? $_POST['user_password'] : '';
+    
+    if (empty($user_password)) {
+        wp_send_json_error('Παρακαλώ εισάγετε κωδικό πρόσβασης.');
+    }
+
+    // --- ΑΥΤΟΜΑΤΟ LOGIN / REGISTER ---
+    $user_id = email_exists($user_email);
+    $new_account = false;
+
+    if ($user_id) {
+        $user = get_user_by('email', $user_email);
+        if ($user && wp_check_password($user_password, $user->user_pass, $user->ID)) {
+            // Σωστό email & password: Κάνουμε login
+            wp_set_current_user($user->ID);
+            wp_set_auth_cookie($user->ID);
+        } else {
+            // Λάθος password
+            wp_send_json_error('Το email υπάρχει ήδη στο σύστημα. Παρακαλώ βάλτε τον σωστό κωδικό σας ή κάντε επαναφορά κωδικού από τη σελίδα "Ο Λογαριασμός Μου".');
+        }
+    } else {
+        // Νέος Χρήστης: Δημιουργία και Login
+        $user_id = wp_create_user($user_email, $user_password, $user_email);
+        if (is_wp_error($user_id)) {
+            wp_send_json_error('Σφάλμα κατά τη δημιουργία λογαριασμού: ' . $user_id->get_error_message());
+        }
+        wp_update_user(['ID' => $user_id, 'first_name' => $user_name]);
+        wp_set_current_user($user_id);
+        wp_set_auth_cookie($user_id);
+        $new_account = true;
+    }
     
     global $wpdb; 
     $promo_table = $wpdb->prefix . 'petling_partner_leads'; 
     $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table); 
     $dynamic_code = 'VET-' . strtoupper(substr(md5(uniqid()), 0, 6));
     
-    if ( $table_exists ) { 
-        $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); 
-    }
-    
     $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>');
     
-    if ( $health_issue === 'yes' ) {
-        $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', 'VET (Πάθηση: ' . $health_condition . ')');
+    // 1. ΔΙΑΧΕΙΡΙΣΗ ΚΛΙΝΙΚΗΣ ΠΑΘΗΣΗΣ
+    if ( $health_tier === 'clinical' ) {
+        if ( $table_exists ) { 
+            $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); 
+        }
+        $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', 'VET (Κλινική Πάθηση: ' . $health_condition . ')');
         if ($pid) { 
             update_post_meta($pid, 'ptl_health_condition', $health_condition); 
-            update_post_meta($pid, 'ptl_health_notes', $health_notes); 
+            update_post_meta($pid, 'ptl_user_id', $user_id); // Συνδέουμε το lead με το user_id
         }
         
-        $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Ο κωδικός σας για <strong>10% έκπτωση</strong> είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
-        if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Κλινική Δίαιτα', $html, $headers ); }
+        $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Η κατάσταση του σκύλου σας απαιτεί εξατομικευμένη ιατρική προσέγγιση. Ο κωδικός σας για <strong>10% έκπτωση</strong> στο ραντεβού είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
+        if ( is_email( $user_email ) ) { wp_mail( $user_email, 'Κωδικός Κλινικής Δίαιτας', $html, $headers ); }
         wp_send_json_success($html); 
         exit;
     }
     
+    // 3. ΥΠΟΛΟΓΙΣΜΟΣ ΣΥΝΤΑΓΗΣ
     $p1 = isset($_POST['protein_1']) ? sanitize_text_field($_POST['protein_1']) : ''; 
     $p2 = isset($_POST['protein_2']) ? sanitize_text_field($_POST['protein_2']) : ''; 
     $c1 = isset($_POST['carb_1']) ? sanitize_text_field($_POST['carb_1']) : ''; 
@@ -677,15 +708,32 @@ function ptl_process_recipe_ajax() {
     $g_oil = round($total_g * 0.02);
 
     $recipe_summary_text = "{$g_p1}γρ {$p1} / {$g_p2}γρ {$p2} / {$g_c1}γρ {$c1} / {$g_c2}γρ {$c2} / {$g_veg}γρ {$veg_str} / {$g_fruit}γρ {$fruit} / {$g_oil}γρ {$oil}";
-    ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', $recipe_summary_text);
     
-    $disclaimer = '<div style="margin-top:20px; background:#fff3f3; border-left:4px solid #d63638; padding:15px; font-size:13px; color:#333; line-height:1.5;"><strong>⚠️ Σημαντική Σημείωση:</strong> Οι ποσότητες είναι ενδεικτικές και ίσως χρειαστούν προσαρμογή (λίγο πάνω ή λίγο κάτω) ανάλογα με τον μεταβολισμό και τη δραστηριότητα του σκύλου σας.<br><br>Η συγκεκριμένη διατροφή <strong>δεν είναι για πάντα</strong>. Για να είναι πλήρως ισορροπημένη και να μην υπάρξουν ελλείψεις σε βιταμίνες και ιχνοστοιχεία, πρέπει να επανεξετάζεται από διατροφολόγο και να αλλάζει.<br><br><em>* Οι συνταγές φέρουν την υπογραφή της Κτηνιάτρου Διατροφής, Δρ. Σταυριάννας Μανωλάκου.</em></div>';
-
-    $html = '<h3>👨‍🍳 Η Συνταγή σου είναι έτοιμη!</h3><div class="ptl-result-box"><p>Συνταγή για 10kg σκύλο (Σύνολο 300γρ):</p><ul><li>🥩 150γρ ' . $p1 . '</li><li>🥚 15γρ ' . $p2 . '</li><li>🌾 45γρ ' . $c1 . '</li><li>🥔 30γρ ' . $c2 . '</li><li>🥦 39γρ ' . $veg_str . '</li><li>🍎 15γρ ' . $fruit . '</li><li>🫒 6γρ ' . $oil . '</li></ul>' . $disclaimer . '<div style="margin-top:20px; background:#F5EDE3; padding:15px; text-align:center;">Για το απόλυτα δικό σας πρόγραμμα! Κωδικός 10% VET: <strong>' . $dynamic_code . '</strong></div></div>';
-
-    if ( is_email( $user_email ) ) { 
-        $email_html = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #fffaf1; padding: 30px; border-radius: 8px; border: 2px solid #C7B297;">' . $html . '</div>';
-        wp_mail( $user_email, 'Η Συνταγή σας από το Petling', $email_html, $headers ); 
+    // Αποθήκευση στο CRM & Διασύνδεση με το User ID
+    $pid = ptl_save_quiz_lead_data($user_email, $user_name, 'HOME_COOKED_RECIPE', $recipe_summary_text);
+    if ($pid) {
+        update_post_meta($pid, 'ptl_user_id', $user_id);
+        if (!empty($health_condition)) update_post_meta($pid, 'ptl_health_condition', $health_condition);
+        
+        $recipe_data_array = array('p1' => $p1, 'p2' => $p2, 'c1' => $c1, 'c2' => $c2, 'veggies' => $veggies, 'fruit' => $fruit, 'oil' => $oil, 'total_g' => $total_g);
+        update_post_meta($pid, 'ptl_recipe_data', json_encode($recipe_data_array, JSON_UNESCAPED_UNICODE));
     }
+    
+    // 4. ΕΜΦΑΝΙΣΗ (Οδήγηση στο Dashboard)
+    $dashboard_url = home_url('/my-account/'); 
+    
+    $html = '<h3>🎉 Η Συνταγή σας είναι έτοιμη!</h3>';
+    $html .= '<div class="ptl-result-box" style="text-align:left;">';
+    
+    if ($new_account) {
+        $html .= '<div style="background:#eef7ee; color:#5b9a68; border-left:4px solid #5b9a68; padding:15px; margin-bottom:20px; font-size:14px;">✅ <strong>Ο λογαριασμός σας δημιουργήθηκε επιτυχώς!</strong> Έχετε ήδη συνδεθεί.</div>';
+    } else {
+        $html .= '<div style="background:#eef7ee; color:#5b9a68; border-left:4px solid #5b9a68; padding:15px; margin-bottom:20px; font-size:14px;">✅ <strong>Καλώς ήρθατε ξανά!</strong> Συνδεθήκατε επιτυχώς.</div>';
+    }
+    
+    $html .= '<p>Η συνταγή του σκύλου σας αποθηκεύτηκε με ασφάλεια στο <strong>Προσωπικό σας Προφίλ</strong>. Από εκεί μπορείτε να τη βλέπετε όποτε θέλετε.</p>';
+    $html .= '<div style="text-align:center;"><a href="' . esc_url($dashboard_url) . '" style="display:inline-block; margin-top:20px; background:#43282F; color:#fff; padding:15px 30px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:16px;">Προβολή Συνταγής στο Προφίλ μου &rarr;</a></div>';
+    $html .= '</div>';
+
     wp_send_json_success($html);
 }
