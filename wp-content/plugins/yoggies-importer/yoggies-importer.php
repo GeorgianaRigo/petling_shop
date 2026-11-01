@@ -244,9 +244,14 @@ function yoggies_xml_run_automated_sync() {
     if (!$xml) return;
     
     $items = $xml->xpath('//product');
+    $xml_skus = []; // [ΝΕΟ] Εδώ θα αποθηκεύσουμε όλα τα SKU που ΗΡΘΑΝ σήμερα από το XML
+
     foreach ($items as $item) {
         $sku = trim((string)$item->sku) ?: trim((string)$item->part_number);
         if (!$sku) continue;
+        
+        $xml_skus[] = $sku; // [ΝΕΟ] Καταγράφουμε το SKU ότι υπάρχει στο XML
+
         $product_id = wc_get_product_id_by_sku($sku);
         $reg = yoggies_parse_price($item->price);
         $raw_sale = yoggies_parse_price($item->sales_price);
@@ -298,8 +303,34 @@ function yoggies_xml_run_automated_sync() {
             if (!empty($image_link)) yoggies_upload_image_from_url($new_id, $image_link, $sku);
         }
     }
-}
 
+    // ============================================================================
+    // [ΝΕΟ] ΜΗΧΑΝΙΣΜΟΣ ZERO-STOCK ΓΙΑ ΤΑ ΠΡΟΪΟΝΤΑ ΠΟΥ ΑΦΑΙΡΕΘΗΚΑΝ ΑΠΟ ΤΟ XML
+    // ============================================================================
+    if (!empty($xml_skus)) {
+        global $wpdb;
+        // Βρίσκουμε όλα τα προϊόντα που έχουμε αποθηκεύσει στο παρελθόν ως Yoggies
+        $query = $wpdb->prepare("SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s", '_supplier_name', YOGGIES_SUPPLIER);
+        $yoggies_db_products = $wpdb->get_col($query);
+
+        foreach ($yoggies_db_products as $pid) {
+            $product = wc_get_product($pid);
+            if (!$product) continue;
+
+            $db_sku = $product->get_sku();
+            
+            // Αν το SKU του e-shop ΔΕΝ υπάρχει στη λίστα με τα σημερινά SKU του XML
+            if ($db_sku && !in_array($db_sku, $xml_skus)) {
+                // Αν έχει ήδη απόθεμα 0, το προσπερνάμε για οικονομία πόρων
+                if ($product->get_stock_quantity() > 0 || $product->get_stock_status() === 'instock') {
+                    $product->set_stock_quantity(0);
+                    $product->set_stock_status('outofstock');
+                    $product->save();
+                }
+            }
+        }
+    }
+}
 
 // ============================================================================
 // [ΝΕΟ] - ΑΠΟΜΟΝΩΜΕΝΗ ΛΕΙΤΟΥΡΓΙΑ ΕΝΗΜΕΡΩΣΗΣ ΑΠΟ COPY/PASTE
