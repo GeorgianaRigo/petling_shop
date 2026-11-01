@@ -444,7 +444,7 @@ function ptl_process_nutrition_ajax() {
 
 
 // =========================================================================
-// 8. RECIPE MAKER (PREMIUM REDIRECT LOGIC)
+// 8. RECIPE MAKER (PREMIUM REDIRECT & MEDICAL PROFILE SYNC)
 // =========================================================================
 function ptl_get_dynamic_recipe_options() {
     return array(
@@ -465,15 +465,67 @@ function ptl_recipe_maker_shortcode() {
     $r_data = ptl_get_dynamic_recipe_options();
     $is_logged = is_user_logged_in();
     $current_user = $is_logged ? wp_get_current_user() : null;
+    $user_id = $is_logged ? $current_user->ID : 0;
 
-    $html = '<style>.ptl-quiz-container { max-width: 650px; margin: 40px auto; background: #fffaf1; padding: 40px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; box-shadow: 0 5px 20px rgba(0,0,0,0.05); } .ptl-step { display: none; animation: fadeIn 0.4s; } .ptl-step.active { display: block; } .ptl-quiz-container h3 { color: #43282F; margin-top: 0; font-size: 24px; text-align: center; margin-bottom:10px; } .ptl-quiz-container p.ptl-desc { color: #555; font-size: 15px; margin-bottom: 25px; text-align: center; line-height: 1.5; } .ptl-quiz-container label.ptl-section-label { display: block; font-weight: bold; color: #43282F; margin-bottom: 8px; margin-top: 20px; font-size: 16px; border-bottom: 1px solid #e0d5c1; padding-bottom: 5px; } .ptl-quiz-container select, .ptl-quiz-container input[type="text"], .ptl-quiz-container input[type="email"], .ptl-quiz-container input[type="password"], .ptl-quiz-container textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 15px; margin-bottom: 10px; background: #fff; } .ptl-radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } .ptl-radio-group label { text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 15px; border-radius: 8px; cursor: pointer; } .ptl-radio-group input[type="radio"] { display: none; } .ptl-radio-group input[type="radio"]:checked + label { border-color: #C7B297; background: #F5EDE3; color: #43282F; font-weight: bold; } .ptl-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; } .ptl-checkbox-group label { flex: 1 1 calc(33% - 8px); text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 10px 5px; border-radius: 6px; cursor: pointer; font-size: 13px; margin:0; } .ptl-checkbox-group input[type="checkbox"] { display: none; } .ptl-checkbox-group input[type="checkbox"]:checked + label { border-color: #C7B297; background: #F5EDE3; font-weight: bold; } .ptl-quiz-nav { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; } .ptl-btn-prev { background: #e0d5c1; color: #43282F; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next, .ptl-btn-submit { background: #43282F; color: #fff; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next:hover, .ptl-btn-submit:hover { background: #C7B297; } .ptl-result-box { background:#fff; padding:25px; border-radius:8px; border:2px solid #C7B297; margin-top:20px; } .ptl-inline-error { background: #fff3f3; border-left: 4px solid #d63638; padding: 12px; color: #d63638; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>';
+    $has_unlocked = $is_logged ? get_user_meta($user_id, 'ptl_has_unlocked_recipes', true) : false;
+    $recipe_count = 0;
+    $saved_pets = [];
+    if ($is_logged) {
+        $user_recipes_query = new WP_Query(array('post_type' => 'ptl_quiz_lead', 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => array(array('key' => 'ptl_user_id', 'value' => $user_id), array('key' => 'ptl_lead_type', 'value' => 'HOME_COOKED_RECIPE'))));
+        $recipe_count = $user_recipes_query->found_posts;
+        // Ανάκτηση κατοικιδίων από το Ιατρικό Προφίλ
+        $saved_pets = get_user_meta($user_id, 'petling_pets', true);
+    }
+    $limit_reached = ($is_logged && !$has_unlocked && $recipe_count >= 2);
+    $checkout_url = wc_get_checkout_url() . '?add-to-cart=1016376';
+
+    $html = '<style>.ptl-quiz-container { max-width: 650px; margin: 40px auto; background: #fffaf1; padding: 40px; border-radius: 12px; border: 2px dashed #C7B297; font-family: sans-serif; box-shadow: 0 5px 20px rgba(0,0,0,0.05); } .ptl-step { display: none; animation: fadeIn 0.4s; } .ptl-step.active { display: block; } .ptl-quiz-container h3 { color: #43282F; margin-top: 0; font-size: 24px; text-align: center; margin-bottom:10px; } .ptl-quiz-container p.ptl-desc { color: #555; font-size: 15px; margin-bottom: 25px; text-align: center; line-height: 1.5; } .ptl-quiz-container label.ptl-section-label { display: block; font-weight: bold; color: #43282F; margin-bottom: 8px; margin-top: 20px; font-size: 16px; border-bottom: 1px solid #e0d5c1; padding-bottom: 5px; } .ptl-quiz-container select, .ptl-quiz-container input[type="text"], .ptl-quiz-container input[type="number"], .ptl-quiz-container input[type="email"], .ptl-quiz-container input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 15px; margin-bottom: 10px; background: #fff; } .ptl-radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } .ptl-radio-group label { text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 15px; border-radius: 8px; cursor: pointer; } .ptl-radio-group input[type="radio"] { display: none; } .ptl-radio-group input[type="radio"]:checked + label { border-color: #C7B297; background: #F5EDE3; color: #43282F; font-weight: bold; } .ptl-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; } .ptl-checkbox-group label { flex: 1 1 calc(33% - 8px); text-align: center; background: #fff; border: 2px solid #e0d5c1; padding: 10px 5px; border-radius: 6px; cursor: pointer; font-size: 13px; margin:0; } .ptl-checkbox-group input[type="checkbox"] { display: none; } .ptl-checkbox-group input[type="checkbox"]:checked + label { border-color: #C7B297; background: #F5EDE3; font-weight: bold; } .ptl-quiz-nav { display: flex; justify-content: space-between; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; } .ptl-btn-prev { background: #e0d5c1; color: #43282F; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next, .ptl-btn-submit { background: #43282F; color: #fff; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; } .ptl-btn-next:hover, .ptl-btn-submit:hover { background: #C7B297; } .ptl-result-box { background:#fff; padding:25px; border-radius:8px; border:2px solid #C7B297; margin-top:20px; } .ptl-inline-error { background: #fff3f3; border-left: 4px solid #d63638; padding: 12px; color: #d63638; border-radius: 4px; margin-bottom: 15px; display: none; font-size: 14px; } .ptl-paywall-banner { background: #fff3f3; border: 2px solid #d63638; border-radius: 8px; padding: 15px 20px; margin-bottom: 25px; text-align: center; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>';
     
     $html .= '<div class="ptl-quiz-container" id="ptl-recipe-app">';
+    if ($limit_reached) {
+        $html .= '<div class="ptl-paywall-banner">';
+        $html .= '<h4 style="margin:0 0 8px 0; color:#d63638; font-size:17px;">🔒 Έχετε φτάσει το όριο των 2 δωρεάν συνταγών</h4>';
+        $html .= '<p style="margin:0 0 12px 0; font-size:13px; color:#555;">Μπορείτε να περιηγηθείτε στα υλικά. Για να αποθηκεύσετε νέα συνταγή και να ξεκλειδώσετε τα Premium συστατικά, προχωρήστε σε αγορά.</p>';
+        $html .= '<a href="' . esc_url($checkout_url) . '" style="background:#43282F; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:14px; display:inline-block;">Ξεκλείδωμα με 9€ &rarr;</a>';
+        $html .= '</div>';
+    }
+
     $html .= '<div class="ptl-inline-error" id="ptl-general-error"></div>';
     $html .= '<form id="ptl-recipe-form">' . wp_nonce_field('ptl_recipe_nonce', 'security', true, false);
     
-    // ΒΗΜΑ 1
-    $html .= '<div class="ptl-step active" id="rec-step-1"><h3>🩺 Θέματα Υγείας</h3><p class="ptl-desc">Ο σκύλος σας έχει κάποιες ειδικές ευαισθησίες ή κλινικές ανάγκες;</p>';
+    // ΒΗΜΑ 1 - ΠΡΟΦΙΛ ΣΚΥΛΟΥ
+    $html .= '<div class="ptl-step active" id="rec-step-1"><h3>🐶 Το προφίλ του σκύλου σας</h3><p class="ptl-desc">Ας γνωριστούμε καλύτερα για να υπολογίσουμε σωστά τις μερίδες!</p>';
+    
+    if ($is_logged && !empty($saved_pets) && is_array($saved_pets)) {
+        $has_dogs = false;
+        $pet_options = '<option value="">-- Νέο Κατοικίδιο --</option>';
+        foreach($saved_pets as $p) {
+            if (($p['type'] ?? 'dog') !== 'dog') continue; 
+            $has_dogs = true;
+            $id = $p['id'] ?? ''; $w = $p['weight'] ?? ''; $n = $p['neutered'] ?? 'no'; $a = $p['energy'] ?? 'medium'; $s = 'adult'; 
+            if (!empty($p['birthday'])) {
+                $age_years = (time() - strtotime($p['birthday'])) / (365*24*60*60);
+                if ($age_years < 1) $s = 'puppy'; elseif ($age_years > 7) $s = 'senior';
+            }
+            $json = json_encode(['id'=>$id, 'nm'=>$p['name'], 'w'=>$w, 'nt'=>$n, 'act'=>$a, 'st'=>$s]);
+            $pet_options .= "<option value='" . esc_attr($json) . "'>🐾 " . esc_html($p['name']) . (!empty($w) ? " ({$w}kg)" : "") . "</option>";
+        }
+        if ($has_dogs) {
+            $html .= '<label class="ptl-section-label" style="margin-top:0;">Επιλογή Αποθηκευμένου:</label><select id="ptl-saved-pet-selector">' . $pet_options . '</select>';
+            $html .= '<hr style="margin:20px 0; border:0; border-top:1px dashed #e0d5c1;">';
+        }
+    }
+
+    $html .= '<input type="hidden" name="pet_id" id="rw_id" value="">';
+    $html .= '<label class="ptl-section-label" style="margin-top:0;">Όνομα Σκύλου:</label><input type="text" name="pet_name" id="rw_name" placeholder="π.χ. Μάιλο" required>';
+    $html .= '<label class="ptl-section-label">Βάρος (κιλά):</label><input type="number" step="0.1" name="pet_weight" id="rw_weight" placeholder="π.χ. 12.5" required>';
+    $html .= '<label class="ptl-section-label">Στάδιο Ζωής:</label><select name="pet_stage" id="rw_stage"><option value="adult">Ενήλικο</option><option value="puppy">Κουτάβι</option><option value="senior">Ηλικιωμένο</option></select>';
+    $html .= '<label class="ptl-section-label">Στειρωμένο:</label><select name="pet_neutered" id="rw_neutered"><option value="no">Όχι</option><option value="yes">Ναι</option></select>';
+    $html .= '<label class="ptl-section-label">Δραστηριότητα:</label><select name="pet_activity" id="rw_activity"><option value="medium">Κανονική (1 ώρα βόλτα/μέρα)</option><option value="low">Χαμηλή (Ήσυχο / Μέσα στο σπίτι)</option><option value="high">Υψηλή (Αθλητικό / Εργασίας)</option></select>';
+    $html .= '<div class="ptl-quiz-nav" style="justify-content: flex-end;"><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep1()">Επόμενο &rarr;</button></div></div>';
+
+    // ΒΗΜΑ 2 - ΥΓΕΙΑ
+    $html .= '<div class="ptl-step" id="rec-step-2"><h3>🩺 Θέματα Υγείας</h3><p class="ptl-desc">Υπάρχουν κάποιες ειδικές ευαισθησίες ή κλινικές ανάγκες;</p>';
     $html .= '<div class="ptl-radio-group">';
     $html .= '<input type="radio" id="health_none" name="health_tier" value="none" checked><label for="health_none">Κανένα πρόβλημα (Είναι υγιέστατος!)</label>';
     $html .= '<input type="radio" id="health_mild" name="health_tier" value="mild"><label for="health_mild">Ήπιες Ευαισθησίες (π.χ. Αλλεργία, Τρίχωμα, Αρθρώσεις)</label>';
@@ -490,57 +542,64 @@ function ptl_recipe_maker_shortcode() {
     
     $html .= '<input type="hidden" name="health_issue" id="legacy_health_issue" value="no">';
     $html .= '<input type="hidden" name="health_condition" id="legacy_health_condition" value="">';
-    $html .= '<div class="ptl-quiz-nav" style="justify-content: flex-end;"><button type="button" class="ptl-btn-next" onclick="ptlrSmartNextStep(2)">Επόμενο &rarr;</button></div></div>';
+    $html .= '<div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(1)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrSmartNextStep(3)">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 2
-    $html .= '<div class="ptl-step" id="rec-step-2"><h3>🍲 Υλικά Συνταγής</h3><label class="ptl-section-label">1. Κύρια Πρωτεΐνη (50% - 1 επιλογή)</label><select name="protein_1"><option value="" disabled selected>Επίλεξε...</option>';
+    // ΒΗΜΑ 3 - ΥΛΙΚΑ
+    $html .= '<div class="ptl-step" id="rec-step-3"><h3>🍲 Υλικά Συνταγής</h3><label class="ptl-section-label">1. Κύρια Πρωτεΐνη (Επιλέξτε 1)</label><select name="protein_1"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['proteins_1'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><label class="ptl-section-label">2. Δευτερεύουσα Πρωτεΐνη (5% - 1 επιλογή)</label><select name="protein_2"><option value="" disabled selected>Επίλεξε...</option>';
+    $html .= '</select><label class="ptl-section-label">2. Δευτερεύουσα Πρωτεΐνη</label><select name="protein_2"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['proteins_2'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><label class="ptl-section-label">3. 1η Πηγή Υδατάνθρακα (15% - 1 επιλογή)</label><select name="carb_1"><option value="" disabled selected>Επίλεξε...</option>';
+    $html .= '</select><label class="ptl-section-label">3. 1η Πηγή Υδατάνθρακα</label><select name="carb_1"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['carbs_1'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><label class="ptl-section-label">4. 2η Πηγή Υδατάνθρακα (10% - 1 επιλογή)</label><select name="carb_2"><option value="" disabled selected>Επίλεξε...</option>';
+    $html .= '</select><label class="ptl-section-label">4. 2η Πηγή Υδατάνθρακα</label><select name="carb_2"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['carbs_2'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><label class="ptl-section-label">5. Λαχανικά (13% - Ακριβώς 2)</label><div class="ptl-checkbox-group" id="ptl-veg-group">';
+    $html .= '</select><label class="ptl-section-label">5. Λαχανικά (Ακριβώς 2)</label><div class="ptl-checkbox-group" id="ptl-veg-group">';
     foreach($r_data['veggies'] as $i => $item) { $html .= '<input type="checkbox" id="veg_'.sanitize_title($item).'" name="veggies[]" value="'.esc_attr($item).'"><label for="veg_'.sanitize_title($item).'">'.esc_html($item).'</label>'; }
     $html .= '</div><p id="veg-error" style="color:red; font-size:12px; display:none;">Επιλέξτε ακριβώς 2 λαχανικά.</p>';
-    $html .= '<label class="ptl-section-label">6. Φρούτα (5% - 1 επιλογή)</label><select name="fruit"><option value="" disabled selected>Επίλεξε...</option>';
+    $html .= '<label class="ptl-section-label">6. Φρούτα</label><select name="fruit"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['fruits'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><label class="ptl-section-label">7. Έλαια (2% - 1 επιλογή)</label><select name="oil"><option value="" disabled selected>Επίλεξε...</option>';
+    $html .= '</select><label class="ptl-section-label">7. Έλαια</label><select name="oil"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['oils'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
-    $html .= '</select><div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(1)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep2()">Επόμενο &rarr;</button></div></div>';
+    $html .= '</select><div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(2)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep3()">Επόμενο &rarr;</button></div></div>';
     
-    // ΒΗΜΑ 3
-    $html .= '<div class="ptl-step" id="rec-step-3"><h3>📩 Ολοκλήρωση</h3>';
+    // ΒΗΜΑ 4 - ΟΛΟΚΛΗΡΩΣΗ
+    $html .= '<div class="ptl-step" id="rec-step-4"><h3>📩 Ολοκλήρωση</h3>';
     if ( $is_logged ) {
         $html .= '<div style="background:#eef7ee; padding:20px; border-radius:8px; border-left:4px solid #5b9a68; margin-bottom:20px;">';
         $html .= '<p style="margin:0; font-size:15px; color:#333;">Συνδεδεμένος λογαριασμός: <strong>' . esc_html($current_user->display_name) . '</strong>.</p>';
-        $html .= '<p style="margin:5px 0 0 0; font-size:13px; color:#666;">Η συνταγή είναι έτοιμη για αποθήκευση στο προφίλ σας!</p></div>';
+        $html .= '<p style="margin:5px 0 0 0; font-size:13px; color:#666;">Η συνταγή θα αποθηκευτεί στο προφίλ σας!</p></div>';
         $html .= '<input type="hidden" name="user_name" value="' . esc_attr($current_user->display_name) . '">';
         $html .= '<input type="hidden" name="user_email" value="' . esc_attr($current_user->user_email) . '">';
     } else {
         $html .= '<p class="ptl-desc" style="margin-bottom:15px;">Συμπληρώστε τα στοιχεία σας για να αποθηκεύσουμε τη συνταγή!</p>
-        <label>Όνοματεπώνυμο:</label><input type="text" name="user_name" required>
+        <label>Όνοματεπώνυμο Ιδιοκτήτη:</label><input type="text" name="user_name" required>
         <label>Email:</label><input type="email" name="user_email" required>
         <label>Κωδικός Πρόσβασης:</label><input type="password" name="user_password" required>
         <p style="font-size:12px; color:#666; margin-top:5px; line-height:1.4;">Δημιουργήστε έναν κωδικό. Αν έχετε ήδη λογαριασμό, βάλτε τον κωδικό σας και θα συνδεθείτε αυτόματα.</p>';
     }
-    $html .= '<div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(2)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">Ολοκλήρωση!</button></div></div>';
+    $html .= '<div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(3)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">Ολοκλήρωση!</button></div></div>';
     
-    // LOADING
-    $html .= '<div class="ptl-step" id="rec-step-loading" style="text-align:center; padding: 40px 10px;">
-        <h3 id="loading-title">⚙️ Ετοιμάζουμε τη συνταγή σας...</h3>
-        <div style="width:100%; background:#e0d5c1; border-radius:10px; height:20px; overflow:hidden; margin:30px 0; border: 1px solid #C7B297;">
-            <div id="ptl-loading-progress" style="width:0%; background:#43282F; height:100%; transition:width 0.8s ease-in-out;"></div>
-        </div>
-        <p id="loading-desc" style="font-size: 14px; color: #888;">Παρακαλώ περιμένετε...</p>
-    </div>';
-
-    // ΑΠΟΤΕΛΕΣΜΑ
+    // LOADING & ΑΠΟΤΕΛΕΣΜΑ
+    $html .= '<div class="ptl-step" id="rec-step-loading" style="text-align:center; padding: 40px 10px;"><h3 id="loading-title">⚙️ Ετοιμάζουμε τη συνταγή...</h3><div style="width:100%; background:#e0d5c1; border-radius:10px; height:20px; overflow:hidden; margin:30px 0; border: 1px solid #C7B297;"><div id="ptl-loading-progress" style="width:0%; background:#43282F; height:100%; transition:width 0.8s ease-in-out;"></div></div><p id="loading-desc" style="font-size: 14px; color: #888;">Υπολογισμός μερίδων...</p></div>';
     $html .= '<div class="ptl-step" id="rec-step-result"><div id="ptl-recipe-content"></div><div style="text-align:center; margin-top:30px;"><button type="button" class="ptl-btn-prev" onclick="location.reload();">Επανεκκίνηση</button></div></div></form></div>';
     
     $ajax_url = admin_url( 'admin-ajax.php' );
     $html .= "<script>
+        jQuery('#ptl-saved-pet-selector').on('change', function(){
+            var val = jQuery(this).val();
+            if(val) {
+                var data = JSON.parse(val);
+                if(data.id) jQuery('#rw_id').val(data.id);
+                if(data.nm) jQuery('#rw_name').val(data.nm);
+                if(data.w) jQuery('#rw_weight').val(data.w);
+                if(data.st) jQuery('#rw_stage').val(data.st);
+                if(data.nt) jQuery('#rw_neutered').val(data.nt);
+                if(data.act) jQuery('#rw_activity').val(data.act);
+            } else {
+                jQuery('#rw_id').val(''); jQuery('#rw_name').val(''); jQuery('#rw_weight').val('');
+            }
+        });
+
         jQuery('#ptl-recipe-app input[name=\"health_tier\"]').on('change', function(){ 
             var val = jQuery(this).val();
             if (val === 'mild') { jQuery('#ptl-health-mild-box').slideDown(); jQuery('#ptl-health-clinical-box').slideUp(); jQuery('#legacy_health_issue').val('no'); } 
@@ -557,51 +616,51 @@ function ptl_recipe_maker_shortcode() {
             jQuery('#ptl-recipe-app .ptl-step').removeClass('active'); 
             jQuery('#ptl-recipe-app #rec-step-' + step).addClass('active'); 
         }
+
+        function ptlrValidateStep1() {
+            var n = jQuery('#rw_name').val();
+            var w = jQuery('#rw_weight').val();
+            if(!n) { alert('Παρακαλώ συμπληρώστε το όνομα του σκύλου.'); return; }
+            if(!w || w <= 0) { alert('Παρακαλώ συμπληρώστε το βάρος του σκύλου.'); return; }
+            ptlrNextStep(2);
+        }
         
         function ptlrSmartNextStep(step) { 
             var tier = jQuery('#ptl-recipe-app input[name=\"health_tier\"]:checked').val(); 
             if (tier === 'mild' && !jQuery('select[name=\"health_condition_mild\"]').val()) { alert('Επιλέξτε την ευαισθησία.'); return; }
             if (tier === 'clinical' && !jQuery('select[name=\"health_condition_clinical\"]').val()) { alert('Επιλέξτε την κλινική πάθηση.'); return; }
-            if (step === 2 && tier === 'clinical') { step = 3; } 
+            if (step === 3 && tier === 'clinical') { step = 4; } 
             ptlrNextStep(step); 
         }
 
         function ptlrSmartPrevStep(step) { 
             var tier = jQuery('#ptl-recipe-app input[name=\"health_tier\"]:checked').val(); 
-            if (step === 2 && tier === 'clinical') { step = 1; } 
+            if (step === 3 && tier === 'clinical') { step = 2; } 
             ptlrNextStep(step); 
         }
 
         jQuery('#ptl-veg-group input[type=\"checkbox\"]').on('change', function() { if(jQuery('#ptl-veg-group input[type=\"checkbox\"]:checked').length > 2) { this.checked = false; } });
         
-        function ptlrValidateStep2() { 
+        function ptlrValidateStep3() { 
             var valid = true; 
-            jQuery('#ptl-recipe-app #rec-step-2 select').each(function() { if(!jQuery(this).val()) valid = false; }); 
+            jQuery('#ptl-recipe-app #rec-step-3 select').each(function() { if(!jQuery(this).val()) valid = false; }); 
             var vegCount = jQuery('#ptl-veg-group input[type=\"checkbox\"]:checked').length; 
             if (vegCount !== 2) { jQuery('#veg-error').show(); valid = false; } else { jQuery('#veg-error').hide(); } 
             if(!valid) { alert('Συμπληρώστε όλα τα πεδία.'); return; } 
-            ptlrNextStep(3); 
+            ptlrNextStep(4); 
         }
 
         jQuery('#ptl-recipe-form').on('submit', function(e){
             e.preventDefault(); 
             var formData = jQuery(this).serialize(); 
-            
-            jQuery('#ptl-recipe-app .ptl-step').removeClass('active'); 
-            jQuery('#rec-step-loading').addClass('active');
-            
+            jQuery('#ptl-recipe-app .ptl-step').removeClass('active'); jQuery('#rec-step-loading').addClass('active');
             var ajaxCall = jQuery.post('{$ajax_url}', formData + '&action=ptl_process_recipe');
-            
             var progress = 0;
-            var progressInterval = setInterval(function() {
-                progress += 20; 
-                if(progress <= 100) { jQuery('#ptl-loading-progress').css('width', progress + '%'); }
-            }, 800); 
+            var progressInterval = setInterval(function() { progress += 20; if(progress <= 100) { jQuery('#ptl-loading-progress').css('width', progress + '%'); } }, 800); 
             
             setTimeout(function() {
                 clearInterval(progressInterval);
                 jQuery('#ptl-loading-progress').css('width', '100%');
-                
                 ajaxCall.done(function(response) {
                     if(response.success) { 
                         if (response.data && response.data.redirect) {
@@ -609,19 +668,15 @@ function ptl_recipe_maker_shortcode() {
                             jQuery('#loading-desc').html('Ξεκλειδώστε την Premium Συνταγή σας!');
                             window.location.href = response.data.redirect;
                         } else {
-                            jQuery('#rec-step-loading').removeClass('active');
-                            jQuery('#rec-step-result').addClass('active');
-                            jQuery('#ptl-recipe-content').html(response.data); 
+                            jQuery('#rec-step-loading').removeClass('active'); jQuery('#rec-step-result').addClass('active'); jQuery('#ptl-recipe-content').html(response.data); 
                         }
                     } else { 
-                        jQuery('#rec-step-loading').removeClass('active');
-                        jQuery('#rec-step-3').addClass('active');
+                        jQuery('#rec-step-loading').removeClass('active'); jQuery('#rec-step-4').addClass('active');
                         jQuery('#ptl-general-error').html(response.data).show();
                         window.scrollTo({ top: jQuery('#ptl-recipe-app').offset().top - 40, behavior: 'smooth' });
                     }
                 }).fail(function() { 
-                    jQuery('#rec-step-loading').removeClass('active');
-                    jQuery('#rec-step-3').addClass('active');
+                    jQuery('#rec-step-loading').removeClass('active'); jQuery('#rec-step-4').addClass('active');
                     jQuery('#ptl-general-error').html('Υπήρξε σφάλμα σύνδεσης. Δοκιμάστε ξανά.').show();
                 });
             }, 4000); 
@@ -635,13 +690,18 @@ add_action('wp_ajax_nopriv_ptl_process_recipe', 'ptl_process_recipe_ajax');
 function ptl_process_recipe_ajax() {
     check_ajax_referer('ptl_recipe_nonce', 'security');
     
+    // Νέα Πεδία Σκύλου
+    $pet_id       = sanitize_text_field($_POST['pet_id'] ?? '');
+    $pet_name     = sanitize_text_field($_POST['pet_name'] ?? '');
+    $pet_weight   = floatval($_POST['pet_weight'] ?? 0);
+    $pet_stage    = sanitize_text_field($_POST['pet_stage'] ?? 'adult');
+    $pet_neutered = sanitize_text_field($_POST['pet_neutered'] ?? 'no');
+    $pet_activity = sanitize_text_field($_POST['pet_activity'] ?? 'medium');
+
     $health_tier = sanitize_text_field($_POST['health_tier'] ?? 'none'); 
     $health_condition = '';
-    if ($health_tier === 'clinical') {
-        $health_condition = sanitize_text_field($_POST['health_condition_clinical'] ?? '');
-    } elseif ($health_tier === 'mild') {
-        $health_condition = sanitize_text_field($_POST['health_condition_mild'] ?? '');
-    }
+    if ($health_tier === 'clinical') { $health_condition = sanitize_text_field($_POST['health_condition_clinical'] ?? ''); } 
+    elseif ($health_tier === 'mild') { $health_condition = sanitize_text_field($_POST['health_condition_mild'] ?? ''); }
     
     $new_account = false;
     if ( is_user_logged_in() ) {
@@ -659,8 +719,7 @@ function ptl_process_recipe_ajax() {
         if ($user_id) {
             $user = get_user_by('email', $user_email);
             if ($user && wp_check_password($user_password, $user->user_pass, $user->ID)) {
-                wp_set_current_user($user->ID);
-                wp_set_auth_cookie($user->ID);
+                wp_set_current_user($user->ID); wp_set_auth_cookie($user->ID);
             } else {
                 wp_send_json_error('Το email υπάρχει ήδη. Παρακαλώ εισάγετε τον σωστό κωδικό σας ή κάντε επαναφορά κωδικού.');
             }
@@ -668,12 +727,68 @@ function ptl_process_recipe_ajax() {
             $user_id = wp_create_user($user_email, $user_password, $user_email);
             if (is_wp_error($user_id)) wp_send_json_error('Σφάλμα: ' . $user_id->get_error_message());
             wp_update_user(['ID' => $user_id, 'first_name' => $user_name]);
-            wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
+            wp_set_current_user($user_id); wp_set_auth_cookie($user_id);
             $new_account = true;
         }
     }
     
+    // --- ΑΝΤΙΣΤΟΙΧΙΣΗ ΠΑΘΗΣΗΣ ΜΕ ΙΑΤΡΙΚΟ ΠΡΟΦΙΛ ---
+    $health_map = array(
+        'Τροφική Αλλεργία / Δερματικά' => 'allergies',
+        'Ευαίσθητο Στομάχι / Αέρια' => 'gastrointestinal',
+        'Ευαίσθητες Αρθρώσεις' => 'arthritis',
+        'Τάση για παχυσαρκία / Στειρωμένο' => 'obesity',
+        'Γαστρεντερικά / ΙΦΝΕ' => 'gastrointestinal',
+        'Νεφρική Ανεπάρκεια' => 'kidney',
+        'Ουροποιητικό (Κρύσταλλοι/Πέτρες)' => 'urinary',
+        'Σακχαρώδης Διαβήτης' => 'thyroid_diabetes',
+        'Λεϊσμανίαση (Καλαζάρ)' => 'leishmaniasis'
+    );
+    $mapped_health = isset($health_map[$health_condition]) ? $health_map[$health_condition] : '';
+
+    // --- ΕΝΗΜΕΡΩΣΗ ΤΟΥ ΙΑΤΡΙΚΟΥ ΠΡΟΦΙΛ (PETLING_PETS) ---
+    $saved_pets = get_user_meta($user_id, 'petling_pets', true);
+    if (!is_array($saved_pets)) $saved_pets = [];
+    $pet_found = false;
+
+    if (!empty($pet_id)) {
+        foreach ($saved_pets as &$p) {
+            if (isset($p['id']) && $p['id'] === $pet_id) {
+                $p['name'] = $pet_name;
+                $p['weight'] = $pet_weight;
+                $p['neutered'] = $pet_neutered;
+                $p['energy'] = $pet_activity;
+                if (!isset($p['health']) || !is_array($p['health'])) $p['health'] = [];
+                if ($mapped_health && !in_array($mapped_health, $p['health'])) {
+                    $p['health'][] = $mapped_health;
+                }
+                $pet_found = true;
+                break;
+            }
+        }
+    }
+    // Αν είναι εντελώς νέο σκυλί
+    if (!$pet_found) {
+        $bday = '';
+        if ($pet_stage === 'puppy') $bday = date('Y-m-d', strtotime('-6 months'));
+        elseif ($pet_stage === 'senior') $bday = date('Y-m-d', strtotime('-8 years'));
+        else $bday = date('Y-m-d', strtotime('-3 years'));
+
+        $new_pet = array(
+            'id' => uniqid('pet_'),
+            'name' => $pet_name,
+            'type' => 'dog',
+            'birthday' => $bday,
+            'energy' => $pet_activity,
+            'weight' => $pet_weight,
+            'neutered' => $pet_neutered,
+            'health' => $mapped_health ? array($mapped_health) : array()
+        );
+        $saved_pets[] = $new_pet;
+    }
+    update_user_meta($user_id, 'petling_pets', $saved_pets);
+
+    // VET LOGIC
     global $wpdb; 
     $promo_table = $wpdb->prefix . 'petling_partner_leads'; 
     $table_exists = ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table); 
@@ -711,25 +826,19 @@ function ptl_process_recipe_ajax() {
     $is_premium = (strpos($p1, '🔒') !== false || strpos($p2, '🔒') !== false || strpos($c1, '🔒') !== false || strpos($c2, '🔒') !== false || strpos($veg_str, '🔒') !== false || strpos($fruit, '🔒') !== false || strpos($oil, '🔒') !== false);
     $needs_payment = (!$has_unlocked && ($recipe_count >= 2 || $is_premium));
 
-    // Καθαρισμός των λουκέτων για την αποθήκευση στο DB/PDF
-    $p1 = trim(str_replace('🔒', '', $p1));
-    $p2 = trim(str_replace('🔒', '', $p2));
-    $c1 = trim(str_replace('🔒', '', $c1));
-    $c2 = trim(str_replace('🔒', '', $c2));
-    $fruit = trim(str_replace('🔒', '', $fruit));
-    $oil = trim(str_replace('🔒', '', $oil));
-    $veg_str = trim(str_replace('🔒', '', $veg_str));
+    // Καθαρισμός των λουκέτων για την αποθήκευση
+    $p1 = trim(str_replace('🔒', '', $p1)); $p2 = trim(str_replace('🔒', '', $p2)); $c1 = trim(str_replace('🔒', '', $c1)); $c2 = trim(str_replace('🔒', '', $c2)); $fruit = trim(str_replace('🔒', '', $fruit)); $oil = trim(str_replace('🔒', '', $oil));
+    $clean_veggies = array_map(function($v) { return trim(str_replace('🔒', '', $v)); }, $veggies);
+    $veg_str = implode(' & ', $clean_veggies);
 
-    $new_signature = md5($p1 . '|' . $p2 . '|' . $c1 . '|' . $c2 . '|' . $veg_str . '|' . $fruit . '|' . $oil);
+    $new_signature = md5($p1 . '|' . $p2 . '|' . $c1 . '|' . $c2 . '|' . $veg_str . '|' . $fruit . '|' . $oil . '|' . $pet_weight);
     
-    // Έλεγχος αν έχει φτιάξει ΗΔΗ την ίδια.
     $existing_posts = get_posts(array('post_type' => 'ptl_quiz_lead', 'post_status' => 'publish', 'posts_per_page' => -1, 'meta_query' => array(array('key' => 'ptl_user_id', 'value' => $user_id), array('key' => 'ptl_lead_type', 'value' => 'HOME_COOKED_RECIPE'))));
     foreach ($existing_posts as $post_item) {
         $saved_signature = get_post_meta($post_item->ID, 'ptl_recipe_signature', true);
         $is_locked = get_post_meta($post_item->ID, 'ptl_locked_recipe', true);
         if ($saved_signature === $new_signature) {
             if ($is_locked === 'yes' && $needs_payment) {
-                // Την έχει φτιάξει, αλλά είναι κλειδωμένη. Τον στέλνουμε κατευθείαν στο Checkout!
                 $checkout_url = wc_get_checkout_url() . '?add-to-cart=1016376';
                 wp_send_json_success(array('redirect' => $checkout_url));
                 exit;
@@ -739,11 +848,12 @@ function ptl_process_recipe_ajax() {
         }
     }
 
+    // Υπολογισμός με τα επιστημονικά ποσοστά της Μανωλάκου
     $total_g = 300; 
     $g_p1 = round($total_g * 0.50); $g_p2 = round($total_g * 0.05); $g_c1 = round($total_g * 0.15); $g_c2 = round($total_g * 0.10); $g_veg = round($total_g * 0.13); $g_fruit = round($total_g * 0.05); $g_oil = round($total_g * 0.02);
+
     $recipe_summary_text = "{$g_p1}γρ {$p1} / {$g_p2}γρ {$p2} / {$g_c1}γρ {$c1} / {$g_c2}γρ {$c2} / {$g_veg}γρ {$veg_str} / {$g_fruit}γρ {$fruit} / {$g_oil}γρ {$oil}";
     
-    // Αποθήκευση στο DB ΠΑΝΤΑ (ώστε να μη χαθεί ο κόπος του)
     $pid = wp_insert_post(array('post_title' => $user_email . ' - Recipe ' . uniqid(), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
     update_post_meta($pid, 'ptl_lead_name', sanitize_text_field($user_name));
     update_post_meta($pid, 'ptl_lead_type', 'HOME_COOKED_RECIPE');
@@ -752,10 +862,12 @@ function ptl_process_recipe_ajax() {
     update_post_meta($pid, 'ptl_recipe_signature', $new_signature);
     if (!empty($health_condition)) update_post_meta($pid, 'ptl_health_condition', $health_condition);
 
-    $recipe_data_array = array('p1' => $p1, 'p2' => $p2, 'c1' => $c1, 'c2' => $c2, 'veggies' => $veggies, 'fruit' => $fruit, 'oil' => $oil, 'total_g' => $total_g);
+    $recipe_data_array = array(
+        'p1' => $p1, 'p2' => $p2, 'c1' => $c1, 'c2' => $c2, 'veggies' => $clean_veggies, 'fruit' => $fruit, 'oil' => $oil, 'total_g' => $total_g,
+        'pet_name' => $pet_name, 'pet_weight' => $pet_weight, 'pet_stage' => $pet_stage, 'pet_neutered' => $pet_neutered, 'pet_activity' => $pet_activity
+    );
     update_post_meta($pid, 'ptl_recipe_data', json_encode($recipe_data_array, JSON_UNESCAPED_UNICODE));
     
-    // Αν χρειάζεται πληρωμή, κλειδώνουμε τη συνταγή και στέλνουμε redirect link!
     if ($needs_payment) {
         update_post_meta($pid, 'ptl_locked_recipe', 'yes');
         $checkout_url = wc_get_checkout_url() . '?add-to-cart=1016376';
@@ -763,9 +875,8 @@ function ptl_process_recipe_ajax() {
         exit;
     }
     
-    // Αλλιώς προχωράμε κανονικά
     $dashboard_url = home_url('/diatrofi/'); 
-    $html = '<h3>🎉 Η Συνταγή σας είναι έτοιμη!</h3>';
+    $html = '<h3>🎉 Η Συνταγή για τον/την '.esc_html($pet_name).' είναι έτοιμη!</h3>';
     $html .= '<div class="ptl-result-box" style="text-align:left;">';
     if ($new_account) {
         $html .= '<div style="background:#eef7ee; color:#5b9a68; border-left:4px solid #5b9a68; padding:15px; margin-bottom:20px; font-size:14px;">✅ <strong>Ο λογαριασμός σας δημιουργήθηκε επιτυχώς!</strong> Έχετε ήδη συνδεθεί.</div>';
@@ -808,7 +919,7 @@ function ptl_custom_recipes_link( $url, $endpoint, $value, $permalink ) {
 
 
 // =========================================================================
-// 10. CUSTOM USER DASHBOARD SHORTCODE (EXPANDABLE, PAGER & NEW RECIPE)
+// 10. CUSTOM USER DASHBOARD SHORTCODE (EXPANDABLE, PAGER & PERSONALIZED)
 // =========================================================================
 
 add_shortcode('petling_user_dashboard', 'ptl_custom_user_dashboard_shortcode');
@@ -883,6 +994,9 @@ function ptl_custom_user_dashboard_shortcode() {
                             <option value="Κοτόπουλο">Κοτόπουλο</option>
                             <option value="Γαλοπούλα">Γαλοπούλα</option>
                             <option value="Αρνί">Αρνί</option>
+                            <option value="Μοσχάρι">Μοσχάρι</option>
+                            <option value="Σολομός">Σολομός</option>
+                            <option value="Πάπια">Πάπια</option>
                         </select>
                     </div>
                 </div>
@@ -904,6 +1018,11 @@ function ptl_custom_user_dashboard_shortcode() {
 
                 if ( $recipes->have_posts() ) {
                     $recipe_counter = 1;
+                    
+                    $stage_map = ['puppy' => 'Κουτάβι', 'adult' => 'Ενήλικο', 'senior' => 'Ηλικιωμένο'];
+                    $neut_map  = ['yes' => 'Στειρωμένο', 'no' => 'Μη Στειρωμένο'];
+                    $act_map   = ['low' => 'Χαμηλή Δραστηριότητα', 'medium' => 'Κανονική Δραστηριότητα', 'high' => 'Υψηλή Δραστηριότητα'];
+
                     while ( $recipes->have_posts() ) {
                         $recipes->the_post();
                         $post_id = get_the_ID();
@@ -935,15 +1054,26 @@ function ptl_custom_user_dashboard_shortcode() {
                             $total_g = isset($data['total_g']) ? floatval($data['total_g']) : 300;
                             $veg_str = is_array($data['veggies']) ? implode(' & ', $data['veggies']) : $data['veggies'];
                             
+                            $p_name   = isset($data['pet_name']) && !empty($data['pet_name']) ? esc_html($data['pet_name']) : 'τον σκύλο σας';
+                            $p_weight = isset($data['pet_weight']) ? floatval($data['pet_weight']) : '-';
+                            $p_stage  = isset($data['pet_stage'], $stage_map[$data['pet_stage']]) ? $stage_map[$data['pet_stage']] : 'Ενήλικο';
+                            $p_neut   = isset($data['pet_neutered'], $neut_map[$data['pet_neutered']]) ? $neut_map[$data['pet_neutered']] : 'Μη Στειρωμένο';
+                            $p_act    = isset($data['pet_activity'], $act_map[$data['pet_activity']]) ? $act_map[$data['pet_activity']] : 'Κανονική Δραστηριότητα';
+                            
+                            $pet_profile_text = "{$p_stage}, {$p_neut} ({$p_weight} kg) - {$p_act}";
+                            $title_text = "Συνταγή για τον/την {$p_name} (με {$protein})";
+
                             $g_p1 = round($total_g * 0.50); $g_p2 = round($total_g * 0.05); $g_c1 = round($total_g * 0.15); $g_c2 = round($total_g * 0.10); $g_veg = round($total_g * 0.13); $g_fruit = round($total_g * 0.05); $g_oil = round($total_g * 0.02);
 
                             echo '<div class="ptl-recipe-card" data-protein="' . esc_attr($protein) . '">';
                             echo '<div class="ptl-recipe-header" onclick="ptlToggleCard(this)">';
-                            echo '<span class="ptl-recipe-title">🥩 Συνταγή με ' . esc_html($protein) . ' <span style="font-size:12px; font-weight:normal; color:#777;">(' . $total_g . 'γρ.)</span></span>';
+                            echo '<span class="ptl-recipe-title">🥩 ' . esc_html($title_text) . '</span>';
                             echo '<div style="display:flex; align-items:center; gap:12px;"><span style="font-size:12px; color:#888;">' . $recipe_date . '</span><span class="ptl-recipe-arrow">▼</span></div>';
                             echo '</div>';
                             echo '<div class="ptl-recipe-body">';
-                            echo '<ul style="list-style:none; padding:15px 0 10px 0; margin:0 0 15px 0; font-size:14px;">';
+                            echo '<p style="font-size:12px; color:#666; margin:0 0 15px 0; font-style:italic;">Εξατομικευμένη για: ' . esc_html($pet_profile_text) . '</p>';
+                            echo '<p style="font-size:14px; font-weight:bold; color:#43282F; border-bottom:1px solid #e0d5c1; padding-bottom:5px;">Ημερήσια Ποσότητα: ' . $total_g . 'γρ.</p>';
+                            echo '<ul style="list-style:none; padding:5px 0 10px 0; margin:0 0 15px 0; font-size:14px;">';
                             echo '<li style="padding:4px 0; border-bottom:1px solid #eee;">🥩 <strong>'.$g_p1.'γρ</strong> '.esc_html($data['p1']).'</li>';
                             echo '<li style="padding:4px 0; border-bottom:1px solid #eee;">🥚 <strong>'.$g_p2.'γρ</strong> '.esc_html($data['p2']).'</li>';
                             echo '<li style="padding:4px 0; border-bottom:1px solid #eee;">🌾 <strong>'.$g_c1.'γρ</strong> '.esc_html($data['c1']).'</li>';
@@ -961,8 +1091,9 @@ function ptl_custom_user_dashboard_shortcode() {
                             echo '<h2 style="color:#43282F; margin:0; font-size:22px;">Σπιτική Συνταγή Σκύλου</h2>';
                             echo '<p style="color:#666; margin:5px 0 0 0; font-size:13px;">Εξατομικευμένο πρόγραμμα από το Petling</p>';
                             echo '</div>';
-                            echo '<h3 style="color:#43282F; margin-top:0;">Προτεινόμενο Γεύμα με ' . esc_html($data['p1']) . '</h3>';
-                            echo '<p style="font-size:14px; font-weight:bold; margin-bottom: 15px;">Ημερήσια Ποσότητα: ' . $total_g . ' γραμμάρια</p>';
+                            echo '<h3 style="color:#43282F; margin-top:0;">Προτεινόμενο Γεύμα για τον/την ' . esc_html($p_name) . ' (με ' . esc_html($data['p1']) . ')</h3>';
+                            echo '<p style="font-size:13px; color:#555; margin:0 0 10px 0; font-style:italic;">Προφίλ: ' . esc_html($pet_profile_text) . '</p>';
+                            echo '<p style="font-size:15px; font-weight:bold; margin-bottom: 15px; padding-bottom:5px; border-bottom:1px solid #C7B297; display:inline-block;">Συνολική Ημερήσια Ποσότητα: ' . $total_g . ' γραμμάρια</p>';
                             echo '<ul style="list-style:none; padding:0; margin:0 0 30px 0; font-size:15px; color:#333;">';
                             echo '<li style="padding:8px 0; border-bottom:1px solid #eee;">🥩 <strong>'.$g_p1.'γρ</strong> '.esc_html($data['p1']).'</li>';
                             echo '<li style="padding:8px 0; border-bottom:1px solid #eee;">🥚 <strong>'.$g_p2.'γρ</strong> '.esc_html($data['p2']).'</li>';
