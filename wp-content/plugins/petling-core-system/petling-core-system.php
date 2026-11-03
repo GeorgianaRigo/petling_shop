@@ -105,16 +105,35 @@ function ptl_add_tabs_to_cpt_lead_views( $views ) {
 
 
 // =========================================================================
-// 4. CRM LEADS (ΛΙΣΤΑ ΠΕΛΑΤΩΝ) - ΣΤΗΛΕΣ ΚΑΙ ΛΕΙΤΟΥΡΓΙΕΣ
+// 4. CRM LEADS (ΛΙΣΤΑ ΠΕΛΑΤΩΝ) - ΣΤΗΛΕΣ, ΦΙΛΤΡΑ ΚΑΙ ΛΕΙΤΟΥΡΓΙΕΣ
 // =========================================================================
 add_filter('manage_ptl_quiz_lead_posts_columns', 'ptl_set_custom_lead_columns');
 function ptl_set_custom_lead_columns($columns) {
-    return array( 'cb' => $columns['cb'], 'title' => 'Email Χρήστη', 'ptl_name' => 'Όνοματεπώνυμο', 'ptl_type' => 'Πηγή (Quiz / Συνεργάτης)', 'ptl_result' => 'Αποτέλεσμα / Κωδικός', 'ptl_status' => 'Κατάσταση', 'date' => $columns['date'] );
+    // Σπάμε τη στήλη σε "ID Εγγραφής" (title) και "Email Πελάτη" (ptl_email)
+    return array( 
+        'cb' => $columns['cb'], 
+        'title' => 'ID Εγγραφής', 
+        'ptl_email' => 'Email Πελάτη', 
+        'ptl_name' => 'Όνοματεπώνυμο', 
+        'ptl_type' => 'Πηγή', 
+        'ptl_result' => 'Αποτέλεσμα / Κωδικός', 
+        'ptl_status' => 'Κατάσταση', 
+        'date' => $columns['date'] 
+    );
 }
 
 add_action('manage_ptl_quiz_lead_posts_custom_column', 'ptl_custom_lead_column', 10, 2);
 function ptl_custom_lead_column($column, $post_id) {
     switch ($column) {
+        case 'ptl_email': 
+            // Προς τα πίσω συμβατότητα: Αν δεν υπάρχει το νέο meta, το τραβάμε από τον παλιό τίτλο
+            $email = get_post_meta($post_id, 'ptl_lead_email', true);
+            if (!$email) {
+                $title_parts = explode(' - ', get_the_title($post_id));
+                $email = is_email($title_parts[0]) ? $title_parts[0] : '-';
+            }
+            echo '<strong><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></strong>'; 
+            break;
         case 'ptl_name': echo esc_html(get_post_meta($post_id, 'ptl_lead_name', true)); break;
         case 'ptl_type':
             $type = get_post_meta($post_id, 'ptl_lead_type', true);
@@ -140,28 +159,72 @@ function ptl_custom_lead_column($column, $post_id) {
             break;
         case 'ptl_status':
             global $wpdb;
-            $email = get_the_title($post_id);
+            
+            // Βρίσκουμε το email για να ελέγξουμε τα κουπόνια
+            $email = get_post_meta($post_id, 'ptl_lead_email', true);
+            if (!$email) {
+                $title_parts = explode(' - ', get_the_title($post_id));
+                $email = is_email($title_parts[0]) ? $title_parts[0] : '';
+            }
+
             $promo_table = $wpdb->prefix . 'petling_partner_leads';
-            if ($wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table) {
+            if (!empty($email) && $wpdb->get_var("SHOW TABLES LIKE '$promo_table'") === $promo_table) {
                 $promo = $wpdb->get_row($wpdb->prepare("SELECT status FROM $promo_table WHERE email = %s ORDER BY created_at DESC LIMIT 1", $email));
                 if ($promo) {
                     if ($promo->status === 'redeemed') { echo '<span style="display:inline-block; padding:4px 8px; background:#f0f0f0; color:#555; border-radius:4px; font-size:11px; border:1px solid #ccc;">✔️ Εξαργυρώθηκε</span>'; } 
                     else { echo '<span style="display:inline-block; padding:4px 8px; background:#eef7ee; color:#5b9a68; border-radius:4px; font-size:11px; border:1px solid #5b9a68;">🟢 Ενεργό Κουπόνι</span>'; }
                 } else { echo '<span style="color:#999;">-</span>'; }
-            }
+            } else { echo '<span style="color:#999;">-</span>'; }
             break;
     }
 }
 
+// Δημιουργία της εγγραφής (Προσθήκη του ptl_lead_email)
 function ptl_save_quiz_lead_data($email, $name, $type, $result) {
-    $existing_post = get_page_by_title($email, OBJECT, 'ptl_quiz_lead');
-    $post_id = $existing_post ? $existing_post->ID : wp_insert_post(array('post_title' => $email, 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
+    // Σώζουμε πλέον το email σε meta, και ο τίτλος είναι απλά ένα ID
+    $post_title = 'Lead #' . strtoupper(substr(md5(uniqid()), 0, 6));
+    $post_id = wp_insert_post(array('post_title' => $post_title, 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
+    update_post_meta($post_id, 'ptl_lead_email', sanitize_email($email));
     update_post_meta($post_id, 'ptl_lead_name', sanitize_text_field($name));
     update_post_meta($post_id, 'ptl_lead_type', sanitize_text_field($type));
     update_post_meta($post_id, 'ptl_lead_result', sanitize_text_field($result));
     return $post_id;
 }
 
+// DROPDOWN ΦΙΛΤΡΟ ΑΝΑ ΠΕΛΑΤΗ ΣΤΟ ADMIN
+add_action('restrict_manage_posts', 'ptl_add_customer_filter_dropdown');
+function ptl_add_customer_filter_dropdown($post_type) {
+    if ($post_type !== 'ptl_quiz_lead') return;
+    
+    global $wpdb;
+    // Τραβάμε μοναδικά emails από το postmeta
+    $emails = $wpdb->get_col("SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = 'ptl_lead_email' AND meta_value != '' ORDER BY meta_value ASC");
+    
+    $selected = isset($_GET['ptl_customer_email']) ? sanitize_email($_GET['ptl_customer_email']) : '';
+    
+    echo '<select name="ptl_customer_email" id="ptl_customer_email">';
+    echo '<option value="">Όλοι οι Πελάτες</option>';
+    foreach ($emails as $email) {
+        printf('<option value="%s" %s>%s</option>', esc_attr($email), selected($selected, $email, false), esc_html($email));
+    }
+    echo '</select>';
+}
+
+add_action('pre_get_posts', 'ptl_filter_leads_by_customer');
+function ptl_filter_leads_by_customer($query) {
+    global $pagenow;
+    if ($pagenow === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'ptl_quiz_lead' && isset($_GET['ptl_customer_email']) && $_GET['ptl_customer_email'] != '') {
+        $meta_query = $query->get('meta_query');
+        if (!is_array($meta_query)) $meta_query = array();
+        
+        $meta_query[] = array(
+            'key' => 'ptl_lead_email',
+            'value' => sanitize_email($_GET['ptl_customer_email']),
+            'compare' => '='
+        );
+        $query->set('meta_query', $meta_query);
+    }
+}
 
 // =========================================================================
 // 5. ΛΕΙΤΟΥΡΓΙΕΣ PROMO (ΡΥΘΜΙΣΕΙΣ & QR CODE)
@@ -812,8 +875,10 @@ function ptl_process_recipe_ajax() {
     
     if ( $health_tier === 'clinical' ) {
         if ( $table_exists ) { $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time('mysql') ) ); }
-        $pid = wp_insert_post(array('post_title' => $user_email . ' - Recipe ' . uniqid(), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
-        update_post_meta($pid, 'ptl_lead_name', sanitize_text_field($user_name)); update_post_meta($pid, 'ptl_lead_type', 'HOME_COOKED_RECIPE'); update_post_meta($pid, 'ptl_lead_result', 'VET (Κλινική Πάθηση: ' . $health_condition . ')'); update_post_meta($pid, 'ptl_health_condition', $health_condition); update_post_meta($pid, 'ptl_user_id', $user_id); 
+        $post_title = 'Συνταγή #' . strtoupper(substr(md5(uniqid()), 0, 6));
+        $pid = wp_insert_post(array('post_title' => $post_title, 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish'));
+        update_post_meta($pid, 'ptl_lead_email', sanitize_email($user_email));
+        update_post_meta($pid, 'ptl_lead_name', sanitize_text_field($user_name));
         
         $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Η κατάσταση του σκύλου σας απαιτεί εξατομικευμένη ιατρική προσέγγιση. Ο κωδικός σας για <strong>10% έκπτωση</strong> στο ραντεβού είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
         $headers = array('Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>');
