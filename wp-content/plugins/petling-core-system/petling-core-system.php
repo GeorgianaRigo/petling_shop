@@ -1101,6 +1101,20 @@ function ptl_process_recipe_ajax() {
 
 add_filter( 'woocommerce_account_menu_items', 'ptl_recipes_menu_item' );
 function ptl_recipes_menu_item( $items ) {
+    // 1. Βάλε εδώ τα emails που επιτρέπεται να βλέπουν το μενού
+    $allowed_emails = array(
+        'georgianarig@gmail.com',
+        'manolakouvet@gmail.com'
+    );
+
+    $current_user = wp_get_current_user();
+    
+    // 2. Αν ο χρήστης δεν έχει συνδεθεί ή το email του ΔΕΝ είναι στη λίστα, του δείχνουμε το απλό μενού
+    if ( ! is_user_logged_in() || ! in_array( $current_user->user_email, $allowed_emails ) ) {
+        return $items;
+    }
+
+    // 3. Αν είναι στη λίστα, προσθέτουμε κανονικά το "Οι Συνταγές μου"
     $new_items = array();
     foreach ( $items as $key => $value ) {
         $new_items[ $key ] = $value;
