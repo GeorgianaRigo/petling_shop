@@ -89,6 +89,8 @@ function petling_vet_history_endpoint_content() {
 
     <form method="post" action="" class="petling-crm-form" id="petling-main-form">
         <?php wp_nonce_field( 'petling_save_pets_action', 'petling_save_pets_nonce' ); ?>
+        <!-- Κρυφό πεδίο για σίγουρη αποθήκευση! -->
+        <input type="hidden" name="petling_force_save" value="1">
         
         <?php if ( current_user_can( 'manage_options' ) ) : ?>
             <div style="background: #eef7ee; border: 2px solid #5b9a68; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; position: relative;">
@@ -151,22 +153,22 @@ function petling_vet_history_endpoint_content() {
                         <button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button>
                     </div>
                     
-                    <input type="hidden" name="pet_id[]" value="<?php echo esc_attr( $p_id ); ?>">
+                    <input type="hidden" name="pet_id[<?php echo $index; ?>]" value="<?php echo esc_attr( $p_id ); ?>">
                     
                     <div class="petling-grid">
-                        <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" value="<?php echo esc_attr( $p_name ); ?>" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
-                        <div><label>Τύπος *</label><select name="pet_type[]" class="pet-type-select" required><option value="dog" <?php selected( $p_type, 'dog' ); ?>>Σκύλος</option><option value="cat" <?php selected( $p_type, 'cat' ); ?>>Γάτα</option></select></div>
-                        <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[]" value="<?php echo esc_attr( $p_bday ); ?>" required max="<?php echo $today; ?>" min="<?php echo $min_date; ?>"></div>
-                        <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_energy, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
-                        <div><label>Φυλή</label><select name="pet_breed[]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_breed, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
-                        <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[]" placeholder="π.χ. 25.5" value="<?php echo esc_attr( $p_weight ); ?>"></div>
-                        <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]" placeholder="15ψήφιος κωδικός" value="<?php echo esc_attr( $p_micro ); ?>" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
+                        <div><label>Όνομα *</label><input type="text" name="pet_name[<?php echo $index; ?>]" class="pet-name-input" value="<?php echo esc_attr( $p_name ); ?>" required></div>
+                        <div><label>Τύπος *</label><select name="pet_type[<?php echo $index; ?>]" class="pet-type-select" required><option value="dog" <?php selected( $p_type, 'dog' ); ?>>Σκύλος</option><option value="cat" <?php selected( $p_type, 'cat' ); ?>>Γάτα</option></select></div>
+                        <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[<?php echo $index; ?>]" value="<?php echo esc_attr( $p_bday ); ?>" required max="<?php echo $today; ?>" min="<?php echo $min_date; ?>"></div>
+                        <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[<?php echo $index; ?>]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_energy, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
+                        <div><label>Φυλή</label><select name="pet_breed[<?php echo $index; ?>]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '" ' . selected( $p_breed, $key, false ) . '>' . esc_html($label) . '</option>'; } ?></select></div>
+                        <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[<?php echo $index; ?>]" placeholder="π.χ. 25.5" value="<?php echo esc_attr( $p_weight ); ?>"></div>
+                        <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[<?php echo $index; ?>]" placeholder="15ψήφιος κωδικός" value="<?php echo esc_attr( $p_micro ); ?>" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
                     </div>
 
                     <div style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                         <label style="color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια)</label>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
-                            <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" value="<?php echo esc_attr( $p_dfood ); ?>" style="max-width: 120px; margin: 0 !important;" min="0">
+                            <input type="number" name="pet_daily_food[<?php echo $index; ?>]" placeholder="π.χ. 250" value="<?php echo esc_attr( $p_dfood ); ?>" style="max-width: 120px; margin: 0 !important;" min="0">
                             <span style="color:#555; font-weight:bold;">γρ.</span>
                             <label class="checkbox-label" style="display: inline-flex; align-items: center; font-size: 0.95em; cursor: pointer; margin: 0;">
                                 <input type="hidden" name="pet_calc_food[<?php echo $index; ?>]" value="no">
@@ -176,7 +178,6 @@ function petling_vet_history_endpoint_content() {
                         </div>
                     </div>
                     
-                    <!-- ΝΕΟ ΠΕΔΙΟ: Στείρωση & Ημερομηνία -->
                     <div class="custom-checkbox-wrapper" style="flex-wrap: wrap;">
                         <label style="width: 100%;">
                             <input type="hidden" name="pet_neutered[<?php echo $index; ?>]" value="no">
@@ -185,7 +186,7 @@ function petling_vet_history_endpoint_content() {
                         </label>
                         <div class="neutered-date-box" style="width: 100%; display: <?php echo ($p_neut === 'yes') ? 'block' : 'none'; ?>; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
                             <label style="font-size: 13px; color: #555;">Ημερομηνία Στείρωσης (Προαιρετικό)</label>
-                            <input type="date" name="pet_neutered_date[]" value="<?php echo esc_attr( $p_ndate ); ?>" max="<?php echo $today; ?>" style="max-width: 250px;">
+                            <input type="date" name="pet_neutered_date[<?php echo $index; ?>]" value="<?php echo esc_attr( $p_ndate ); ?>" max="<?php echo $today; ?>" style="max-width: 250px;">
                         </div>
                     </div>
 
@@ -200,7 +201,7 @@ function petling_vet_history_endpoint_content() {
                     
                     <div style="margin-bottom: 20px;">
                         <label>Σημειώσεις</label>
-                        <textarea name="pet_health_notes[]" rows="2"><?php echo esc_textarea( $p_notes ); ?></textarea>
+                        <textarea name="pet_health_notes[<?php echo $index; ?>]" rows="2"><?php echo esc_textarea( $p_notes ); ?></textarea>
                     </div>
 
                 </div>
@@ -213,23 +214,23 @@ function petling_vet_history_endpoint_content() {
         <button type="submit" class="btn-petling btn-brown" name="save_pets_data" value="Save" style="width: 100%; font-size: 18px; padding: 15px;">Αποθήκευση Αλλαγών</button>
     </form>
     
-    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT -->
+    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT (ΕΔΩ ΕΓΙΝΕ Η ΜΕΓΑΛΗ ΔΙΟΡΘΩΣΗ ΣΤΑ ΟΝΟΜΑΤΑ) -->
     <div id="pet-block-template" style="display:none;">
-        <input type="hidden" name="pet_id[]" value="">
+        <input type="hidden" name="pet_id[__INDEX__]" value="">
         <div class="petling-grid">
-            <div><label>Όνομα *</label><input type="text" name="pet_name[]" class="pet-name-input" placeholder="Όνομα ζώου" required pattern="^[a-zA-Zα-ωΑ-ΩΆΈΉΊΌΎΏάέήίόύώϊϋϊϋ\s]+$" title="Παρακαλώ εισάγετε μόνο γράμματα"></div>
-            <div><label>Τύπος *</label><select name="pet_type[]" class="pet-type-select" required><option value="dog">Σκύλος</option><option value="cat">Γάτα</option></select></div>
-            <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[]" required max="<?php echo $today; ?>"></div>
-            <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
-            <div><label>Φυλή</label><select name="pet_breed[]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
-            <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[]"></div>
-            <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[]" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
+            <div><label>Όνομα *</label><input type="text" name="pet_name[__INDEX__]" class="pet-name-input" placeholder="Όνομα ζώου" required></div>
+            <div><label>Τύπος *</label><select name="pet_type[__INDEX__]" class="pet-type-select" required><option value="dog">Σκύλος</option><option value="cat">Γάτα</option></select></div>
+            <div><label>Ημερομηνία Γέννησης 🎉 *</label><input type="date" name="pet_birthday[__INDEX__]" required max="<?php echo $today; ?>"></div>
+            <div><label>Επίπεδο Ενέργειας</label><select name="pet_energy[__INDEX__]"><option value="">— Επιλέξτε —</option><?php foreach ($energy_levels as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
+            <div><label>Φυλή</label><select name="pet_breed[__INDEX__]"><option value="">— Επιλέξτε —</option><?php foreach ($breeds as $key => $label) { echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>'; } ?></select></div>
+            <div><label>Βάρος (κιλά)</label><input type="number" step="0.01" min="0" name="pet_weight[__INDEX__]"></div>
+            <div><label>Αριθμός Microchip</label><input type="text" name="pet_microchip[__INDEX__]" pattern="^\d{15}$" title="Το Microchip πρέπει να αποτελείται ακριβώς από 15 νούμερα"></div>
         </div>
         
         <div style="background: #fdfaf5; border: 1px solid #e2d4c0; padding: 15px; border-radius: 6px; margin-bottom: 20px; margin-top: 15px;">
             <label style="color: #8a6a43;">Ημερήσια Κατανάλωση Τροφής (σε γραμμάρια)</label>
             <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap;">
-                <input type="number" name="pet_daily_food[]" placeholder="π.χ. 250" style="max-width: 120px; margin: 0 !important;" min="0">
+                <input type="number" name="pet_daily_food[__INDEX__]" placeholder="π.χ. 250" style="max-width: 120px; margin: 0 !important;" min="0">
                 <span style="color:#555; font-weight:bold;">γρ.</span>
                 <label class="checkbox-label" style="display: inline-flex; align-items: center; font-size: 0.95em; cursor: pointer; margin: 0;">
                     <input type="hidden" name="pet_calc_food[__INDEX__]" value="no">
@@ -246,7 +247,7 @@ function petling_vet_history_endpoint_content() {
             </label>
             <div class="neutered-date-box" style="width: 100%; display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
                 <label style="font-size: 13px; color: #555;">Ημερομηνία Στείρωσης (Προαιρετικό)</label>
-                <input type="date" name="pet_neutered_date[]" max="<?php echo $today; ?>" style="max-width: 250px;">
+                <input type="date" name="pet_neutered_date[__INDEX__]" max="<?php echo $today; ?>" style="max-width: 250px;">
             </div>
         </div>
 
@@ -260,13 +261,73 @@ function petling_vet_history_endpoint_content() {
         </div>
         <div style="margin-bottom: 20px;">
             <label>Σημειώσεις</label>
-            <textarea name="pet_health_notes[]" rows="2"></textarea>
+            <textarea name="pet_health_notes[__INDEX__]" rows="2"></textarea>
         </div>
     </div>
     
+    <!-- Η JAVASCRIPT ΠΟΥ ΕΧΕΙ "ΝΕΚΡΩΣΕΙ" ΚΑΙ ΤΩΡΑ ΘΑ ΔΟΥΛΕΥΕΙ ΤΕΛΕΙΑ -->
     <script>
     jQuery(document).ready(function($) {
-        $(document).on('change', '.pet-neutered-toggle', function() {
+        
+        // Υπολογισμός επόμενου διαθέσιμου Index για να μην γίνει overwrite δεδομένων
+        var nextPetIndex = 0;
+        $('.pet-block').each(function() {
+            var idNum = parseInt($(this).attr('id').replace('pet-block-', ''));
+            if (!isNaN(idNum) && idNum >= nextPetIndex) {
+                nextPetIndex = idNum + 1;
+            }
+        });
+        if (nextPetIndex === 0) nextPetIndex = $('.pet-block').length;
+
+        // Εναλλαγή Tabs (Κατοικίδια) - Χωρίς να συγκρούεται με το εξωτερικό JS
+        $(document).off('click', '.pet-tab-btn').on('click', '.pet-tab-btn', function(e) {
+            e.preventDefault();
+            $('.pet-tab-btn').removeClass('is-active');
+            $(this).addClass('is-active');
+            var tabIndex = $(this).data('tab');
+            $('.pet-block').hide();
+            $('#pet-block-' + tabIndex).fadeIn(200);
+        });
+
+        // Προσθήκη Νέου Ζώου (Εδώ γίνεται η σωστή αντικατάσταση των αριθμών)
+        $(document).off('click', '#add-pet-button').on('click', '#add-pet-button', function(e) {
+            e.preventDefault();
+            
+            var templateHtml = $('#pet-block-template').html();
+            // Αντικατάσταση του __INDEX__ με τον μοναδικό αριθμό
+            templateHtml = templateHtml.replace(/__INDEX__/g, nextPetIndex);
+            
+            var newBlock = $('<div class="pet-block" id="pet-block-' + nextPetIndex + '" style="display: none;">' + 
+                             '<div class="pet-block-header">' +
+                             '<h4 class="pet-block-title">Νέο Κατοικίδιο</h4>' +
+                             '<button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button>' +
+                             '</div>' + templateHtml + '</div>');
+            
+            $('#pet-repeater-container').append(newBlock);
+            
+            var newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextPetIndex + '">🐾 Νέο Ζώο</button>');
+            $('.pet-tabs-nav').append(newTab);
+            newTab.click();
+            
+            nextPetIndex++; 
+        });
+
+        // Αφαίρεση Ζώου
+        $(document).off('click', '.remove-pet-button').on('click', '.remove-pet-button', function(e) {
+            e.preventDefault();
+            if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
+                var $block = $(this).closest('.pet-block');
+                var blockId = $block.attr('id');
+                var tabIndex = blockId.replace('pet-block-', '');
+                
+                $block.remove();
+                $('.pet-tab-btn[data-tab="' + tabIndex + '"]').remove();
+                $('.pet-tab-btn').first().click();
+            }
+        });
+
+        // Εμφάνιση/Απόκρυψη Ημερομηνίας Στείρωσης (Διορθώθηκε!)
+        $(document).off('change', '.pet-neutered-toggle').on('change', '.pet-neutered-toggle', function() {
             var $box = $(this).closest('.custom-checkbox-wrapper').find('.neutered-date-box');
             if( $(this).is(':checked') ) {
                 $box.slideDown(200);
@@ -274,15 +335,32 @@ function petling_vet_history_endpoint_content() {
                 $box.slideUp(200);
             }
         });
+        
+        // Ζωντανή Αλλαγή Ονόματος και Emoji στο Tab
+        $(document).off('input', '.pet-name-input').on('input', '.pet-name-input', function() {
+            var name = $(this).val();
+            var $block = $(this).closest('.pet-block');
+            var tabIndex = $block.attr('id').replace('pet-block-', '');
+            var $selectType = $block.find('.pet-type-select').val();
+            var emoji = ($selectType === 'cat') ? '🐱' : '🐶';
+            
+            if(name.trim() === '') name = 'Νέο Ζώο';
+            $('.pet-tab-btn[data-tab="' + tabIndex + '"]').text(emoji + ' ' + name);
+            $block.find('.pet-block-title').text('Κατοικίδιο: ' + name);
+        });
+        
+        $(document).off('change', '.pet-type-select').on('change', '.pet-type-select', function() {
+            $(this).closest('.pet-block').find('.pet-name-input').trigger('input');
+        });
     });
     </script>
     <?php
 }
 
-// 4. ΑΠΟΘΗΚΕΥΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ ΝΕΟ TAB
-add_action( 'template_redirect', 'petling_vet_history_save_data' );
+// 4. ΑΠΟΘΗΚΕΥΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ ΝΕΟ TAB (ΜΕ ΠΙΟ ΙΣΧΥΡΟ ΕΛΕΓΧΟ)
+add_action( 'init', 'petling_vet_history_save_data' );
 function petling_vet_history_save_data() {
-    if ( isset( $_POST['save_pets_data'] ) && isset( $_POST['petling_save_pets_nonce'] ) && wp_verify_nonce( $_POST['petling_save_pets_nonce'], 'petling_save_pets_action' ) ) {
+    if ( isset( $_POST['petling_force_save'] ) && isset( $_POST['petling_save_pets_nonce'] ) && wp_verify_nonce( $_POST['petling_save_pets_nonce'], 'petling_save_pets_action' ) ) {
         $user_id = get_current_user_id();
         if ( ! petling_vet_history_has_access( $user_id ) ) return;
 
@@ -301,7 +379,7 @@ function petling_vet_history_save_data() {
                 $pets_data[] = [
                     'id'            => $final_id,
                     'name'          => sanitize_text_field( $name ),
-                    'type'          => sanitize_text_field( $_POST['pet_type'][ $index ] ?? '' ),
+                    'type'          => sanitize_text_field( $_POST['pet_type'][ $index ] ?? 'dog' ),
                     'birthday'      => sanitize_text_field( $_POST['pet_birthday'][ $index ] ?? '' ),
                     'energy'        => sanitize_text_field( $_POST['pet_energy'][ $index ] ?? '' ),
                     'breed'         => sanitize_text_field( $_POST['pet_breed'][ $index ] ?? '' ),
