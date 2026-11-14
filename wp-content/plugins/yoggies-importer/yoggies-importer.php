@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yoggies XML Importer (v5.25 - Isolated CSV Paster)
  * Description: Αυτόματη εισαγωγή και ενημέρωση προϊόντων Yoggies με έξυπνο φίλτρο εκπτώσεων και ακριβή συγχρονισμό ποσοτήτων (manage stock).
- * Version: 5.25
+ * Version: 5.25.1
  * Author: Georgiana
  */
 
@@ -21,7 +21,7 @@ add_action('admin_menu', function () {
 function yoggies_render_admin_page() {
 ?>
 <div class="wrap">
-    <h1>📦 Yoggies XML Importer (v5.25)</h1>
+    <h1>📦 Yoggies XML Importer (v5.25.1)</h1>
     <div style="background: #fff; border-left: 4px solid #00a0d2; padding: 12px; margin-bottom: 20px; margin-top: 15px;">
         <p style="margin: 0;"><strong>🔗 Πηγή XML:</strong> <code><?php echo esc_html(YOGGIES_XML_URL); ?></code></p>
     </div>
@@ -52,7 +52,7 @@ function yoggies_render_admin_page() {
     </div>
 </div>
 <?php
-    wp_enqueue_script('yoggies-xml-js', plugin_dir_url(__FILE__) . 'yoggies-import-ajax.js', ['jquery'], '5.25', true);
+    wp_enqueue_script('yoggies-xml-js', plugin_dir_url(__FILE__) . 'yoggies-import-ajax.js', ['jquery'], '5.25.1', true);
     wp_localize_script('yoggies-xml-js', 'ygVars', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('yg_xml_nonce')
@@ -60,7 +60,7 @@ function yoggies_render_admin_page() {
 }
 
 // ============================================================================
-// HELPERS & VALIDATION (ΑΘΙΚΤΑ)
+// HELPERS & VALIDATION
 // ============================================================================
 function yoggies_parse_price($price_string) {
     $clean = str_replace([' EUR', ','], ['', '.'], (string)$price_string);
@@ -112,7 +112,7 @@ function yoggies_extract_custom_tabs($json_string) {
 }
 
 // ============================================================================
-// AJAX LOGIC (ΑΘΙΚΤΟ XML IMPORT)
+// AJAX LOGIC (XML IMPORT)
 // ============================================================================
 add_action('wp_ajax_yg_init_xml', function() {
     check_ajax_referer('yg_xml_nonce', 'nonce');
@@ -178,9 +178,12 @@ add_action('wp_ajax_yg_process_batch', function() {
                     if (!empty($data['slug']) && $product->get_slug() !== $data['slug']) {
                         $product->set_slug($data['slug']);
                     }
-                    update_post_meta($product_id, '_petling_composition', $data['composition']);
-                    update_post_meta($product_id, '_petling_dosage', $data['dosage']);
-                    update_post_meta($product_id, '_petling_storage', $data['storage']);
+                    
+                    // ΔΙΟΡΘΩΣΗ 1: Προστασία Custom Tabs κατά το Χειροκίνητο Update
+                    if (!empty($data['composition'])) update_post_meta($product_id, '_petling_composition', $data['composition']);
+                    if (!empty($data['dosage'])) update_post_meta($product_id, '_petling_dosage', $data['dosage']);
+                    if (!empty($data['storage'])) update_post_meta($product_id, '_petling_storage', $data['storage']);
+                    
                     $product->save();
                     if (taxonomy_exists('berocket_brand')) wp_set_object_terms($product_id, $data['brand'], 'berocket_brand', false);
                     $res['updated']++;
@@ -202,6 +205,7 @@ add_action('wp_ajax_yg_process_batch', function() {
                     $product->set_stock_status($data['stock'] ? 'instock' : 'outofstock');
                     $product->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
                     $new_id = $product->save();
+                    
                     update_post_meta($new_id, '_petling_composition', $data['composition']);
                     update_post_meta($new_id, '_petling_dosage', $data['dosage']);
                     update_post_meta($new_id, '_petling_storage', $data['storage']);
@@ -244,13 +248,13 @@ function yoggies_xml_run_automated_sync() {
     if (!$xml) return;
     
     $items = $xml->xpath('//product');
-    $xml_skus = []; // [ΝΕΟ] Εδώ θα αποθηκεύσουμε όλα τα SKU που ΗΡΘΑΝ σήμερα από το XML
+    $xml_skus = []; 
 
     foreach ($items as $item) {
         $sku = trim((string)$item->sku) ?: trim((string)$item->part_number);
         if (!$sku) continue;
         
-        $xml_skus[] = $sku; // [ΝΕΟ] Καταγράφουμε το SKU ότι υπάρχει στο XML
+        $xml_skus[] = $sku; 
 
         $product_id = wc_get_product_id_by_sku($sku);
         $reg = yoggies_parse_price($item->price);
@@ -277,9 +281,12 @@ function yoggies_xml_run_automated_sync() {
             $p->set_description($desc);
             $p->set_short_description($short_desc);
             if (!empty($slug) && $p->get_slug() !== $slug) $p->set_slug($slug);
-            update_post_meta($product_id, '_petling_composition', $extracted_tabs['composition']);
-            update_post_meta($product_id, '_petling_dosage', $extracted_tabs['dosage']);
-            update_post_meta($product_id, '_petling_storage', $extracted_tabs['storage']);
+            
+            // ΔΙΟΡΘΩΣΗ 2: Προστασία Custom Tabs κατά το CRON (Αν έρθει άδειο δεν σβήνει τα υπάρχοντα)
+            if (!empty($extracted_tabs['composition'])) update_post_meta($product_id, '_petling_composition', $extracted_tabs['composition']);
+            if (!empty($extracted_tabs['dosage'])) update_post_meta($product_id, '_petling_dosage', $extracted_tabs['dosage']);
+            if (!empty($extracted_tabs['storage'])) update_post_meta($product_id, '_petling_storage', $extracted_tabs['storage']);
+            
             $p->save();
         } else {
             $p = new WC_Product_Simple();
@@ -297,9 +304,11 @@ function yoggies_xml_run_automated_sync() {
             $p->set_stock_status($is_in_stock ? 'instock' : 'outofstock');
             $p->update_meta_data('_supplier_name', YOGGIES_SUPPLIER);
             $new_id = $p->save();
+            
             update_post_meta($new_id, '_petling_composition', $extracted_tabs['composition']);
             update_post_meta($new_id, '_petling_dosage', $extracted_tabs['dosage']);
             update_post_meta($new_id, '_petling_storage', $extracted_tabs['storage']);
+            
             if (!empty($image_link)) yoggies_upload_image_from_url($new_id, $image_link, $sku);
         }
     }
@@ -309,7 +318,6 @@ function yoggies_xml_run_automated_sync() {
     // ============================================================================
     if (!empty($xml_skus)) {
         global $wpdb;
-        // Βρίσκουμε όλα τα προϊόντα που έχουμε αποθηκεύσει στο παρελθόν ως Yoggies
         $query = $wpdb->prepare("SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s", '_supplier_name', YOGGIES_SUPPLIER);
         $yoggies_db_products = $wpdb->get_col($query);
 
@@ -319,9 +327,7 @@ function yoggies_xml_run_automated_sync() {
 
             $db_sku = $product->get_sku();
             
-            // Αν το SKU του e-shop ΔΕΝ υπάρχει στη λίστα με τα σημερινά SKU του XML
             if ($db_sku && !in_array($db_sku, $xml_skus)) {
-                // Αν έχει ήδη απόθεμα 0, το προσπερνάμε για οικονομία πόρων
                 if ($product->get_stock_quantity() > 0 || $product->get_stock_status() === 'instock') {
                     $product->set_stock_quantity(0);
                     $product->set_stock_status('outofstock');
@@ -337,7 +343,6 @@ function yoggies_xml_run_automated_sync() {
 // ============================================================================
 function yg_clean_name_for_match($name) {
     $clean = html_entity_decode((string)$name, ENT_QUOTES, 'UTF-8');
-    // Κόβουμε μεγέθη, Mini, Normal κλπ για να βρούμε τον πατέρα
     $clean = preg_replace('/-\s*(Mini|Normal|Active|XXL)?\s*,?\s*\d+\s*(kg|g|ml|l|τεμ|cm)\b/i', '', $clean);
     $clean = preg_replace('/,?\s*\d+\s*(kg|g|ml|l|τεμ|cm)\b/i', '', $clean);
     $clean = preg_replace('/Πακέτο\s*\d+\s*x\s*\d+\s*g/i', '', $clean);
@@ -350,12 +355,11 @@ function yg_process_pasted_csv_handler() {
     $csv_data = stripslashes($_POST['csv_text']);
     if (empty($csv_data)) wp_send_json_error(['message' => 'Το πεδίο είναι άδειο.']);
 
-    // Δημιουργούμε stream για ασφαλή ανάγνωση multiline CSV από την PHP
     $stream = fopen("php://temp", 'r+');
     fwrite($stream, $csv_data);
     rewind($stream);
     
-    $header = fgetcsv($stream, 0, ","); // Υποθέτουμε delimiter το κόμμα (όπως στο copy-paste)
+    $header = fgetcsv($stream, 0, ","); 
     
     $dict = [];
     while (($row = fgetcsv($stream, 0, ",")) !== false) {
@@ -363,18 +367,15 @@ function yg_process_pasted_csv_handler() {
             $p_name = trim($row[1]);
             $comp   = trim($row[2]);
             
-            // ΦΙΛΤΡΟ 1: ΑΓΝΟΟΥΜΕ ΤΑ ΠΑΝΤΑ ΕΚΤΟΣ ΑΠΟ YOGGIES
             if (stripos($p_name, 'yoggies') === false) continue;
             if (empty($comp)) continue;
 
-            // Αν κατά λάθος υπάρχει χαλασμένο serialize "a:4:{...", το παρακάμπτουμε
             if (strpos($comp, 'a:') === 0 && preg_match('/"title";s:\d+:"(?:Συστατικά|Σύνθεση)".*?"content";s:\d+:"(.*?)"(?:;\}i:|;\}\}$)/is', $comp, $m)) {
                 $comp = $m[1];
             } elseif (strpos($comp, 'a:') === 0) {
-                continue; // Σκουπίδι, το αγνοούμε
+                continue; 
             }
 
-            // Βρίσκουμε το Καθαρό Γονικό Όνομα (π.χ. Ξηρά Τροφή Ιβηρικό Χοιρινό)
             $clean_name = yg_clean_name_for_match($p_name);
             $dict[$clean_name] = wp_kses_post($comp);
         }
@@ -383,7 +384,6 @@ function yg_process_pasted_csv_handler() {
 
     if (empty($dict)) wp_send_json_error(['message' => 'Δεν βρέθηκαν έγκυρα συστατικά στο κείμενο.']);
 
-    // ΦΙΛΤΡΟ 2: Ζητάμε από τη βάση ΜΟΝΟ τα προϊόντα Yoggies
     global $wpdb;
     $query = $wpdb->prepare("SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type IN ('product', 'product_variation') AND post_status IN ('publish', 'draft') AND post_title LIKE %s", '%yoggies%');
     $products = $wpdb->get_results($query);
@@ -391,7 +391,6 @@ function yg_process_pasted_csv_handler() {
     $updated = 0;
     foreach ($products as $p) {
         $base = yg_clean_name_for_match($p->post_title);
-        // Αν το Yoggies προϊόν ταιριάζει με τον "Πατέρα" του λεξικού, πέρνα τα συστατικά!
         if (isset($dict[$base])) {
             update_post_meta($p->ID, '_petling_composition', $dict[$base]);
             $updated++;
