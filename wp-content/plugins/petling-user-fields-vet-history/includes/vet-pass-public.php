@@ -51,31 +51,26 @@ function petling_vet_pass_public_interceptor() {
                 wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
             }
 
-            if ( $_POST['vet_action'] === 'verify_vaccine' || $_POST['vet_action'] === 'add_vaccine' ) {
+            if ( $_POST['vet_action'] === 'add_vaccine' ) {
                 $v_name = sanitize_text_field($_POST['vaccine_name']);
 
                 if (in_array($v_name, $parasite_options)) {
                     $wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s AND vaccine_name = %s", $pet_id, $v_name) );
-                    $d_admin = date('Y-m-d');
-                } else {
-                    $d_admin = sanitize_text_field($_POST['date_administered']);
                 }
 
-                if ( $_POST['vet_action'] === 'verify_vaccine' ) {
-                    $vac_id = intval($_POST['vac_id']);
-                    $wpdb->update( $wpdb->prefix . 'petling_vaccines', array('status' => 'verified', 'vaccine_name' => $v_name, 'date_administered' => $d_admin, 'next_vaccine_date' => sanitize_text_field($_POST['next_vaccine_date']), 'vet_name' => sanitize_text_field($_POST['vet_name'])), array('id' => $vac_id) );
-                } else {
-                    $wpdb->insert( $wpdb->prefix . 'petling_vaccines', array( 'pet_unique_id' => $pet_id, 'vaccine_name' => $v_name, 'date_administered' => $d_admin, 'next_vaccine_date' => sanitize_text_field($_POST['next_vaccine_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'status' => 'verified', 'created_by' => 'vet' ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
-                }
+                $wpdb->insert( $wpdb->prefix . 'petling_vaccines', array( 
+                    'pet_unique_id' => $pet_id, 
+                    'vaccine_name' => $v_name, 
+                    'date_administered' => date('Y-m-d'), // Βάζουμε αυτόματα τη σημερινή για να σωθεί
+                    'next_vaccine_date' => sanitize_text_field($_POST['next_vaccine_date']), 
+                    'vet_name' => sanitize_text_field($_POST['vet_name'] ?? ''), 
+                    'status' => 'verified', 
+                    'created_by' => 'vet' 
+                ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+                
                 wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
             }
             
-            if ( $_POST['vet_action'] === 'verify_note' ) {
-                $note_id = intval($_POST['note_id']);
-                $incident_date = !empty($_POST['incident_date']) ? sanitize_text_field($_POST['incident_date']) . ' ' . date('H:i:s', current_time('timestamp')) : current_time('mysql');
-                $wpdb->update( $wpdb->prefix . 'petling_vet_notes', array('status' => 'verified', 'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 'next_exam_date' => sanitize_text_field($_POST['next_exam_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'created_at' => $incident_date), array('id' => $note_id) );
-                wp_redirect( add_query_arg('saved', '1', remove_query_arg('saved', $_SERVER['REQUEST_URI'])) ); exit;
-            }
             if ( $_POST['vet_action'] === 'add_note' ) {
                 $incident_date = !empty($_POST['incident_date']) ? sanitize_text_field($_POST['incident_date']) . ' ' . date('H:i:s', current_time('timestamp')) : current_time('mysql');
                 $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 'pet_unique_id' => $pet_id, 'vet_comment' => sanitize_textarea_field($_POST['vet_comment']), 'next_exam_date'=> sanitize_text_field($_POST['next_exam_date']), 'vet_name' => sanitize_text_field($_POST['vet_name']), 'status' => 'verified', 'created_by' => 'vet', 'created_at' => $incident_date ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
@@ -116,16 +111,16 @@ function petling_vet_pass_public_interceptor() {
         $all_records = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s ORDER BY date_administered DESC", $pet_id ) );
         $vet_notes = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}petling_vet_notes WHERE pet_unique_id = %s ORDER BY created_at DESC", $pet_id ) );
 
+        $parasites = [];
+        $vaccines = [];
+        foreach ($all_records as $rec) {
+            if (in_array($rec->vaccine_name, $parasite_options)) { $parasites[] = $rec; } else { $vaccines[] = $rec; }
+        }
+        
         if ( $current_pet['type'] === 'dog' ) {
             $vaccine_options = array( 'Παρβοϊός / Μόρβα / Ηπατίτιδα (Core)', 'Λύσσα (Core)', 'Λεπτοσπείρωση (Core)', 'Βήχας Κυνοκομείου (Non-core)', 'Νόσος Lyme (Non-core)', 'Γρίπη Σκύλων (Non-core)', 'Άλλο' );
         } else {
             $vaccine_options = array( 'Τριπλό: FPV/FHV/FCV (Core)', 'Λύσσα (Core)', 'Λευχαιμία - FeLV (Core)', 'Χλαμυδίαση (Non-core)', 'Ανοσοανεπάρκεια - FIV (Non-core)', 'Άλλο' );
-        }
-
-        $vaccines = [];
-        $parasites = [];
-        foreach ($all_records as $rec) {
-            if (in_array($rec->vaccine_name, $parasite_options)) { $parasites[] = $rec; } else { $vaccines[] = $rec; }
         }
 
         $min_future_date = date('Y-m-d');
@@ -133,26 +128,16 @@ function petling_vet_pass_public_interceptor() {
         $logo_img = wp_get_attachment_image_src( $logo_id, 'full' );
         $logo_html = $logo_img ? '<img src="'.esc_url($logo_img[0]).'" alt="Petling Logo" style="max-height: 55px; margin-bottom: 5px;">' : '<h1 style="margin:0; font-size:26px; color:#F3F0DF;">Petling</h1>';
 
-        // Υπολογισμός Ηλικίας
         $age_str = '';
         if ( !empty($current_pet['birthday']) ) {
             try {
                 $bday = new DateTime($current_pet['birthday']);
                 $today = new DateTime('today');
                 $diff = $bday->diff($today);
-                if ( $diff->y > 0 ) {
-                    $age_str = $diff->y . ' ετών';
-                } elseif ( $diff->m > 0 ) {
-                    $age_str = $diff->m . ' μηνών';
-                } else {
-                    $age_str = 'Νεογέννητο';
-                }
-            } catch (Exception $e) {
-                $age_str = '';
-            }
+                if ( $diff->y > 0 ) { $age_str = $diff->y . ' ετών'; } elseif ( $diff->m > 0 ) { $age_str = $diff->m . ' μηνών'; } else { $age_str = 'Νεογέννητο'; }
+            } catch (Exception $e) { $age_str = ''; }
         }
         
-        // Υπολογισμός κειμένου Στείρωσης
         $neutered_text = '-';
         if ( isset($current_pet['neutered']) && $current_pet['neutered'] === 'yes' ) {
             $neutered_text = !empty($current_pet['neutered_date']) ? date('d/m/Y', strtotime($current_pet['neutered_date'])) : 'Ναι (Άγνωστη Ημ/νία)';
@@ -208,25 +193,22 @@ function petling_vet_pass_public_interceptor() {
                 <p>Ψηφιακο Vet Pass</p>
             </div>
             <div class="info-bar">
-                <strong>Καλώς ήρθατε Ιατρέ!</strong><br>Εδώ μπορείτε να επιβεβαιώσετε/διορθώσετε τα προσχέδια του πελάτη ή να δημιουργήσετε νέες εγγραφές (Ισχύς: 24h).
+                <strong>Καλώς ήρθατε Ιατρέ!</strong><br>Εδώ μπορείτε να δημιουργήσετε νέες εγγραφές και υπενθυμίσεις (Ισχύς: 24h).
             </div>
 
             <div class="container">
                 <div class="card">
                     <div class="qr-flex-container" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 15px;">
                         <div style="flex: 1; min-width: 0; text-align: left;">
-                            
                             <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
                                 <h3 style="margin: 0; color: #43282F; font-size: 20px; word-wrap: break-word;">
                                     <?php echo ($current_pet['type'] === 'dog' ? '🐶' : '🐱') . ' ' . esc_html($current_pet['name']); ?>
                                     <?php if (!empty($age_str)) echo '<span style="font-size: 15px; color: #666; font-weight: normal; margin-left: 5px;">(' . $age_str . ')</span>'; ?>
                                 </h3>
                             </div>
-                            
                             <p style="margin: 5px 0 0 0; color: #5b9a68; font-size: 13px; font-weight: bold;">
                                 Στειρωμένο: <span style="color:#555; font-weight:normal;"><?php echo $neutered_text; ?></span>
                             </p>
-
                             <?php if(!empty($current_pet['microchip'])): ?>
                                 <div style="margin-top: 10px; background: #fdfaf5; padding: 6px 10px; border-radius: 6px; display: inline-block; border: 1px solid #e2d4c0;">
                                     <span style="color: #C7B297; font-size: 10px; display:block; font-weight: bold;">MICROCHIP</span>
@@ -273,7 +255,6 @@ function petling_vet_pass_public_interceptor() {
                                 $year_display = ($global_index >= 5) ? 'display:none;' : '';
                                 echo '<div class="weight-year-group" style="' . $year_display . '">';
                                 echo '<h5>📅 Έτος ' . $year . '</h5><div class="weight-timeline">';
-                                
                                 foreach($weights as $wh) {
                                     $item_display = ($global_index >= 5) ? 'display:none;' : '';
                                     $delete_weight_url = wp_nonce_url( add_query_arg( array( 'action' => 'vet_del_note', 'note_id' => $wh['id'] ) ), 'vet_del_note_' . $wh['id'] );
@@ -290,50 +271,28 @@ function petling_vet_pass_public_interceptor() {
                         ?>
                     </div>
                 </details>
-
+                
                 <details class="vet-accordion">
-                    <summary>💉 Εμβολιασμοί (WSAVA)</summary>
+                    <summary>💉 Εμβολιασμοί / Υπενθυμίσεις</summary>
                     <div class="accordion-content">
                         <?php if ( $vaccines ) { foreach ( $vaccines as $vac ) { ?>
-                            <div class="item-box" style="<?php if($vac->status==='verified') echo 'border-left:4px solid #5b9a68;'; else echo 'border-left:4px solid #e6a23c;'; ?>">
-                                <?php if ( $vac->status === 'verified' ) { ?>
-                                    <div><strong><?php echo esc_html($vac->vaccine_name); ?></strong></div>
-                                    <div style="font-size: 13px; color: #666; margin-top: 5px;">
-                                        Ημ/νία: <?php echo date('d/m/Y', strtotime($vac->date_administered)); ?> | Ιατρός: <?php echo esc_html($vac->vet_name); ?><br>
-                                        <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' ) {
-                                            echo '<span style="color:#d63638; font-weight:bold;">Επόμενο: ' . date('d/m/Y', strtotime($vac->next_vaccine_date)) . '</span>';
-                                        } ?>
-                                    </div>
-                                <?php } else { ?>
-                                    <div style="color:#e6a23c; font-weight:bold; margin-bottom:10px;">⏳ Προσχέδιο Πελάτη:</div>
-                                    <form method="POST" action="">
-                                        <input type="hidden" name="vet_action" value="verify_vaccine">
-                                        <input type="hidden" name="vac_id" value="<?php echo $vac->id; ?>">
-                                        <label>Εμβόλιο *</label>
-                                        <select name="vaccine_name">
-                                            <?php 
-                                            if(!in_array($vac->vaccine_name, $vaccine_options)) { $vaccine_options[] = $vac->vaccine_name; }
-                                            foreach($vaccine_options as $option) { echo '<option value="' . esc_attr($option) . '" ' . selected($vac->vaccine_name, $option, false) . '>' . esc_html($option) . '</option>'; } 
-                                            ?>
-                                        </select>
-                                        <label>Ημερομηνία *</label><input type="date" name="date_administered" value="<?php echo esc_attr($vac->date_administered); ?>" required>
-                                        <label>Επόμενο Εμβόλιο</label><input type="date" name="next_vaccine_date" value="<?php echo esc_attr($vac->next_vaccine_date); ?>" min="<?php echo $min_future_date; ?>">
-                                        <label>Ιατρός / Κλινική *</label><input type="text" name="vet_name" value="<?php echo esc_attr($vac->vet_name); ?>" required>
-                                        <button type="submit" class="btn-verify">Επιβεβαίωση & Κλείδωμα</button>
-                                        <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id); ?>
-                                        <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτό το εμβόλιο;');">🗑️ Διαγραφή Εγγραφής</a>
-                                    </form>
-                                <?php } ?>
+                            <div class="item-box" style="border-left:4px solid #5b9a68;">
+                                <div><strong><?php echo esc_html($vac->vaccine_name); ?></strong></div>
+                                <div style="font-size: 13px; color: #666; margin-top: 5px;">
+                                    <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' ) {
+                                        echo '<span style="color:#d63638; font-weight:bold;">Επόμενο: ' . date('d/m/Y', strtotime($vac->next_vaccine_date)) . '</span>';
+                                    } ?>
+                                </div>
+                                <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id); ?>
+                                <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτή την υπενθύμιση;');">🗑️ Διαγραφή Εγγραφής</a>
                             </div>
-                        <?php } } else { echo '<p style="color: #999; font-style: italic;">Κανένα εμβόλιο δεν βρέθηκε.</p>'; } ?>
-                        <details><summary class="sub-accordion">+ Νέος Εμβολιασμός (Από Ιατρό)</summary>
+                        <?php } } else { echo '<p style="color: #999; font-style: italic;">Δεν έχουν καταγραφεί υπενθυμίσεις.</p>'; } ?>
+                        <details><summary class="sub-accordion">+ Νέα Υπενθύμιση</summary>
                             <form class="vet-form" method="POST" action="">
                                 <input type="hidden" name="vet_action" value="add_vaccine">
                                 <label>Εμβόλιο *</label><select name="vaccine_name" required><?php foreach($vaccine_options as $option) { echo '<option value="' . esc_attr($option) . '">' . esc_html($option) . '</option>'; } ?></select>
-                                <label>Όνομα Ιατρού / Κλινικής *</label><input type="text" name="vet_name" required>
-                                <label>Ημερομηνία *</label><input type="date" name="date_administered" required value="<?php echo date('Y-m-d'); ?>">
-                                <label>Επόμενο Εμβόλιο 📅</label><input type="date" name="next_vaccine_date" min="<?php echo $min_future_date; ?>">
-                                <button type="submit">Καταχώρηση (Κλείδωμα)</button>
+                                <label>Επόμενο Εμβόλιο (Υπενθύμιση) 📅 *</label><input type="date" name="next_vaccine_date" min="<?php echo $min_future_date; ?>" required>
+                                <button type="submit">Καταχώρηση</button>
                             </form>
                         </details>
                     </div>
@@ -343,35 +302,16 @@ function petling_vet_pass_public_interceptor() {
                     <summary>🪱 Τρέχουσα Αποπαρασίτωση</summary>
                     <div class="accordion-content">
                         <?php if ( $parasites ) { foreach ( $parasites as $vac ) { ?>
-                            <div class="item-box" style="<?php if($vac->status==='verified') echo 'border-left:4px solid #5b9a68;'; else echo 'border-left:4px solid #e6a23c;'; ?>">
-                                <?php if ( $vac->status === 'verified' ) { ?>
-                                    <div><strong><?php echo esc_html($vac->vaccine_name); ?></strong></div>
-                                    <div style="font-size: 13px; color: #666; margin-top: 5px;">
-                                        Σκεύασμα: <strong><?php echo esc_html($vac->vet_name ?: '-'); ?></strong><br>
-                                        <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' ) {
-                                            echo '<span style="color:#d63638; font-weight:bold; display:block; margin-top:5px;">Επόμενη Δόση: ' . date('d/m/Y', strtotime($vac->next_vaccine_date)) . '</span>';
-                                        } ?>
-                                    </div>
-                                <?php } else { ?>
-                                    <div style="color:#e6a23c; font-weight:bold; margin-bottom:10px;">⏳ Προσχέδιο Πελάτη:</div>
-                                    <form method="POST" action="">
-                                        <input type="hidden" name="vet_action" value="verify_vaccine">
-                                        <input type="hidden" name="vac_id" value="<?php echo $vac->id; ?>">
-                                        <label>Τύπος Παρασίτων *</label>
-                                        <select name="vaccine_name">
-                                            <?php 
-                                            $all_parasite_opts = array('Εξωπαράσιτα (Ψύλλοι/Τσιμπούρια/Σκνίπες)', 'Ενδοπαράσιτα (Σκουλήκια εντέρου/καρδιάς)', 'Combo (Εσωτερικά & Εξωτερικά)');
-                                            if(!in_array($vac->vaccine_name, $all_parasite_opts)) { $all_parasite_opts[] = $vac->vaccine_name; }
-                                            foreach($all_parasite_opts as $option) { echo '<option value="' . esc_attr($option) . '" ' . selected($vac->vaccine_name, $option, false) . '>' . esc_html($option) . '</option>'; } 
-                                            ?>
-                                        </select>
-                                        <label>Σκεύασμα</label><input type="text" name="vet_name" value="<?php echo esc_attr($vac->vet_name); ?>">
-                                        <label>Επόμενη Δόση 📅 *</label><input type="date" name="next_vaccine_date" value="<?php echo esc_attr($vac->next_vaccine_date); ?>" min="<?php echo $min_future_date; ?>" required>
-                                        <button type="submit" class="btn-verify">Επιβεβαίωση & Κλείδωμα</button>
-                                        <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id); ?>
-                                        <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτή την προστασία;');">🗑️ Διαγραφή Εγγραφής</a>
-                                    </form>
-                                <?php } ?>
+                            <div class="item-box" style="border-left:4px solid #5b9a68;">
+                                <div><strong><?php echo esc_html($vac->vaccine_name); ?></strong></div>
+                                <div style="font-size: 13px; color: #666; margin-top: 5px;">
+                                    Σκεύασμα: <strong><?php echo esc_html($vac->vet_name ?: '-'); ?></strong><br>
+                                    <?php if ( !empty($vac->next_vaccine_date) && $vac->next_vaccine_date !== '0000-00-00' ) {
+                                        echo '<span style="color:#d63638; font-weight:bold; display:block; margin-top:5px;">Επόμενη Δόση: ' . date('d/m/Y', strtotime($vac->next_vaccine_date)) . '</span>';
+                                    } ?>
+                                </div>
+                                <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_vac','vac_id'=>$vac->id)), 'vet_del_vac_'.$vac->id); ?>
+                                <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτή την προστασία;');">🗑️ Διαγραφή Εγγραφής</a>
                             </div>
                         <?php } } else { echo '<p style="color: #999; font-style: italic;">Καμία καταγραφή αποπαρασίτωσης.</p>'; } ?>
                         <details><summary class="sub-accordion">+ Νέα Αποπαρασίτωση</summary>
@@ -401,31 +341,14 @@ function petling_vet_pass_public_interceptor() {
                                 if (empty($note->vet_comment) || strpos($note->vet_comment, 'Τακτική Ζύγιση') !== false) continue;
                                 $found_notes = true;
                         ?>
-                            <div class="item-box" style="<?php if($note->status==='verified') echo 'border-left:4px solid #5b9a68;'; else echo 'border-left:4px solid #e6a23c;'; ?>">
-                                <?php if ( $note->status === 'verified' ) { ?>
-                                    <div style="font-size: 13px; color: #666; margin-bottom: 8px;"><?php echo date('d/m/Y', strtotime($note->created_at)); ?> | <strong><?php echo esc_html($note->vet_name); ?></strong></div>
-                                    <div style="font-size: 14px;"><?php echo nl2br(esc_html($note->vet_comment)); ?></div>
-                                    <?php if ( !empty($note->next_exam_date) && $note->next_exam_date !== '0000-00-00' ) {
-                                        echo '<div style="margin-top: 8px; color:#d63638; font-size: 13px; font-weight:bold;">Επανεξέταση: ' . date('d/m/Y', strtotime($note->next_exam_date)) . '</div>';
-                                    } ?>
-                                <?php } else { ?>
-                                    <div style="color:#e6a23c; font-weight:bold; margin-bottom:10px;">⏳ Προσχέδιο Πελάτη:</div>
-                                    <form method="POST" action="">
-                                        <input type="hidden" name="vet_action" value="verify_note">
-                                        <input type="hidden" name="note_id" value="<?php echo $note->id; ?>">
-                                        <label>Ημερομηνία Συμβάντος *</label>
-                                        <input type="date" name="incident_date" value="<?php echo date('Y-m-d', strtotime($note->created_at)); ?>" required max="<?php echo date('Y-m-d'); ?>">
-                                        <label>Πάθηση, Αγωγή & Σχόλια *</label>
-                                        <textarea name="vet_comment" required rows="3"><?php echo esc_textarea($note->vet_comment); ?></textarea>
-                                        <label>Επανεξέταση 📅</label>
-                                        <input type="date" name="next_exam_date" value="<?php echo esc_attr($note->next_exam_date); ?>" min="<?php echo $min_future_date; ?>">
-                                        <label>Ιατρός / Επικοινωνία (Προαιρετικό)</label>
-                                        <input type="text" name="vet_name" value="<?php echo esc_attr($note->vet_name); ?>">
-                                        <button type="submit" class="btn-verify">Ενημέρωση & Κλείδωμα</button>
-                                        <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_note','note_id'=>$note->id)), 'vet_del_note_'.$note->id); ?>
-                                        <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτή την εγγραφή;');">🗑️ Διαγραφή Εγγραφής</a>
-                                    </form>
-                                <?php } ?>
+                            <div class="item-box" style="border-left:4px solid #5b9a68;">
+                                <div style="font-size: 13px; color: #666; margin-bottom: 8px;"><?php echo date('d/m/Y', strtotime($note->created_at)); ?> | <strong><?php echo esc_html($note->vet_name); ?></strong></div>
+                                <div style="font-size: 14px;"><?php echo nl2br(esc_html($note->vet_comment)); ?></div>
+                                <?php if ( !empty($note->next_exam_date) && $note->next_exam_date !== '0000-00-00' ) {
+                                    echo '<div style="margin-top: 8px; color:#d63638; font-size: 13px; font-weight:bold;">Επανεξέταση: ' . date('d/m/Y', strtotime($note->next_exam_date)) . '</div>';
+                                } ?>
+                                <?php $del_url = wp_nonce_url(add_query_arg(array('action'=>'vet_del_note','note_id'=>$note->id)), 'vet_del_note_'.$note->id); ?>
+                                <a href="<?php echo esc_url($del_url); ?>" class="del-btn" onclick="return confirm('Θέλετε σίγουρα να διαγράψετε αυτή την εγγραφή;');">🗑️ Διαγραφή Εγγραφής</a>
                             </div>
                         <?php } } 
                         if (!$found_notes) echo '<p style="color: #999; font-style: italic;">Καμία καταγραφή δεν βρέθηκε.</p>';

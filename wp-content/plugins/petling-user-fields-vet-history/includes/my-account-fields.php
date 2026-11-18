@@ -214,7 +214,7 @@ function petling_vet_history_endpoint_content() {
         <button type="submit" class="btn-petling btn-brown" name="save_pets_data" value="Save" style="width: 100%; font-size: 18px; padding: 15px;">Αποθήκευση Αλλαγών</button>
     </form>
     
-    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT (ΕΔΩ ΕΓΙΝΕ Η ΜΕΓΑΛΗ ΔΙΟΡΘΩΣΗ ΣΤΑ ΟΝΟΜΑΤΑ) -->
+    <!-- TEMPLATE ΓΙΑ ΤΗ JAVASCRIPT -->
     <div id="pet-block-template" style="display:none;">
         <input type="hidden" name="pet_id[__INDEX__]" value="">
         <div class="petling-grid">
@@ -265,21 +265,16 @@ function petling_vet_history_endpoint_content() {
         </div>
     </div>
     
-    <!-- Η JAVASCRIPT ΠΟΥ ΕΧΕΙ "ΝΕΚΡΩΣΕΙ" ΚΑΙ ΤΩΡΑ ΘΑ ΔΟΥΛΕΥΕΙ ΤΕΛΕΙΑ -->
     <script>
     jQuery(document).ready(function($) {
         
-        // Υπολογισμός επόμενου διαθέσιμου Index για να μην γίνει overwrite δεδομένων
         var nextPetIndex = 0;
         $('.pet-block').each(function() {
             var idNum = parseInt($(this).attr('id').replace('pet-block-', ''));
-            if (!isNaN(idNum) && idNum >= nextPetIndex) {
-                nextPetIndex = idNum + 1;
-            }
+            if (!isNaN(idNum) && idNum >= nextPetIndex) { nextPetIndex = idNum + 1; }
         });
         if (nextPetIndex === 0) nextPetIndex = $('.pet-block').length;
 
-        // Εναλλαγή Tabs (Κατοικίδια) - Χωρίς να συγκρούεται με το εξωτερικό JS
         $(document).off('click', '.pet-tab-btn').on('click', '.pet-tab-btn', function(e) {
             e.preventDefault();
             $('.pet-tab-btn').removeClass('is-active');
@@ -289,61 +284,41 @@ function petling_vet_history_endpoint_content() {
             $('#pet-block-' + tabIndex).fadeIn(200);
         });
 
-        // Προσθήκη Νέου Ζώου (Εδώ γίνεται η σωστή αντικατάσταση των αριθμών)
         $(document).off('click', '#add-pet-button').on('click', '#add-pet-button', function(e) {
             e.preventDefault();
-            
-            var templateHtml = $('#pet-block-template').html();
-            // Αντικατάσταση του __INDEX__ με τον μοναδικό αριθμό
-            templateHtml = templateHtml.replace(/__INDEX__/g, nextPetIndex);
-            
+            var templateHtml = $('#pet-block-template').html().replace(/__INDEX__/g, nextPetIndex);
             var newBlock = $('<div class="pet-block" id="pet-block-' + nextPetIndex + '" style="display: none;">' + 
-                             '<div class="pet-block-header">' +
-                             '<h4 class="pet-block-title">Νέο Κατοικίδιο</h4>' +
-                             '<button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button>' +
-                             '</div>' + templateHtml + '</div>');
-            
+                             '<div class="pet-block-header"><h4 class="pet-block-title">Νέο Κατοικίδιο</h4><button type="button" class="btn-petling btn-red remove-pet-button">Αφαίρεση</button></div>' + templateHtml + '</div>');
             $('#pet-repeater-container').append(newBlock);
-            
             var newTab = $('<button type="button" class="pet-tab-btn" data-tab="' + nextPetIndex + '">🐾 Νέο Ζώο</button>');
             $('.pet-tabs-nav').append(newTab);
             newTab.click();
-            
             nextPetIndex++; 
         });
 
-        // Αφαίρεση Ζώου
         $(document).off('click', '.remove-pet-button').on('click', '.remove-pet-button', function(e) {
             e.preventDefault();
             if (confirm('Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το κατοικίδιο;')) {
                 var $block = $(this).closest('.pet-block');
                 var blockId = $block.attr('id');
                 var tabIndex = blockId.replace('pet-block-', '');
-                
                 $block.remove();
                 $('.pet-tab-btn[data-tab="' + tabIndex + '"]').remove();
                 $('.pet-tab-btn').first().click();
             }
         });
 
-        // Εμφάνιση/Απόκρυψη Ημερομηνίας Στείρωσης (Διορθώθηκε!)
         $(document).off('change', '.pet-neutered-toggle').on('change', '.pet-neutered-toggle', function() {
             var $box = $(this).closest('.custom-checkbox-wrapper').find('.neutered-date-box');
-            if( $(this).is(':checked') ) {
-                $box.slideDown(200);
-            } else {
-                $box.slideUp(200);
-            }
+            if( $(this).is(':checked') ) { $box.slideDown(200); } else { $box.slideUp(200); }
         });
         
-        // Ζωντανή Αλλαγή Ονόματος και Emoji στο Tab
         $(document).off('input', '.pet-name-input').on('input', '.pet-name-input', function() {
             var name = $(this).val();
             var $block = $(this).closest('.pet-block');
             var tabIndex = $block.attr('id').replace('pet-block-', '');
             var $selectType = $block.find('.pet-type-select').val();
             var emoji = ($selectType === 'cat') ? '🐱' : '🐶';
-            
             if(name.trim() === '') name = 'Νέο Ζώο';
             $('.pet-tab-btn[data-tab="' + tabIndex + '"]').text(emoji + ' ' + name);
             $block.find('.pet-block-title').text('Κατοικίδιο: ' + name);
@@ -352,12 +327,13 @@ function petling_vet_history_endpoint_content() {
         $(document).off('change', '.pet-type-select').on('change', '.pet-type-select', function() {
             $(this).closest('.pet-block').find('.pet-name-input').trigger('input');
         });
+
     });
     </script>
     <?php
 }
 
-// 4. ΑΠΟΘΗΚΕΥΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ ΝΕΟ TAB (ΜΕ ΠΙΟ ΙΣΧΥΡΟ ΕΛΕΓΧΟ)
+// 4. ΑΠΟΘΗΚΕΥΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΟ ΝΕΟ TAB 
 add_action( 'init', 'petling_vet_history_save_data' );
 function petling_vet_history_save_data() {
     if ( isset( $_POST['petling_force_save'] ) && isset( $_POST['petling_save_pets_nonce'] ) && wp_verify_nonce( $_POST['petling_save_pets_nonce'], 'petling_save_pets_action' ) ) {
@@ -368,14 +344,13 @@ function petling_vet_history_save_data() {
             update_user_meta( $user_id, 'petling_order_reminder_interval', sanitize_text_field( $_POST['petling_order_reminder_interval'] ) );
         }
 
+        // Αποθήκευση Κατοικιδίων
         $pets_data = [];
         if ( ! empty( $_POST['pet_name'] ) && is_array( $_POST['pet_name'] ) ) {
             foreach ( $_POST['pet_name'] as $index => $name ) {
                 if ( empty( trim( $name ) ) ) continue;
-                
                 $posted_id = sanitize_text_field( $_POST['pet_id'][$index] ?? '' );
                 $final_id  = !empty($posted_id) ? $posted_id : uniqid('pet_');
-
                 $pets_data[] = [
                     'id'            => $final_id,
                     'name'          => sanitize_text_field( $name ),
@@ -398,78 +373,5 @@ function petling_vet_history_save_data() {
 
         wp_safe_redirect( wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) . '?saved=1' );
         exit;
-    }
-}
-
-// 5. ΠΡΟΣΘΗΚΗ ΣΤΗΛΗΣ "ΚΑΤΟΙΚΙΔΙΑ" ΣΤΟΥΣ ΧΡΗΣΤΕΣ ΣΤΟ ADMIN
-add_filter( 'manage_users_columns', 'petling_add_pets_column' );
-function petling_add_pets_column( $columns ) {
-    $columns['petling_pets'] = 'Κατοικίδια';
-    return $columns;
-}
-add_filter( 'manage_users_custom_column', 'petling_show_pets_column_content', 10, 3 );
-function petling_show_pets_column_content( $val, $column_name, $user_id ) {
-    if ( 'petling_pets' === $column_name ) {
-        $pets = get_user_meta( $user_id, 'petling_pets', true );
-        if ( ! empty( $pets ) && is_array( $pets ) ) {
-            $output = '<div style="margin-bottom: 5px;"><strong>Σύνολο: ' . count($pets) . '</strong></div><ul style="margin:0; padding-left:15px; list-style-type: disc;">';
-            foreach ( $pets as $pet ) {
-                $type = isset($pet['type']) && $pet['type'] === 'cat' ? 'Γάτα' : 'Σκύλος';
-                $name = !empty($pet['name']) ? esc_html($pet['name']) : 'Χωρίς όνομα';
-                $output .= '<li style="margin-bottom:4px;"><strong>' . $name . '</strong> - ' . $type . '</li>';
-            }
-            return $output . '</ul>';
-        }
-        return '<span style="color:#999;">Κανένα</span>';
-    }
-    return $val;
-}
-
-// =========================================================================
-// 6. ΜΗΧΑΝΙΣΜΟΣ ΥΠΕΝΘΥΜΙΣΕΩΝ (EMAILS)
-// =========================================================================
-if ( ! function_exists( 'petling_send_smart_reminder_email' ) ) {
-    function petling_send_smart_reminder_email( $to, $pet_names, $interval_days ) {
-        if ( empty($pet_names) ) {
-            $names_string = 'Τα φιλαράκια σου';
-            $emoji = '🐶🐱';
-        } else {
-            $names_string = implode( ' και ', $pet_names );
-            $emoji = '🐾';
-        }
-
-        $subject = 'Γουφ/Νιάου! Μήπως τελειώνουν οι λιχουδιές μας;'; 
-        $reorder_link = wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ); 
-        
-        $logo_id = get_theme_mod( 'custom_logo' );
-        $logo_img = wp_get_attachment_image_src( $logo_id, 'full' );
-        if ( $logo_img ) {
-            $logo_html = '<img src="' . esc_url( $logo_img[0] ) . '" alt="Petling Logo" style="max-width: 150px; height: auto; display: inline-block;">';
-        } else {
-            $logo_html = '<h1 style="color: #43282F; margin: 0; font-family: Georgia, serif;">Petling</h1>';
-        }
-
-        $message = '
-        <div style="background-color: #ffffff; padding: 20px 15px; font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif;">
-            <div style="max-width: 550px; margin: 0 auto; background-color: #ffffff; padding: 20px; border: 1px solid #C7B297; border-radius: 8px; color: #333333;">
-                <div style="text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eef0f2;">' . $logo_html . '</div>
-                <p style="font-size: 1.05em; margin-top: 0; color: #333333;">Γεια σου!</p>
-                <p style="color: #333333; font-size: 1.05em; line-height: 1.6;">
-                    Είμαστε η <strong style="color: #43282F;">Ίρις</strong> και η <strong style="color: #43282F;">Ντάρσι</strong> ' . $emoji . '<br>
-                    Έχουν περάσει περίπου ' . $interval_days . ' μέρες από την τελευταία φορά που μας πήρες τα αγαπημένα μας πράγματα και νομίζουμε ότι το ντουλάπι μας αδειάζει!
-                </p>
-                <div style="background: rgba(199, 178, 151, 0.12); padding: 15px; border-left: 4px solid #43282F; font-style: italic; border-radius: 0 4px 4px 0; color: #43282F; font-weight: 500; margin: 25px 0; font-size: 1em; line-height: 1.5; text-align: center;">
-                    Η Ίρις και η Ντάρσι ανυπομονούν για την επόμενη παραγγελία σας! 🥺
-                </div>
-                <p style="color: #333333;">Μπορείς να δεις τι μας πήρες την τελευταία φορά και να επαναλάβεις την παραγγελία σου εύκολα και γρήγορα με ένα κλικ εδώ:</p>
-                <div style="text-align: center; margin: 35px 0;">
-                    <a href="' . esc_url( $reorder_link ) . '" style="background-color: #C7B297; color: #43282F; padding: 14px 35px; text-decoration: none; font-weight: bold; border-radius: 5px; display: inline-block; font-size: 1.05em;">🛒 Επανάληψη Τελευταίας Παραγγελίας</a>
-                </div>
-                <hr style="border: 0; border-top: 1px solid #eef0f2; margin-top: 30px;" />
-                <p style="font-size: 0.85em; color: #8B6139; text-align: center; margin-bottom: 0; margin-top: 20px;">Με αγάπη,<br><strong style="color: #43282F;">Η ομάδα του Petling.gr</strong></p>
-            </div>
-        </div>';
-
-        wp_mail( $to, $subject, $message, array('Content-Type: text/html; charset=UTF-8') );
     }
 }
