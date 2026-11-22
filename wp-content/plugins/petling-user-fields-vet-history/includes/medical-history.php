@@ -11,12 +11,14 @@ function petling_crm_generate_ics() {
         $title = isset($_GET['title']) ? sanitize_text_field(stripslashes(urldecode($_GET['title']))) : 'Ραντεβού Petling';
         $date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : '';
         $desc = isset($_GET['desc']) ? sanitize_text_field(stripslashes(urldecode($_GET['desc']))) : '';
+        $uid = isset($_GET['uid']) ? sanitize_text_field($_GET['uid']) : uniqid() . '@petling.gr';
+        
         if ( empty($date) ) return;
         $start = date('Ymd', strtotime($date));
         $end = date('Ymd', strtotime($date . ' +1 day'));
         $stamp = date('Ymd\THis\Z');
         
-        $ics_content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Petling CRM//NONSGML v1.0//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:" . uniqid() . "@petling.gr\r\nDTSTAMP:" . $stamp . "\r\nDTSTART;VALUE=DATE:" . $start . "\r\nDTEND;VALUE=DATE:" . $end . "\r\nSUMMARY:" . $title . "\r\nDESCRIPTION:" . $desc . "\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:Υπενθύμιση Petling\r\nTRIGGER:-P1W\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+        $ics_content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Petling CRM//NONSGML v1.0//EN\r\nCALSCALE:GREGORIAN\r\nBEGIN:VEVENT\r\nUID:" . $uid . "\r\nDTSTAMP:" . $stamp . "\r\nDTSTART;VALUE=DATE:" . $start . "\r\nDTEND;VALUE=DATE:" . $end . "\r\nSUMMARY:" . $title . "\r\nDESCRIPTION:" . str_replace("\n", "\\n", $desc) . "\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:Υπενθύμιση Petling\r\nTRIGGER:-P1W\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
         
         header('Content-Type: text/calendar; charset=utf-8');
         header('Content-Disposition: attachment; filename="petling-reminder.ics"');
@@ -25,7 +27,7 @@ function petling_crm_generate_ics() {
     }
 }
 
-function petling_crm_get_ics_link( $title, $date ) {
+function petling_crm_get_ics_link( $title, $date, $pet_id, $record_id, $type ) {
     if ( empty( $date ) || $date === '0000-00-00' || strtotime($date) <= 0 ) return '';
     
     $user_id = get_current_user_id();
@@ -39,9 +41,13 @@ function petling_crm_get_ics_link( $title, $date ) {
         }
     }
     
-    $details = "Υπενθύμιση από το Petling: Καλέστε τον κτηνίατρο " . ($vet_contact_str ? $vet_contact_str : 'σας') . " για να κλείσετε / επιβεβαιώσετε το ραντεβού σας.";
+    $deep_link = add_query_arg( ['view' => 'medical', 'pet_id' => $pet_id], wc_get_endpoint_url( 'my-pets', '', wc_get_page_permalink( 'myaccount' ) ) );
     
-    return add_query_arg( [ 'petling_ics' => '1', 'title' => urlencode($title), 'date' => $date, 'desc' => urlencode($details) ], site_url() );
+    $details = "Υπενθύμιση από το Petling: Καλέστε τον κτηνίατρο " . ($vet_contact_str ? $vet_contact_str : 'σας') . ".\n\nΕνημέρωση Ιστορικού:\nΓια να δηλώσετε την εξέταση ως ολοκληρωμένη ή να την αναβάλετε, πατήστε το παρακάτω link για να μεταφερθείτε στην καρτέλα του κατοικιδίου σας:\n" . $deep_link;
+    
+    $uid = md5( $pet_id . '_' . $type . '_' . $record_id ) . '@petling.gr';
+    
+    return add_query_arg( [ 'petling_ics' => '1', 'title' => urlencode($title), 'date' => $date, 'desc' => urlencode($details), 'uid' => $uid ], site_url() );
 }
 
 add_action( 'template_redirect', 'petling_crm_handle_vets' );
@@ -89,23 +95,25 @@ function petling_crm_handle_actions() {
         if ($edit_id > 0) {
             $old_record = $wpdb->get_row( $wpdb->prepare("SELECT next_vaccine_date FROM {$wpdb->prefix}petling_vaccines WHERE id = %d", $edit_id) );
             $wpdb->update( $wpdb->prefix . 'petling_vaccines', array( 'vaccine_name' => $v_name, 'next_vaccine_date' => $next_date, 'vet_name' => $vet_name ), array('id' => $edit_id) );
+            $record_id = $edit_id;
             
-            // Κατέβασμα Ημερολογίου ΜΟΝΟ αν άλλαξε η ημερομηνία
             if (!empty($next_date) && (!$old_record || $old_record->next_vaccine_date !== $next_date)) {
                 $generate_ics = true;
             }
         } else {
+            // ΕΠΑΝΑΦΟΡΑ: Διαγραφή παλιάς αποπαρασίτωσης ίδιου τύπου (για καθαρό timeline)
             if (in_array($v_name, $parasite_options)) {
                 $wpdb->query( $wpdb->prepare("DELETE FROM {$wpdb->prefix}petling_vaccines WHERE pet_unique_id = %s AND vaccine_name = %s", $pet_id, $v_name) );
             }
             $wpdb->insert( $wpdb->prefix . 'petling_vaccines', array( 'pet_unique_id' => $pet_id, 'vaccine_name' => $v_name, 'date_administered' => date('Y-m-d'), 'next_vaccine_date' => $next_date, 'vet_name' => $vet_name, 'status' => 'verified', 'created_by' => 'owner' ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+            $record_id = $wpdb->insert_id;
             if (!empty($next_date)) $generate_ics = true;
         }
         
         $redirect_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $pet_id ), wc_get_endpoint_url( 'my-pets' ) );
         if ($generate_ics) {
             $type_text = in_array($v_name, $parasite_options) ? '🪱 Αποπαρασίτωση' : '💉 Εμβολιασμός';
-            $ics_url = petling_crm_get_ics_link( $type_text . ': ' . $v_name . ' (' . $p_name . ')', $next_date );
+            $ics_url = petling_crm_get_ics_link( $type_text . ': ' . $v_name . ' (' . $p_name . ')', $next_date, $pet_id, $record_id, 'vaccine' );
             $redirect_url = add_query_arg('auto_ics', urlencode($ics_url), $redirect_url);
         }
         wp_safe_redirect( $redirect_url ); exit;
@@ -128,18 +136,20 @@ function petling_crm_handle_actions() {
         if ($edit_id > 0) {
             $old_record = $wpdb->get_row( $wpdb->prepare("SELECT next_exam_date FROM {$wpdb->prefix}petling_vet_notes WHERE id = %d", $edit_id) );
             $wpdb->update( $wpdb->prefix . 'petling_vet_notes', array( 'vet_comment' => $vet_comment, 'next_exam_date'=> $next_exam, 'vet_name' => $vet_name, 'created_at' => $incident_date ), array('id' => $edit_id) );
+            $record_id = $edit_id;
             
             if (!empty($next_exam) && (!$old_record || $old_record->next_exam_date !== $next_exam)) {
                 $generate_ics = true;
             }
         } else {
             $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 'pet_unique_id' => $pet_id, 'vet_comment' => $vet_comment, 'next_exam_date'=> $next_exam, 'vet_name' => $vet_name, 'status' => 'draft', 'created_by' => 'owner', 'created_at' => $incident_date ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+            $record_id = $wpdb->insert_id;
             if (!empty($next_exam)) $generate_ics = true;
         }
         
         $redirect_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $pet_id ), wc_get_endpoint_url( 'my-pets' ) );
         if ($generate_ics) {
-            $ics_url = petling_crm_get_ics_link( '🩺 Επανεξέταση (' . $p_name . ')', $next_exam );
+            $ics_url = petling_crm_get_ics_link( '🩺 Επανεξέταση (' . $p_name . ')', $next_exam, $pet_id, $record_id, 'note' );
             $redirect_url = add_query_arg('auto_ics', urlencode($ics_url), $redirect_url);
         }
         wp_safe_redirect( $redirect_url ); exit;
@@ -173,18 +183,20 @@ function petling_crm_handle_actions() {
         if ($edit_id > 0) {
             $old_record = $wpdb->get_row( $wpdb->prepare("SELECT next_exam_date FROM {$wpdb->prefix}petling_vet_notes WHERE id = %d", $edit_id) );
             $wpdb->update( $wpdb->prefix . 'petling_vet_notes', array( 'vet_comment' => $comment, 'vet_name' => '', 'next_exam_date' => $next_exam, 'created_at' => $incident_date ), array('id' => $edit_id) );
+            $record_id = $edit_id;
             
             if (!empty($next_exam) && (!$old_record || $old_record->next_exam_date !== $next_exam)) {
                 $generate_ics = true;
             }
         } else {
             $wpdb->insert( $wpdb->prefix . 'petling_vet_notes', array( 'pet_unique_id' => $pet_id, 'vet_comment' => $comment, 'next_exam_date'=> $next_exam, 'vet_name' => '', 'status' => 'verified', 'created_by' => 'owner', 'created_at' => $incident_date ), array( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) );
+            $record_id = $wpdb->insert_id;
             if (!empty($next_exam)) $generate_ics = true;
         }
         
         $redirect_url = add_query_arg( array( 'view' => 'medical', 'pet_id' => $pet_id, 'saved' => '1' ), wc_get_endpoint_url( 'my-pets' ) );
         if ($generate_ics) {
-            $ics_url = petling_crm_get_ics_link( '🩸 Επανεξέταση Τιμών / Αιματολογικών (' . $p_name . ')', $next_exam );
+            $ics_url = petling_crm_get_ics_link( '🩸 Επανεξέταση Τιμών / Αιματολογικών (' . $p_name . ')', $next_exam, $pet_id, $record_id, 'blood' );
             $redirect_url = add_query_arg('auto_ics', urlencode($ics_url), $redirect_url);
         }
         wp_safe_redirect( $redirect_url ); exit;
@@ -213,6 +225,23 @@ function petling_crm_handle_actions() {
         wp_safe_redirect( add_query_arg( array( 'view' => 'medical', 'pet_id' => $pet_id, 'saved' => '1' ), wc_get_endpoint_url( 'my-pets' ) ) ); exit;
     }
     
+    // --- DASHBOARD ACTIONS (SKIP ALERT) ---
+    if ( isset( $_GET['action'] ) && $_GET['action'] === 'skip_next' && isset( $_GET['item_id'] ) && isset( $_GET['type'] ) ) {
+        if ( wp_verify_nonce( $_GET['_wpnonce'], 'skip_next_' . $_GET['item_id'] ) ) {
+            $item_id = intval($_GET['item_id']);
+            if ($_GET['type'] === 'vaccine' || $_GET['type'] === 'parasite') {
+                $wpdb->update( $wpdb->prefix . 'petling_vaccines', ['next_vaccine_date' => ''], ['id' => $item_id] );
+            } else {
+                $wpdb->update( $wpdb->prefix . 'petling_vet_notes', ['next_exam_date' => ''], ['id' => $item_id] );
+            }
+            $redirect = remove_query_arg( ['action', 'item_id', 'type', '_wpnonce', 'auto_ics'] );
+            if (isset($_GET['open_modal'])) {
+                $redirect = add_query_arg('open_modal', sanitize_text_field($_GET['open_modal']), $redirect);
+            }
+            wp_safe_redirect( $redirect ); exit;
+        }
+    }
+
     // --- ΔΙΑΓΡΑΦΕΣ ---
     if ( isset( $_GET['action'] ) ) {
         if ( $_GET['action'] === 'del_vac' && isset( $_GET['vac_id'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'del_vac_' . $_GET['vac_id'] ) ) {
@@ -266,7 +295,9 @@ function petling_crm_render_medical_history( $pet ) {
     $upcoming_actions = [];
     $chart_labels = [];
     $chart_data = [];
-    $today_obj = new DateTime('today');
+    
+    $today_obj = new DateTime('today', wp_timezone());
+    $today_date_str = $today_obj->format('Y-m-d');
 
     // Εμβόλια & Αποπαρασιτώσεις
     foreach ($all_records as $rec) {
@@ -282,14 +313,14 @@ function petling_crm_render_medical_history( $pet ) {
         ];
 
         if (!empty($rec->next_vaccine_date) && $rec->next_vaccine_date !== '0000-00-00') {
-            $next_obj = new DateTime($rec->next_vaccine_date);
+            $next_obj = new DateTime($rec->next_vaccine_date, wp_timezone());
             $diff = $today_obj->diff($next_obj)->days;
             $invert = $today_obj->diff($next_obj)->invert; 
             
-            if ($invert) {
-                $upcoming_actions[] = ['status' => 'red', 'msg' => 'Έληξε: ' . $rec->vaccine_name];
-            } elseif ($diff <= 30) {
-                $upcoming_actions[] = ['status' => 'orange', 'msg' => 'Σε '.$diff.' μέρες: ' . $rec->vaccine_name];
+            if ($invert && $diff <= 180) {
+                $upcoming_actions[] = ['status' => 'red', 'msg' => 'Έληξε: ' . $rec->vaccine_name, 'type' => $type, 'id' => $rec->id];
+            } elseif (!$invert && $diff <= 30) {
+                $upcoming_actions[] = ['status' => 'orange', 'msg' => 'Σε '.$diff.' μέρες: ' . $rec->vaccine_name, 'type' => $type, 'id' => $rec->id];
             }
         }
     }
@@ -305,8 +336,11 @@ function petling_crm_render_medical_history( $pet ) {
             ];
             $weights_for_chart[] = ['date' => $note->created_at, 'weight' => $note->weight];
         } else {
-            // Ανίχνευση Αιματολογικών (χάρη στο [BLOOD] tag)
+            $note_type = 'note';
+            $title = 'Ιατρική Σημείωση / Επίσκεψη';
             if (strpos($note->vet_comment, '[BLOOD]') !== false) {
+                $note_type = 'blood';
+                $title = 'Αιματολογικές / Εξετάσεις';
                 $desc = str_replace('[BLOOD]', '', $note->vet_comment);
                 $html_desc = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $desc);
                 
@@ -325,15 +359,15 @@ function petling_crm_render_medical_history( $pet ) {
                 ];
             }
             
-            // Ειδοποιήσεις Επανεξέτασης (Κοινές για Σημείωση και Αιματολογικές)
+            // Ειδοποιήσεις Επανεξέτασης
             if (!empty($note->next_exam_date) && $note->next_exam_date !== '0000-00-00') {
-                $next_obj = new DateTime($note->next_exam_date);
+                $next_obj = new DateTime($note->next_exam_date, wp_timezone());
                 $diff = $today_obj->diff($next_obj)->days;
                 $invert = $today_obj->diff($next_obj)->invert;
-                if ($invert) {
-                    $upcoming_actions[] = ['status' => 'red', 'msg' => 'Επανεξέταση που πέρασε!'];
-                } elseif ($diff <= 30) {
-                    $upcoming_actions[] = ['status' => 'orange', 'msg' => 'Επανεξέταση σε '.$diff.' μέρες'];
+                if ($invert && $diff <= 180) {
+                    $upcoming_actions[] = ['status' => 'red', 'msg' => 'Επανεξέταση που πέρασε!', 'type' => $note_type, 'id' => $note->id];
+                } elseif (!$invert && $diff <= 30) {
+                    $upcoming_actions[] = ['status' => 'orange', 'msg' => 'Επανεξέταση σε '.$diff.' μέρες', 'type' => $note_type, 'id' => $note->id];
                 }
             }
         }
@@ -348,6 +382,7 @@ function petling_crm_render_medical_history( $pet ) {
     }
 
     $min_future_date = date('Y-m-d'); 
+    
     $age_str = '';
     if ( !empty($pet['birthday']) ) {
         try {
@@ -374,6 +409,22 @@ function petling_crm_render_medical_history( $pet ) {
         details#vet-pass-block summary { background: transparent !important; color: #fff !important; }
         details#vet-pass-block summary::after { color: #fff !important; }
         
+        /* Dashboard Λευκή Κάρτα */
+        .petling-dashboard-card { background: #fff; border: 1px solid #e2d4c0; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .dashboard-header { font-weight: bold; font-size: 16px; color: #43282F; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .dashboard-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #f0f0f0; gap: 15px; flex-wrap: wrap; }
+        .dashboard-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .dashboard-item-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px; }
+        .dashboard-item-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .dashboard-item-dot.red { background: #e62121; box-shadow: 0 0 5px rgba(230,33,33,0.4); }
+        .dashboard-item-dot.orange { background: #f59e0b; box-shadow: 0 0 5px rgba(245,158,11,0.4); }
+        .dashboard-item-title { font-size: 14px; color: #333; font-weight: 500; line-height: 1.3; }
+        .dashboard-item-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .dash-action-btn { background: #fdfaf5; border: 1px solid #e2d4c0; padding: 6px 12px; border-radius: 6px; font-size: 12px; color: #43282F; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-weight: bold; }
+        .dash-action-btn.done:hover { background: #e6f4ea; border-color: #5b9a68; color: #2e663a; }
+        .dash-action-btn.edit:hover { background: #fff5e6; border-color: #f59e0b; color: #b47400; }
+        .dash-action-btn.skip:hover { background: #fbe9e7; border-color: #e62121; color: #a11212; padding: 6px 8px; }
+        
         /* Filter Chips */
         .petling-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; }
         .petling-chip { background: #fdfdfd; border: 1px solid #ddd; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; white-space: nowrap; color: #555; transition: all 0.2s; }
@@ -388,6 +439,7 @@ function petling_crm_render_medical_history( $pet ) {
         .timeline-title { font-size: 16px; color: #43282F; margin: 0 0 5px 0; }
         .timeline-desc { font-size: 14px; color: #555; margin: 0; line-height: 1.5; }
         .timeline-next { margin-top: 10px; font-size: 13px; color: #d63638; font-weight: bold; background: #fff5f5; display: inline-block; padding: 4px 8px; border-radius: 4px; }
+        .timeline-next-past { margin-top: 10px; font-size: 13px; color: #888; font-weight: normal; background: #f9f9f9; border: 1px dashed #ccc; display: inline-block; padding: 4px 8px; border-radius: 4px; }
         
         /* Floating Action Button (FAB) & Modals */
         .petling-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #43282F; color: #fff; border-radius: 50%; font-size: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 999; transition: transform 0.2s; border: none; }
@@ -401,10 +453,7 @@ function petling_crm_render_medical_history( $pet ) {
         .petling-fab-menu.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .fab-btn { background: #fff; border: 1px solid #ddd; padding: 12px 20px; border-radius: 30px; font-weight: bold; color: #43282F; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; text-align: right; }
         
-        .dashboard-alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 6px; margin-bottom: 25px; }
-        .dashboard-alert.red { background: #f8d7da; border-color: #dc3545; color: #721c24; }
-        
-        /* Χρονιές στο Timeline - Διορθωμένο Κενό */
+        /* Χρονιές στο Timeline */
         .timeline-year-divider { background: #f3f4f6; color: #888; font-weight: bold; text-align: center; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 20px; border: 1px solid #ddd; position: relative; z-index: 2; margin-left: -5px; }
         
         /* Φόρμες μέσα στα Modals */
@@ -417,15 +466,29 @@ function petling_crm_render_medical_history( $pet ) {
     </div>
     <div class="petling-toast-notification" id="petling-toast" style="display: none;">✅ Η αλλαγή αποθηκεύτηκε!</div>
 
-    <!-- 1. DASHBOARD ΤΩΝ ΕΠΟΜΕΝΩΝ -->
+    <!-- 1. ΝΕΟ ΛΕΥΚΟ DASHBOARD ΕΚΚΡΕΜΟΤΗΤΩΝ -->
     <?php if (!empty($upcoming_actions)) : ?>
-        <div class="dashboard-alert <?php echo $upcoming_actions[0]['status'] === 'red' ? 'red' : ''; ?>">
-            <strong style="display:block; margin-bottom:8px;">🔔 Εκκρεμότητες / Επερχόμενα:</strong>
-            <ul style="margin:0; padding-left:20px;">
-                <?php foreach ($upcoming_actions as $act) : ?>
-                    <li><?php echo esc_html($act['msg']); ?></li>
+        <div class="petling-dashboard-card">
+            <div class="dashboard-header">📋 Πρέπει να γίνουν:</div>
+            <div class="dashboard-list">
+                <?php foreach ($upcoming_actions as $act) : 
+                    $skip_url = wp_nonce_url( add_query_arg( ['action' => 'skip_next', 'item_id' => $act['id'], 'type' => $act['type']] ), 'skip_next_' . $act['id'] );
+                    $done_modal = ($act['type'] === 'vaccine' || $act['type'] === 'parasite') ? 'modal-vaccine' : ($act['type'] === 'blood' ? 'modal-blood' : 'modal-note');
+                    $done_url = add_query_arg( 'open_modal', $done_modal, $skip_url );
+                ?>
+                    <div class="dashboard-item">
+                        <div class="dashboard-item-info">
+                            <div class="dashboard-item-dot <?php echo esc_attr($act['status']); ?>"></div>
+                            <div class="dashboard-item-title"><?php echo esc_html($act['msg']); ?></div>
+                        </div>
+                        <div class="dashboard-item-actions">
+                            <a href="<?php echo esc_url($done_url); ?>" class="dash-action-btn done" title="Αποθήκευση νέας εγγραφής (Σβήνει το παλιό)">✔️ Έγινε</a>
+                            <button type="button" class="dash-action-btn edit" onclick="jQuery('.timeline-item[data-id=\'<?php echo esc_attr($act['id']); ?>\'] .edit-timeline-btn').click();" title="Αλλαγή ημερομηνίας">📅 Αλλαγή</button>
+                            <a href="<?php echo esc_url($skip_url); ?>" class="dash-action-btn skip" onclick="return confirm('Να σβηστεί η υπενθύμιση;');" title="Παράλειψη / Διαγραφή ειδοποίησης">✖️</a>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -541,7 +604,6 @@ function petling_crm_render_medical_history( $pet ) {
                      data-weight="<?php echo esc_attr($item['raw_weight']); ?>"
                      data-title="<?php echo esc_attr($item['title']); ?>">
                      
-                    <!-- Hidden element to store raw comment for JS Edit -->
                     <div class="raw-comment" style="display:none;"><?php echo esc_html($item['raw_comment']); ?></div>
                     
                     <div class="timeline-icon"><?php echo $item['icon']; ?></div>
@@ -551,8 +613,15 @@ function petling_crm_render_medical_history( $pet ) {
                         <p class="timeline-desc"><?php echo $item['desc']; ?></p>
                     <?php endif; ?>
                     
-                    <?php if (!empty($item['next']) && $item['next'] !== '0000-00-00'): ?>
-                        <div class="timeline-next">📅 Επόμενο: <?php echo date('d/m/Y', strtotime($item['next'])); ?></div>
+                    <!-- ΛΟΓΙΚΗ ΕΜΦΑΝΙΣΗΣ ΗΜΕΡΟΜΗΝΙΑΣ (ΣΒΗΣΜΕΝΗ Η ΕΝΕΡΓΗ) -->
+                    <?php if (!empty($item['next']) && $item['next'] !== '0000-00-00'): 
+                        $is_past = ($item['next'] < $today_date_str);
+                    ?>
+                        <?php if ($is_past): ?>
+                            <div class="timeline-next-past">📅 Είχε οριστεί: <?php echo date('d/m/Y', strtotime($item['next'])); ?></div>
+                        <?php else: ?>
+                            <div class="timeline-next">📅 Επόμενο: <?php echo date('d/m/Y', strtotime($item['next'])); ?></div>
+                        <?php endif; ?>
                     <?php endif; ?>
                     
                     <div style="position:absolute; top:10px; right:15px; display:flex; gap:10px; align-items:center;">
@@ -634,7 +703,7 @@ function petling_crm_render_medical_history( $pet ) {
             <button class="petling-modal-close" onclick="closeModals()">&times;</button>
             <h3 style="margin-top:0; color:#43282F;" class="modal-title-dynamic">🩸 Αιματολογικές (Δείκτες)</h3>
             <p style="font-size:13px; color:#666;">Καταγράψτε μόνο τις τιμές που βρίσκονται εκτός των φυσιολογικών ορίων (αυξημένες/μειωμένες) για γρήγορη αναφορά.</p>
-            <form method="post" action="">
+            <form method="post" action="" id="blood-form">
                 <?php wp_nonce_field( 'petling_add_blood', 'petling_blood_nonce' ); ?>
                 <input type="hidden" name="pet_unique_id" value="<?php echo esc_attr($pet_id); ?>">
                 <input type="hidden" name="edit_id" value="">
@@ -716,6 +785,14 @@ function petling_crm_render_medical_history( $pet ) {
     <script>
     jQuery(document).ready(function($) {
         
+        // --- SMART DASHBOARD - AUTO OPEN MODAL ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('open_modal')) {
+            openModal(urlParams.get('open_modal'));
+            urlParams.delete('open_modal');
+            window.history.replaceState(null, '', window.location.pathname + '?' + urlParams.toString());
+        }
+
         // --- VETS LOGIC ---
         var nextVetIndex = $('.vet-block').length;
         $(document).off('click', '.edit-vet-btn').on('click', '.edit-vet-btn', function(e) {
@@ -747,6 +824,14 @@ function petling_crm_render_medical_history( $pet ) {
         $(document).on('click', '.remove-blood-btn', function(e) {
             e.preventDefault();
             $(this).closest('.blood-marker-row').remove();
+        });
+        
+        // ΔΙΟΡΘΩΣΗ BUG 4: Αποτροπή αποθήκευσης κενής εξέτασης αίματος
+        $('#blood-form').on('submit', function(e) {
+            if ($('.blood-marker-row').length === 0) {
+                e.preventDefault();
+                alert('Παρακαλώ προσθέστε τουλάχιστον μία Εξέταση (Δείκτη) πριν αποθηκεύσετε.');
+            }
         });
 
         // --- SMART EDIT BUTTON LOGIC ---
