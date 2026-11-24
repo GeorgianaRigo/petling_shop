@@ -1,6 +1,18 @@
 function ptlnNextStep(step) {
     jQuery('#ptl-nutrition-app .ptl-step').removeClass('active');
     jQuery('#ptl-nutrition-app #ptl-step-' + step).addClass('active');
+
+    var appEl = jQuery('#ptl-nutrition-app');
+    if (appEl.length) {
+        setTimeout(function () {
+            var appEl = jQuery('#ptl-recipe-app');
+            if (appEl.length) {
+                jQuery('html, body').stop().animate({
+                    scrollTop: Math.max(0, appEl.offset().top - 80)
+                }, 300);
+            }
+        }, 50);
+    }
 }
 
 function ptlnSmartNextStep(step) {

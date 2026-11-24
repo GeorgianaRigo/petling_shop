@@ -15,6 +15,18 @@ function ptlrNextStep(step) {
     } else {
         jQuery('.ptl-paywall-banner').show();
     }
+
+    var appEl = jQuery('#ptl-recipe-app');
+    if (appEl.length) {
+        setTimeout(function () {
+            var appEl = jQuery('#ptl-recipe-app');
+            if (appEl.length) {
+                jQuery('html, body').stop().animate({
+                    scrollTop: Math.max(0, appEl.offset().top - 80)
+                }, 300);
+            }
+        }, 50);
+    }
 }
 
 function ptlrValidateStep1() {
