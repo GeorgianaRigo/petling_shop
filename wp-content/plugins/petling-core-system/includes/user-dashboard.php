@@ -117,13 +117,11 @@ function ptl_custom_user_dashboard_shortcode() {
                         $printed_recipes++;
 
                         if ( strpos( $result_text, 'VET' ) !== false ) {
-                            $health_cond = get_post_meta( $post_id, 'ptl_health_condition', true );
-                            echo '<div class="ptl-recipe-card" data-protein="vet" style="border-color:#d63638; background:#fff3f3;">';
-                            echo '<div class="ptl-recipe-header" style="background:#fff3f3;">';
-                            echo '<span class="ptl-recipe-title" style="color:#d63638;">🩺 Κλινική Δίαιτα (' . esc_html( $health_cond ) . ')</span>';
-                            echo '<span style="font-size:12px; color:#888;">' . $recipe_date . '</span>';
-                            echo '</div></div>';
-                        } elseif ( $recipe_data_json ) {
+                            continue;
+                        }
+
+                        if ( $recipe_data_json ) {
+                            $printed_recipes++;
                             $data     = json_decode( $recipe_data_json, true );
                             $protein  = $data['p1'] ?? 'Ειδική';
                             $total_g  = isset( $data['total_g'] ) ? floatval( $data['total_g'] ) : 300;

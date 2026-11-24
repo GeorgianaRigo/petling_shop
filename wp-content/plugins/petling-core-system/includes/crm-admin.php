@@ -108,19 +108,46 @@ function ptl_custom_lead_column( $column,$post_id ) {
             }
             break;
 
-        case 'ptl_status':
-            global $wpdb;
-            $email = get_post_meta($post_id, 'ptl_lead_email', true );
-            if ( ! $email ) {$title_parts = explode( ' - ', get_the_title( $post_id ) );$email = is_email( $title_parts[0] ) ?$title_parts[0] : '';
-            }
-            $promo_table =$wpdb->prefix . 'petling_partner_leads';
-            if ( ! empty( $email ) &&$wpdb->get_var( "SHOW TABLES LIKE '$promo_table'" ) === $promo_table ) {$promo = $wpdb->get_row($wpdb->prepare( "SELECT status FROM $promo_table WHERE email = %s ORDER BY created_at DESC LIMIT 1", $email ) );
+            case 'ptl_status':
+                global $wpdb;
+                $type   = get_post_meta( $post_id, 'ptl_lead_type', true );
+                $result = get_post_meta( $post_id, 'ptl_lead_result', true );
+                $code   = get_post_meta( $post_id, 'ptl_coupon_code', true );
+    
+                if ( empty( $code ) ) {
+                    if ( strpos( $type, 'PROMO_' ) === 0 ) {
+                        $code = trim( $result );
+                    } elseif ( preg_match( '/\b(VET-[A-Z0-9]+)\b/', $result, $m ) ) {
+                        $code = $m[1];
+                    }
+                }
+    
+                $promo_table = $wpdb->prefix . 'petling_partner_leads';
+                $promo       = null;
+    
+                if ( $wpdb->get_var( "SHOW TABLES LIKE '$promo_table'" ) === $promo_table ) {
+                    if ( ! empty( $code ) ) {
+                        $promo = $wpdb->get_row( $wpdb->prepare( "SELECT coupon_code, status, redeemed_at FROM $promo_table WHERE coupon_code = %s LIMIT 1", $code ) );
+                    } elseif ( strpos( $result, 'VET' ) !== false || $type === 'VET_MANOLAKOU' ) {
+                        // Fallback μόνο για παλιές κλινικές εγγραφές που δεν είχαν σώσει ptl_coupon_code
+                        $email = get_post_meta( $post_id, 'ptl_lead_email', true );
+                        if ( ! empty( $email ) ) {
+                            $promo = $wpdb->get_row( $wpdb->prepare( "SELECT coupon_code, status, redeemed_at FROM $promo_table WHERE email = %s AND partner_prefix = 'VET' ORDER BY created_at DESC LIMIT 1", $email ) );
+                        }
+                    }
+                }
+    
                 if ( $promo ) {
-                    if ( $promo->status === 'redeemed' ) { echo '<span style="display:inline-block; padding:4px 8px; background:#f0f0f0; color:#555; border-radius:4px; font-size:11px; border:1px solid #ccc;">✔️ Εξαργυρώθηκε</span>'; }
-                    else { echo '<span style="display:inline-block; padding:4px 8px; background:#eef7ee; color:#5b9a68; border-radius:4px; font-size:11px; border:1px solid #5b9a68;">🟢 Ενεργό Κουπόνι</span>'; }
-                } else { echo '<span style="color:#999;">-</span>'; }
-            } else { echo '<span style="color:#999;">-</span>'; }
-            break;
+                    if ( $promo->status === 'redeemed' ) {
+                        echo '<span style="display:inline-block; padding:4px 8px; background:#f0f0f0; color:#555; border-radius:4px; font-size:11px; border:1px solid #ccc;">✔️ Εξαργυρώθηκε</span>';
+                    } else {
+                        echo '<span style="display:inline-block; padding:4px 8px; background:#eef7ee; color:#5b9a68; border-radius:4px; font-size:11px; border:1px solid #5b9a68;">🟢 Ενεργό Κουπόνι</span>';
+                    }
+                    echo '<br><code style="display:inline-block; margin-top:4px; font-size:11px;">' . esc_html( $promo->coupon_code ) . '</code>';
+                } else {
+                    echo '<span style="color:#999;">-</span>';
+                }
+                break;
     }
 }
 

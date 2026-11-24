@@ -1,5 +1,5 @@
-.ptl-dash-container { display: flex; flex-direction: column; gap: 20px; font-family: sans-serif; }
-@media(min-width: 992px) { .ptl-dash-container { flex-direction: row; align-items: flex-start; } }
+.ptl-dash-container:has(.ptl-dash-menu) { display: flex; flex-direction: column; gap: 20px; font-family: sans-serif; }
+@media(min-width: 992px) { .ptl-dash-container:has(.ptl-dash-menu) { flex-direction: row; align-items: flex-start; } }
 .ptl-dash-menu { display: flex; flex-direction: row; gap: 10px; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; background: #fffaf1; padding: 15px; border-radius: 12px; border: 1px solid #e0d5c1; scrollbar-width: none; }
 .ptl-dash-menu::-webkit-scrollbar { display: none; }
 @media(min-width: 992px) { .ptl-dash-menu { flex-direction: column; min-width: 220px; overflow-x: visible; white-space: normal; } }
