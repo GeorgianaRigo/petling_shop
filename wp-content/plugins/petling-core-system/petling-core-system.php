@@ -3,7 +3,7 @@
 Plugin Name: Petling Core System
 Plugin URI: https://petling.gr
 Description: Το κεντρικό, ΕΝΙΑΙΟ σύστημα του Petling. Περιλαμβάνει: Κεντρικό CRM, Διατροφικό Σύμβουλο, Δημιουργία Συνταγής, και το πλήρες σύστημα Promo & QR Συνεργατών.
-Version: 4.9
+Version: 5.0
 Author: Petling
 */
 
@@ -66,15 +66,11 @@ function ptl_register_leads_cpt() {
 add_action( 'admin_menu', 'petling_core_unified_admin_menu' );
 function petling_core_unified_admin_menu() {
     if ( empty ( $GLOBALS['admin_page_hooks']['petling-main'] ) ) {
-        // Η Κεντρική Πατούσα
         add_menu_page( 'Petling', 'Petling', 'manage_options', 'petling-main', 'ptl_core_fallback_page', 'dashicons-pets', 55 );
-        
-        // Το ΜΟΝΑΔΙΚΟ ορατό μενού (Λίστα Πελατών)
         add_submenu_page( 'petling-main', 'Λίστα Πελατών', 'Λίστα Πελατών', 'manage_options', 'edit.php?post_type=ptl_quiz_lead' );
         remove_submenu_page( 'petling-main', 'petling-main' );
     }
     
-    // Κρυφές σελίδες για τα Tabs
     add_submenu_page( null, 'Ρυθμίσεις Promo', 'Ρυθμίσεις', 'manage_options', 'ptl-promo-settings', 'ptl_render_settings_page' );
     add_submenu_page( null, 'QR Code', 'QR Code', 'manage_options', 'ptl-promo-qrcode', 'ptl_render_qrcode_page' );
 }
@@ -618,13 +614,14 @@ function ptl_recipe_maker_shortcode() {
     foreach($r_data['fruits'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
     $html .= '</select><label class="ptl-section-label">7. Έλαια</label><select name="oil"><option value="" disabled selected>Επίλεξε...</option>';
     foreach($r_data['oils'] as $item) { $html .= '<option value="'.esc_attr($item).'">'.esc_html($item).'</option>'; }
+    $html .= '</select>';
     
-    $html .= '</select><div id="ptl-premium-warning" class="ptl-premium-warning">✨ Έχετε επιλέξει Premium υλικά (🔒).<br><span style="font-weight:normal;">Η αποθήκευση αυτής της συνταγής θα απαιτήσει πληρωμή στο επόμενο βήμα.</span></div>';
+    $html .= '<div id="ptl-premium-warning" class="ptl-premium-warning">✨ Έχετε επιλέξει Premium υλικά (🔒).<br><span style="font-weight:normal;">Η αποθήκευση αυτής της συνταγής θα απαιτήσει πληρωμή στο επόμενο βήμα.</span></div>';
     $html .= '<div id="ptl-step3-error" class="ptl-inline-error" style="margin-top:20px; text-align:center; font-size:15px;"></div>';
     $html .= '<div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrNextStep(2)">&larr; Πίσω</button><button type="button" class="ptl-btn-next" onclick="ptlrValidateStep3()">Επόμενο &rarr;</button></div></div>';
     
     // ΒΗΜΑ 4
-    $html .= '<div class="ptl-step" id="rec-step-4"><h3>📩 Ολοκλήρωση</h3>';
+    $html .= '<div class="ptl-step" id="rec-step-4"><div id="ptl-duplicate-box" style="display:none;"></div><div id="ptl-step4-body"><h3>📩 Ολοκλήρωση</h3>';
     if ( $is_logged ) {
         $html .= '<div style="background:#eef7ee; padding:20px; border-radius:8px; border-left:4px solid #5b9a68; margin-bottom:20px;">';
         $html .= '<p style="margin:0; font-size:15px; color:#333;">Συνδεδεμένος λογαριασμός: <strong>' . esc_html($current_user->display_name) . '</strong>.</p>';
@@ -638,6 +635,7 @@ function ptl_recipe_maker_shortcode() {
         <label>Κωδικός Πρόσβασης:</label><input type="password" name="user_password" required>
         <p style="font-size:12px; color:#666; margin-top:5px; line-height:1.4;">Δημιουργήστε έναν κωδικό. Αν έχετε ήδη λογαριασμό, βάλτε τον κωδικό σας και θα συνδεθείτε αυτόματα.</p>';
     }
+    $html .= '</div>';
     
     $submit_text = $limit_reached ? 'Ολοκλήρωση & Πληρωμή' : 'Αποθήκευση (Δωρεάν)';
     $html .= '<div class="ptl-quiz-nav"><button type="button" class="ptl-btn-prev" onclick="ptlrSmartPrevStep(3)">&larr; Πίσω</button><button type="submit" class="ptl-btn-submit">'.$submit_text.'</button></div></div>';
@@ -665,7 +663,6 @@ function ptl_recipe_maker_shortcode() {
             }
         });
 
-        // ΜΠΛΟΚΑΡΟΥΜΕ ΤΟ ENTER ΓΙΑ ΝΑ ΜΗΝ ΦΕΥΓΕΙ Η ΦΟΡΜΑ ΚΑΤΑ ΛΑΘΟΣ 
         jQuery('#ptl-recipe-form').on('keypress', function(e) {
             if (e.keyCode === 13) {
                 e.preventDefault();
@@ -734,6 +731,9 @@ function ptl_recipe_maker_shortcode() {
 
         function ptlrNextStep(step) { 
             jQuery('.ptl-inline-error').hide(); 
+            jQuery('#ptl-duplicate-box').hide().empty();
+            jQuery('#ptl-step4-body').show();
+            jQuery('#rec-step-4 .ptl-btn-prev').html('&larr; Πίσω');
             jQuery('.ptl-btn-submit').show();
             jQuery('#rec-step-4 .ptl-btn-prev').show();
             jQuery('#rec-step-4 .ptl-quiz-nav').css('justify-content', 'space-between');
@@ -771,7 +771,6 @@ function ptl_recipe_maker_shortcode() {
             ptlrNextStep(step); 
         }
 
-        // ΑΥΣΤΗΡΟΣ ΟΠΤΙΚΟΣ ΕΛΕΓΧΟΣ ΣΤΟ ΒΗΜΑ 3
         function ptlrValidateStep3() { 
             var valid = true; 
             
@@ -833,17 +832,27 @@ function ptl_recipe_maker_shortcode() {
                         }
                     } else { 
                         if (typeof response.data === 'object' && response.data.is_duplicate) {
-                            jQuery('#rec-step-loading').removeClass('active'); jQuery('#rec-step-4').addClass('active');
-                            jQuery('#ptl-general-error').html(response.data.message).show();
-                            jQuery('#rec-step-4 .ptl-btn-submit').hide(); 
+                            jQuery('#rec-step-loading').removeClass('active');
+                            jQuery('#rec-step-4').addClass('active');
+                            jQuery('#ptl-general-error').hide();
+                            jQuery('#ptl-step4-body').hide();
+                            
+                            var dupCard = '<div style=\"text-align:center; padding:10px 5px 5px;\">'
+                                + '<div style=\"font-size:42px; margin-bottom:10px;\">📖</div>'
+                                + '<h3 style=\"margin:0 0 10px 0; color:#43282F; font-size:21px;\">Αυτή η συνταγή υπάρχει ήδη!</h3>'
+                                + '<p style=\"margin:0; color:#555; font-size:15px; line-height:1.5;\">' + response.data.message.replace(/^⚠️.*?<br>/, '') + '</p>'
+                                + '</div>';
+                            jQuery('#ptl-duplicate-box').html(dupCard).show();
+                            
+                            jQuery('#rec-step-4 .ptl-btn-submit').hide();
+                            jQuery('#rec-step-4 .ptl-btn-prev').html('&larr; Αλλαγή Υλικών');
                             if(jQuery('#ptl-btn-to-profile').length === 0) {
-                                jQuery('#rec-step-4 .ptl-quiz-nav').append('<a href=\"' + response.data.dashboard_url + '\" id=\"ptl-btn-to-profile\" class=\"ptl-btn-submit\" style=\"text-decoration:none; text-align:center; background:#5b9a68; padding: 15px 30px; font-size: 16px;\">Μετάβαση στο Προφίλ &rarr;</a>');
+                                jQuery('#rec-step-4 .ptl-quiz-nav').append('<a href=\"' + response.data.dashboard_url + '\" id=\"ptl-btn-to-profile\" class=\"ptl-btn-submit\" style=\"text-decoration:none; text-align:center; background:#43282F; padding:12px 24px; font-size:15px;\">Δες τη Συνταγή σου &rarr;</a>');
                             }
                         } else {
-                            // Το λάθος ήταν κενά υλικά! Γυρνάμε πίσω στο βήμα 3!
                             jQuery('#rec-step-loading').removeClass('active'); jQuery('#rec-step-3').addClass('active');
                             var errMsg = typeof response.data === 'string' ? response.data : (response.data.message || 'Σφάλμα');
-                            jQuery('#ptl-step3-error').html('⚠️ <strong>Σφάλμα Δικτύου:</strong> ' + errMsg).show();
+                            jQuery('#ptl-step3-error').html('⚠️ ' + errMsg).show();
                         }
                         window.scrollTo({ top: jQuery('#ptl-recipe-app').offset().top - 40, behavior: 'smooth' });
                     }
@@ -1091,7 +1100,6 @@ function ptl_process_recipe_ajax() {
     $logo_url = wp_get_attachment_image_url( get_theme_mod( 'custom_logo' ), 'full' );
     if (empty($logo_url)) { $logo_url = home_url('/wp-content/uploads/logo.png'); }
 
-    // Επιστημονική Μορφή Υλικών
     $suf_p1 = " <span style='font-size:13px; color:#666;'>(βραστό, χωρίς πέτσα/κόκκαλα)</span>";
     $suf_c1 = " <span style='font-size:13px; color:#666;'>(μαγειρεμένο)</span>";
     $suf_c2 = " <span style='font-size:13px; color:#666;'>(βραστά, πουρέ, χωρίς φλούδα)</span>";
@@ -1171,7 +1179,6 @@ function ptl_custom_user_dashboard_shortcode() {
     $logo_url = wp_get_attachment_image_url( get_theme_mod( 'custom_logo' ), 'full' );
     if (empty($logo_url)) { $logo_url = home_url('/wp-content/uploads/logo.png'); }
 
-    // Suffixes για εμφάνιση (UI/PDF)
     $suf_p1 = " <span style='font-size:11px; color:#888;'>(βραστό, χωρίς πέτσα/κόκκαλα)</span>";
     $suf_c1 = " <span style='font-size:11px; color:#888;'>(μαγειρεμένο)</span>";
     $suf_c2 = " <span style='font-size:11px; color:#888;'>(βραστά, πουρέ, χωρίς φλούδα)</span>";
@@ -1364,7 +1371,6 @@ function ptl_custom_user_dashboard_shortcode() {
                 ?>
                 </div>
 
-                <!-- Pager Controls -->
                 <div class="ptl-pager" id="ptl-pager-controls"></div>
             </div>
 
@@ -1465,7 +1471,6 @@ function ptl_custom_user_dashboard_shortcode() {
 // =========================================================================
 // 11. WOOCOMMERCE PAY-PER-RECIPE UNLOCK HOOKS
 // =========================================================================
-
 add_action( 'woocommerce_payment_complete', 'ptl_unlock_recipes_on_purchase' );
 add_action( 'woocommerce_order_status_completed', 'ptl_unlock_recipes_on_purchase' );
 function ptl_unlock_recipes_on_purchase( $order_id ) {
