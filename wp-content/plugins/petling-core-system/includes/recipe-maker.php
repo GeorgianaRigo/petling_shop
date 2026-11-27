@@ -356,30 +356,25 @@ function ptl_process_recipe_ajax() {
     }
     update_user_meta( $user_id, 'petling_pets', $saved_pets );
 
-    // VET LOGIC
-    global $wpdb;
-    $promo_table  = $wpdb->prefix . 'petling_partner_leads';
-    $table_exists = ( $wpdb->get_var( "SHOW TABLES LIKE '$promo_table'" ) === $promo_table );
-    $dynamic_code = 'VET-' . strtoupper( substr( md5( uniqid() ), 0, 6 ) );
-
+    // VET LOGIC (Χωρίς Κουπόνι - Παραπομπή σε Κλινική Διατροφή)
     if ( $health_tier === 'clinical' ) {
-        $existing_vet_code = $table_exists ? $wpdb->get_var( $wpdb->prepare( "SELECT coupon_code FROM $promo_table WHERE email = %s AND partner_prefix = 'VET' AND status = 'active' ORDER BY created_at DESC LIMIT 1", $user_email ) ) : '';
-        if ( ! empty( $existing_vet_code ) ) {
-            $dynamic_code = $existing_vet_code;
-        } elseif ( $table_exists ) {
-            $wpdb->insert( $promo_table, array( 'email' => $user_email, 'partner_prefix' => 'VET', 'type' => 'appointment', 'coupon_code' => $dynamic_code, 'status' => 'active', 'created_at' => current_time( 'mysql' ) ) );
-        }
-
-        $pid = wp_insert_post( array( 'post_title' => 'Συνταγή #' . strtoupper( substr( md5( uniqid() ), 0, 6 ) ), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish' ) );
+        $pid = wp_insert_post( array( 'post_title' => 'Κλινική #' . strtoupper( substr( md5( uniqid() ), 0, 6 ) ), 'post_type' => 'ptl_quiz_lead', 'post_status' => 'publish' ) );
         update_post_meta( $pid, 'ptl_lead_email', sanitize_email( $user_email ) );
         update_post_meta( $pid, 'ptl_lead_name', sanitize_text_field( $user_name ) );
-        update_post_meta( $pid, 'ptl_lead_type', 'HOME_COOKED_RECIPE' );
-        update_post_meta( $pid, 'ptl_lead_result', 'VET (Κωδικός: ' . $dynamic_code . ')' );
-        update_post_meta( $pid, 'ptl_coupon_code', $dynamic_code );
+        update_post_meta( $pid, 'ptl_lead_type', 'VET_MANOLAKOU' );
+        update_post_meta( $pid, 'ptl_lead_result', 'VET (Κλινική Πάθηση: ' . $health_condition . ')' );
         update_post_meta( $pid, 'ptl_health_condition', $health_condition );
         update_post_meta( $pid, 'ptl_user_id', $user_id );
 
-        $html = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3><div class="ptl-result-box"><h4 style="color: #43282F;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4><p>Η κατάσταση του σκύλου σας απαιτεί εξατομικευμένη ιατρική προσέγγιση. Ο κωδικός σας για <strong>10% έκπτωση</strong> στο ραντεβού είναι:</p><div style="background:#F5EDE3; padding:15px; font-size:24px; font-weight:bold; color:#43282F; border-radius:6px; text-align:center;">' . $dynamic_code . '</div></div>';
+        $booking_url = 'https://petfoodologist.gr/rythmisi-rantevou/';
+
+        $html  = '<h3>🩺 Απαιτείται Κλινική Δίαιτα</h3>';
+        $html .= '<div class="ptl-result-box">';
+        $html .= '<h4 style="color: #43282F; margin-top:0;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4>';
+        $html .= '<p style="line-height:1.6;">Η κατάσταση του σκύλου σας' . ( ! empty( $health_condition ) ? ' (<strong>' . esc_html( $health_condition ) . '</strong>)' : '' ) . ' απαιτεί εξατομικευμένη κλινική διατροφική προσέγγιση από εξειδικευμένο κτηνίατρο.</p>';
+        $html .= '<p style="font-size:14px; color:#555; background:#fffaf1; padding:12px; border-radius:6px; border:1px dashed #C7B297;">Το προφίλ και το ιστορικό του σκύλου σας αποθηκεύτηκαν στον λογαριασμό σας στο Petling, ώστε να τα έχετε έτοιμα στο ραντεβού σας.</p>';
+        $html .= '<div style="margin-top:20px;"><a href="' . esc_url( $booking_url ) . '" target="_blank" rel="noopener" style="display:inline-block; background:#43282F; color:#fff; padding:14px 28px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:15px;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου &rarr;</a></div>';
+        $html .= '</div>';
 
         $logo_url = wp_get_attachment_image_url( get_theme_mod( 'custom_logo' ), 'full' );
         if ( empty( $logo_url ) ) { $logo_url = home_url( '/wp-content/uploads/logo.png' ); }
@@ -390,14 +385,14 @@ function ptl_process_recipe_ajax() {
         $email_body .= '<h2 style="color:#43282F; margin:0;">🩺 Απαιτείται Κλινική Δίαιτα</h2></div>';
         $email_body .= '<div style="background:#fffaf1; padding:25px; border-radius:8px; border:2px solid #C7B297; margin-top:20px; text-align:left;">';
         $email_body .= '<h4 style="color:#43282F; margin-top:0; border-bottom:1px solid #e0d5c1; padding-bottom:10px; font-size:18px;">Κλείστε Ραντεβού με τη Δρ. Μανωλάκου</h4>';
-        $email_body .= '<p style="font-size:15px; line-height:1.6; color:#333;">Η κατάσταση του σκύλου σας' . ( ! empty( $health_condition ) ? ' (<strong>' . esc_html( $health_condition ) . '</strong>)' : '' ) . ' απαιτεί εξατομικευμένη ιατρική προσέγγιση. Ο κωδικός σας για <strong>10% έκπτωση</strong> στο ραντεβού είναι:</p>';
-        $email_body .= '<div style="background:#F5EDE3; border:2px dashed #C7B297; padding:18px; font-size:24px; font-weight:bold; color:#43282F; border-radius:8px; text-align:center; letter-spacing:2px; margin:20px 0;">' . esc_html( $dynamic_code ) . '</div>';
-        $email_body .= '<div style="text-align:right; margin-bottom:25px;"><p style="margin:0; font-size:14px; color:#333;"><strong>Δρ. Σταυριάννα Μανωλάκου</strong></p><p style="margin:0; font-size:13px; color:#666;">Κτηνίατρος - Ειδική Διατροφολόγος</p></div>';
-        $email_body .= '<div style="text-align:center;"><a href="' . esc_url( home_url( '/diatrofi/' ) ) . '" style="display:inline-block; background:#43282F; color:#fff; padding:15px 30px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:15px;">Προβολή Κουπονιού στο Προφίλ &rarr;</a></div>';
+        $email_body .= '<p style="font-size:15px; line-height:1.6; color:#333;">Η κατάσταση του σκύλου σας' . ( ! empty( $health_condition ) ? ' (<strong>' . esc_html( $health_condition ) . '</strong>)' : '' ) . ' απαιτεί εξατομικευμένη ιατρική και διατροφική προσέγγιση.</p>';
+        $email_body .= '<p style="font-size:14px; line-height:1.6; color:#555;">Τα στοιχεία του σκύλου σας αποθηκεύτηκαν στο προφίλ σας στο Petling, για να τα έχετε οργανωμένα στη συνεδρία σας.</p>';
+        $email_body .= '<div style="text-align:right; margin:20px 0 25px 0;"><p style="margin:0; font-size:14px; color:#333;"><strong>Δρ. Σταυριάννα Μανωλάκου</strong></p><p style="margin:0; font-size:13px; color:#666;">Κτηνίατρος - Ειδική Διατροφολόγος</p></div>';
+        $email_body .= '<div style="text-align:center;"><a href="' . esc_url( $booking_url ) . '" style="display:inline-block; background:#43282F; color:#fff; padding:15px 30px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:15px;">Κλείστε Ραντεβού &rarr;</a></div>';
         $email_body .= '</div></div>';
 
         $headers = array( 'Content-Type: text/html; charset=UTF-8', 'From: Petling <info@petling.gr>' );
-        wp_mail( $user_email, 'Κωδικός Κλινικής Δίαιτας 🐾', $email_body, $headers );
+        wp_mail( $user_email, 'Κλινική Διατροφή – Ραντεβού με τη Δρ. Μανωλάκου 🐾', $email_body, $headers );
         wp_send_json_success( $html ); exit;
     }
 

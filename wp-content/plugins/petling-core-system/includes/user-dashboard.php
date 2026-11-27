@@ -58,7 +58,6 @@ function ptl_custom_user_dashboard_shortcode() {
             <button class="ptl-tab-btn active" onclick="ptlSwitchTab('nutrition', this)">🥣 Διατροφή</button>
             <a href="<?php echo esc_url( home_url( '/ti-mageireuw-simera/' ) ); ?>" class="ptl-menu-link">➕ Νέα Συνταγή</a>
             <button class="ptl-tab-btn" onclick="ptlSwitchTab('events', this)">🗓️ Σεμινάρια &amp; Events</button>
-            <button class="ptl-tab-btn" onclick="ptlSwitchTab('coupons', this)">🎁 Τα Κουπόνια μου</button>
         </div>
 
         <div class="ptl-dash-content">
@@ -193,22 +192,6 @@ function ptl_custom_user_dashboard_shortcode() {
                     <h4 style="color:#C7B297; margin-bottom:5px;">Προσεχώς...</h4>
                     <p>Μείνετε συντονισμένοι! Ετοιμάζουμε αποκλειστικά Q&amp;A webinars και σεμινάρια διατροφής με την <strong>Δρ. Σταυριάννα Μανωλάκου</strong>.</p>
                 </div>
-            </div>
-
-            <div id="tab-coupons" class="ptl-tab-pane">
-                <h3 style="margin-top:0; color:#43282F;">Τα Ενεργά Κουπόνια μου</h3>
-                <?php
-                global $wpdb;
-                $promo_table = $wpdb->prefix . 'petling_partner_leads';
-                if ( $wpdb->get_var( "SHOW TABLES LIKE '$promo_table'" ) === $promo_table ) {
-                    $coupons = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $promo_table WHERE email = %s AND status = 'active' AND partner_prefix = 'VET' ORDER BY created_at DESC", $user_email ) );
-                    if ( $coupons ) {
-                        foreach ( $coupons as $coupon ) {
-                            echo '<div class="ptl-coupon-card"><div><strong>Δρ. Μανωλάκου (VET)</strong><br><span style="font-size:12px;">Έκπτωση 10% στο ραντεβού</span></div><div style="font-size:18px; font-weight:bold; letter-spacing:1px; background:#fff; padding:5px 15px; border-radius:6px; border:1px solid #5b9a68; display:inline-block;">' . esc_html( $coupon->coupon_code ) . '</div></div>';
-                        }
-                    } else { echo '<p>Δεν έχετε ενεργά κουπόνια ραντεβού αυτή τη στιγμή.</p>'; }
-                }
-                ?>
             </div>
         </div>
     </div>
